@@ -34,6 +34,17 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
+    @Column()
+    private Long lobbyId;
+
+    public Long getLobbyId() {
+        return lobbyId;
+    }
+
+    public void setLobbyId(Long lobbyId) {
+        this.lobbyId = lobbyId;
+    }
+
     public Long getId() {
         return id;
     }
