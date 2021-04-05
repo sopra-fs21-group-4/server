@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -33,8 +34,15 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+
     public List<User> getUsers() {
         return this.userRepository.findAll();
+    }
+    public User getUserByUsername(String username){
+        return this.userRepository.findByUsername(username);
+    }
+    public User getUserByUserId(Long id){
+        return this.userRepository.findByUserId(id);
     }
 
     public User createUser(User newUser) {
@@ -51,6 +59,37 @@ public class UserService {
         return newUser;
     }
 
+    public User loginUser(User usertologin){
+
+        User userByUsername = userRepository.findByUsername(usertologin.getUsername());
+        User user = getUserByUsername(usertologin.getUsername());
+
+        // check authorization
+        if (userByUsername == null || !user.getPassword().equals(usertologin.getPassword()) ) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Invalid login credentials!"));
+        }
+
+        // setting new token and returning it
+        user.setToken(UUID.randomUUID().toString());
+        user.setStatus(UserStatus.ONLINE);
+        return user;
+
+    }
+
+
+    /**
+     * check if user id and token are correct (if user is logged in)
+     */
+    public void verifyUser(Long id, String token){
+
+        User user = userRepository.findByUserId(id);
+
+        //check for token
+        if (user==null || !user.getToken().equals(token)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Access denied"));
+        }
+    }
+
     /**
      * This is a helper method that will check the uniqueness criteria of the username and the name
      * defined in the User entity. The method will do nothing if the input is unique and throw an error otherwise.
@@ -61,17 +100,11 @@ public class UserService {
      */
     private void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-        //User userByName = userRepository.findByName(userToBeCreated.getName());
 
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
         if (userByUsername != null ) { //&& userByName != null
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username and the name", "are"));
-        }
-        else if (userByUsername != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
         }
-//        else if (userByName != null) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
-//        }
+
     }
 }

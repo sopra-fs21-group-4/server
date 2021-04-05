@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ public class Lobby implements Serializable {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private Long lobbyId;
 
     @Column(nullable = false)
     private String name = "newLobby";
@@ -45,6 +47,42 @@ public class Lobby implements Serializable {
 
     @Column(nullable = false)
     private int maxPlayers = 5;
+
+    @Column(nullable = false)
+    private LocalDateTime time = LocalDateTime.now();
+
+    // @Column // TODO (nullable = false)
+    @OneToOne(targetEntity = User.class)
+    private User gameMaster;
+
+    @Column
+    @OneToMany(targetEntity = User.class, cascade = CascadeType.ALL, mappedBy = "currentLobby")
+    private List<User> players = new ArrayList();
+
+
+    public User getGameMaster() {
+        return gameMaster;
+    }
+
+    public void setGameMaster(User gameMaster) {
+        this.gameMaster = gameMaster;
+    }
+
+    public List<User> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<User> players) {
+        this.players = players;
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+    }
 
     public int getMaxRounds() {
         return maxRounds;
@@ -70,12 +108,12 @@ public class Lobby implements Serializable {
         this.maxPlayers = maxPlayers;
     }
 
-    public Long getId() {
-        return id;
+    public Long getLobbyId() {
+        return lobbyId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setLobbyId(Long id) {
+        this.lobbyId = id;
     }
 
     public String getName() {

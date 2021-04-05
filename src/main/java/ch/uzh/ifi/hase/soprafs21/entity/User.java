@@ -20,10 +20,11 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue
-    private Long id;
+    @Column
+    private Long userId;
 
     @Column(nullable = false)
-    private String name;
+    private String password;
 
     @Column(nullable = false, unique = true)
     private String username;
@@ -34,31 +35,33 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @Column()
-    private Long lobbyId;
+    @ManyToOne(targetEntity = Lobby.class)
+    @JoinColumn(name="currentLobbyId")
+    private Lobby currentLobby;
 
-    public Long getLobbyId() {
-        return lobbyId;
+
+    public Lobby getCurrentLobby() {
+        return currentLobby;
     }
 
-    public void setLobbyId(Long lobbyId) {
-        this.lobbyId = lobbyId;
+    public void setCurrentLobby(Lobby currentLobby) {
+        this.currentLobby = currentLobby;
     }
 
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getPassword() {
+        return password;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getUsername() {

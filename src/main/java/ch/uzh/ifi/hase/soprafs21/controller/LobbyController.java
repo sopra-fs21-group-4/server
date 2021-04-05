@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.LobbyService;
+import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,12 +25,56 @@ public class LobbyController {
 
     private final LobbyService lobbyService;
 
+
     LobbyController(LobbyService lobbyService) {
         this.lobbyService = lobbyService;
     }
 
     /**
-    get information about all lobbies
+     * create a new lobby
+     */
+    @PostMapping("/lobbies/create")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public LobbyGetDTO createLobby(@RequestHeader("token") String token, @RequestHeader("userId") String id) {
+        Long userId = Long.parseLong(id);
+        Lobby createdLobby = lobbyService.createLobby(userId, token);
+        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(createdLobby);
+    }
+
+    /**
+     * start the game
+     */
+    @PutMapping("/lobbies/{lobbyId}/start")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void startGame(@PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
+        Long userId = Long.parseLong(id);
+        lobbyService.startGame(lobbyId, userId, token);
+        return;
+    }
+
+    /**
+     * joining a lobby TODO password?
+     */
+    @PostMapping("/lobbies/{lobbyId}/join")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public LobbyGetDTO joinLobby(@PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
+        Long userId = Long.parseLong(id);
+        Lobby joinedLobby = lobbyService.joinLobby(lobbyId, userId, token);
+        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(joinedLobby);
+    }
+
+
+
+
+
+
+
+
+    /**
+    get information about all lobbies TODO mainly for debugging purposes at the moment
      */
     @GetMapping("/lobbies")
     @ResponseStatus(HttpStatus.OK)
@@ -46,44 +91,18 @@ public class LobbyController {
         return lobbyGetDTOs;
     }
     /**
-    * get specific lobby
+    * get specific lobby TODO mainly for debugging purposes at the moment
     */
     @GetMapping("/lobbies/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public LobbyGetDTO getSingleLobby(@PathVariable(value="lobbyId") long id){ // , @RequestHeader("token") String token, @RequestHeader("id") String Userid
 
-        Lobby lobby = lobbyService.getLobbyByID(id);
+        Lobby lobby = lobbyService.getLobbyByLobbyId(id);
 
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
-    /**
-     * create a new lobby
-     */
-    @PostMapping("/lobbies")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public LobbyGetDTO createLobby() {
 
 
-        Lobby createdLobby = lobbyService.createLobby();
-
-        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(createdLobby);
-    }
-
-    /**
-     * start the game
-     */
-    @PutMapping("/lobbies/{lobbyId}/start")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public void startGame(@PathVariable(value="lobbyId") long id) {
-
-        Lobby lobby = lobbyService.getLobbyByID(id);
-
-        lobbyService.startGame(lobby);
-
-        return;
-    }
 }
