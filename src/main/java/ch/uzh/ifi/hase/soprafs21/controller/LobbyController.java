@@ -1,16 +1,12 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyMemeTitlePutDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.LobbyService;
-import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,8 +62,18 @@ public class LobbyController {
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(joinedLobby);
     }
 
+    /**
+     * adding a title
+     */
+    @PutMapping("/lobbies/{lobbyId}/title")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void startGame(@RequestBody LobbyMemeTitlePutDTO lobbyMemeTitlePutDTO, @PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
 
-
+        Long userId = Long.parseLong(id);
+        lobbyService.startGame(lobbyId, userId, token);
+        return;
+    }
 
 
 

@@ -146,6 +146,9 @@ public class LobbyService {
         if(lobby == null || !userId.equals(lobby.getGameMaster().getUserId())){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("You are not the game master"));
         }
+        if(lobby.getGameState() != GameState.LOBBY){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Game is already running");
+        }
 
         // TODO start game
         lobby.setRound(1);
