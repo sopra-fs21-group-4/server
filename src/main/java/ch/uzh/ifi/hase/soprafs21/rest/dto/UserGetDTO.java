@@ -6,7 +6,6 @@ import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
 public class UserGetDTO {
 
     private Long userId;
-    private String password;
     private String username;
     private UserStatus status;
     private Long currentLobby; // special because we only want to return lobby id and not lobby object
@@ -30,14 +29,6 @@ public class UserGetDTO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getUsername() {

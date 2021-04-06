@@ -49,6 +49,50 @@ public class LobbyService {
         LocalDateTime now = LocalDateTime.now();
 
         //TODO changing lobby states etc
+        for(Lobby lobby : lobbies){
+            if(lobby.getGameState() == GameState.TITLE){
+                if(now.isAfter(lobby.getTime())){
+                    // title giving stage is over:
+                    lobby.setGameState(GameState.VOTE);
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+                    // TODO
+
+                }
+            }
+            else if(lobby.getGameState() == GameState.VOTE){
+                if(now.isAfter(lobby.getTime())){
+                    // voting stage is over:
+                    lobby.setGameState(GameState.POINTS);
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+                    // TODO
+
+                }
+            }
+            else if(lobby.getGameState() == GameState.POINTS){
+                if(now.isAfter(lobby.getTime())){
+                    // point giving stage is over:
+                    lobby.setRound(lobby.getRound()+1);
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+
+                    if(lobby.getRound()>lobby.getMaxRounds()){
+                        // this was the last round:
+                        lobby.setGameState(GameState.FINISH);
+                        // TODO
+
+                    }
+                    else{
+                        // there is another round to play:
+                        lobby.setGameState(GameState.VOTE);
+                        // TODO
+
+                    }
+
+                }
+            }
+            else if(lobby.getGameState() == GameState.FINISH){
+                //TODO delete old lobbies
+            }
+        }
 
     }
 
@@ -66,6 +110,7 @@ public class LobbyService {
         userService.verifyUser(userId, token);
 
         Lobby newLobby = new Lobby();
+        newLobby.setGameMaster(userService.getUserByUserId(userId));
 
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();
@@ -94,14 +139,19 @@ public class LobbyService {
         userService.verifyUser(userId, token);
         Lobby lobby = getLobbyByLobbyId(lobbyId);
 
+//        System.out.println(userId);
+//        System.out.println(lobby.getGameMaster().getUserId());
+
         // check if the user is the game master
-        if(lobby == null || userId.equals(lobby.getGameMaster().getUserId())){
+        if(lobby == null || !userId.equals(lobby.getGameMaster().getUserId())){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("You are not the game master"));
         }
 
         // TODO start game
+        lobby.setRound(1);
         lobby.setGameState(GameState.TITLE);
-        lobby.setTime(LocalDateTime.now());
+        lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+
 
     }
 
