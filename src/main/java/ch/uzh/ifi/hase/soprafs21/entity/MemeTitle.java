@@ -1,12 +1,6 @@
-package ch.uzh.ifi.hase.soprafs21.rest.dto;
+package ch.uzh.ifi.hase.soprafs21.entity;
 
-import ch.uzh.ifi.hase.soprafs21.constant.GameState;
-import ch.uzh.ifi.hase.soprafs21.entity.User;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class LobbyMemeTitlePutDTO {
+public class MemeTitle {
 
     private Long lobbyId;
     private Long userId;

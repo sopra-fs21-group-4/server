@@ -1,0 +1,48 @@
+2021-04-09 14:38:43 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:38:44 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:38:44 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:38:45 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:38:45 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:38:46 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:38:46 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:38:47 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:40:05 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:40:06 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:40:06 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:40:07 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:40:07 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:41:29 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:41:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]
+2021-04-09 14:41:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "LOBBY" not found; SQL statement:
+select lobby0_.lobby_id as lobby_id1_0_, lobby0_.game_master_user_id as game_ma10_0_, lobby0_.game_state as game_sta2_0_, lobby0_.max_players as max_play3_0_, lobby0_.max_rounds as max_roun4_0_, lobby0_.max_timer as max_time5_0_, lobby0_.name as name6_0_, lobby0_.password as password7_0_, lobby0_.round as round8_0_, lobby0_.time as time9_0_ from lobby lobby0_ [42102-200]

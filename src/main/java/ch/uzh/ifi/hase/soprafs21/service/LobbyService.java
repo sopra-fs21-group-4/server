@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
+import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
@@ -158,6 +160,28 @@ public class LobbyService {
 
     }
 
+//    public String getMemeLink(String subreddit){
+//        // TODO go get meme from reddit
+//        return null;
+//    }
 
+
+    public void verifyUserIsInLobby(Long userId, Long lobbyId){
+        if(!getLobbyByLobbyId(lobbyId).getPlayers().contains(userService.getUserByUserId(userId))){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not part of this lobby");
+        }
+    }
+
+    public void newTitle(MemeTitle memeTitle, long userId, String token ){
+        userService.verifyUser(userId, token);
+        verifyUserIsInLobby(userId, memeTitle.getLobbyId());
+        //TODO save new title in lobby
+    }
+
+    public void newVote(MemeVote memeVote, long userId, String token){
+        userService.verifyUser(userId, token);
+        verifyUserIsInLobby(userId, memeVote.getLobbyId());
+        // TODO save new vote in lobby
+    }
 
 }

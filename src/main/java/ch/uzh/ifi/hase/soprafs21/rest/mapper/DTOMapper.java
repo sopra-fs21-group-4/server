@@ -1,11 +1,10 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
+import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.UserLoginDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -55,7 +54,17 @@ public interface DTOMapper {
     @Mapping(source = "players", target = "players")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
+    // creating a new meme title entity
+    //@Mapping(source = "lobbyId", target = "lobbyId")  // lobbyId is taken from request header
+    //@Mapping(source = "userId", target = "userId")  // userid is taken from request header
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "round", target = "round")
+    MemeTitle convertLobbyMemeTitlePutDTOToEntity(LobbyMemeTitlePutDTO lobbyMemeTitlePutDTO);
 
-
-
+    // creating a new meme vote entity
+    //@Mapping(source = "lobbyId", target = "lobbyId") // lobbyId is taken from request header
+    //@Mapping(source = "fromUserId", target = "fromUserId")  // userid is taken from request header
+    @Mapping(source = "forUserId", target = "forUserId") // this is the id of the user for whose meme the vote is
+    @Mapping(source = "round", target = "round")
+    MemeVote convertLobbyMemeVotePutDTOToEntity(LobbyMemeVotePutDTO lobbyMemeVotePutDTO);
 }

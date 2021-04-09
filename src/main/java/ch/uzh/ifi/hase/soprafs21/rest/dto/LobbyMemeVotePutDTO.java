@@ -6,11 +6,11 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LobbyMemeTitlePutDTO {
+public class LobbyMemeVotePutDTO {
 
     private Long lobbyId;
-    private Long userId;
-    private String title;
+    private Long forUserId; // for which user is this vote
+    private Long fromUserId; // user who cast the vote
     private int round;
 
     public Long getLobbyId() {
@@ -21,20 +21,20 @@ public class LobbyMemeTitlePutDTO {
         this.lobbyId = lobbyId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getForUserId() {
+        return forUserId;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setForUserId(Long forUserId) {
+        this.forUserId = forUserId;
     }
 
-    public String getTitle() {
-        return title;
+    public Long getFromUserId() {
+        return fromUserId;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setFromUserId(Long fromUserId) {
+        this.fromUserId = fromUserId;
     }
 
     public int getRound() {

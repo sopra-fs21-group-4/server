@@ -1,8 +1,11 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
+import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyMemeTitlePutDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyMemeVotePutDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.LobbyService;
 import org.springframework.http.HttpStatus;
@@ -69,14 +72,43 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void startGame(@RequestBody LobbyMemeTitlePutDTO lobbyMemeTitlePutDTO, @PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
+        MemeTitle memeTitle = DTOMapper.INSTANCE.convertLobbyMemeTitlePutDTOToEntity(lobbyMemeTitlePutDTO);
+        memeTitle.setLobbyId(lobbyId);
 
         Long userId = Long.parseLong(id);
-        lobbyService.startGame(lobbyId, userId, token);
+
+        memeTitle.setUserId(userId);
+        lobbyService.newTitle(memeTitle, userId, token);
+        return;
+    }
+
+    /**
+     * voting
+     */
+    @PutMapping("/lobbies/{lobbyId}/vote")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void vote(@RequestBody LobbyMemeVotePutDTO lobbyMemeVotePutDTO, @PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
+        MemeVote memeVote = DTOMapper.INSTANCE.convertLobbyMemeVotePutDTOToEntity(lobbyMemeVotePutDTO);
+        memeVote.setLobbyId(lobbyId);
+        Long userId = Long.parseLong(id);
+        memeVote.setFromUserId(userId);
+        lobbyService.newVote(memeVote, userId, token);
         return;
     }
 
 
 
+
+
+//    @GetMapping("/lobbies/getmeme")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public String getmeme() {
+//
+//        String memelink = lobbyService.getMemeLink("subreddithere");
+//        return memelink;
+//    }
 
 
     /**
