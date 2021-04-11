@@ -85,7 +85,9 @@ public class LobbyService {
                     else{
                         // there is another round to play:
                         lobby.setGameState(GameState.VOTE);
-                        // TODO
+                        // TODO get meme and send it to the players
+                        // reddit api
+//                        getMemeLink()
 
                     }
 
@@ -93,6 +95,7 @@ public class LobbyService {
             }
             else if(lobby.getGameState() == GameState.FINISH){
                 //TODO delete old lobbies
+                //lobbyRepository.delete(lobby);
             }
         }
 
@@ -157,13 +160,16 @@ public class LobbyService {
         lobby.setGameState(GameState.TITLE);
         lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
 
-
+        // TODO get meme from reddit
+        //getMemeLink
     }
 
-//    public String getMemeLink(String subreddit){
-//        // TODO go get meme from reddit
-//        return null;
-//    }
+
+
+    public String getMemeLink(String subreddit){
+        // TODO go get meme from reddit
+        return null;
+    }
 
 
     public void verifyUserIsInLobby(Long userId, Long lobbyId){
