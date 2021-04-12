@@ -2,14 +2,11 @@ package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
-import ch.uzh.ifi.hase.soprafs21.repository.ChatRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,9 +57,8 @@ public class MessageService {
      * TODO not sure if this implementation of Example<Message> works. Needs to be tested.
      */
     public List<Message> getMessages(Long chatId) {
-        Message probe = new Message();
-        probe.setChatId(chatId);
-        List<Message> list = messageRepository.findAll(Example.of(probe));
+
+        List<Message> list = messageRepository.findAllByChatId(chatId);
         list.sort(new Comparator<Message>() {
             @Override
             public int compare(Message o1, Message o2) {

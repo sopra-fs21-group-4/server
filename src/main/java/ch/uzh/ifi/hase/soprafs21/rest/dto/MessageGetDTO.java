@@ -2,11 +2,20 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 public class MessageGetDTO {
 
+    private Long messageId;
     private Long chatId;
     private Integer index;
     private String senderName;
     private Long timestamp;
     private String text;
+
+    public Long getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(Long messageId) {
+        this.messageId = messageId;
+    }
 
     public Long getChatId() {
         return chatId;

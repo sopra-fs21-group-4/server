@@ -16,11 +16,14 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue
     @Column
+    private Long messageId;
+
+    @Column(nullable = false)
     private Long chatId;
 
-    @Id
-    @Column
+    @Column(nullable = false)
     private Integer index;
 
     @Column(nullable = false)
@@ -32,6 +35,10 @@ public class Message implements Serializable {
     @Column(nullable = false)
     private String text;    // TODO max length?
 
+
+    public Long getMessageId() {
+        return messageId;
+    }
 
     public Long getChatId() {
         return chatId;

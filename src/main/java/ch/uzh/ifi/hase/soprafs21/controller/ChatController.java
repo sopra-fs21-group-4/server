@@ -2,7 +2,6 @@ package ch.uzh.ifi.hase.soprafs21.controller;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
-import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.ChatService;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User Controller
+ * Chat Controller
  * This class is responsible for handling all REST request that are related to the user.
  * The controller will receive the request and delegate the execution to the UserService and finally return the result.
  */
@@ -80,10 +79,5 @@ public class ChatController {
         MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
         return response;
     }
-
-
-
-
-
 
 }

@@ -77,6 +77,7 @@ public interface DTOMapper {
     // MESSAGES
 
     // getting messages
+    @Mapping(source = "messageId", target = "messageId")
     @Mapping(source = "chatId", target = "chatId")
     @Mapping(source = "index", target = "index")
     // @Mapping(source = "senderId", target = "senderName") WARNING: need to manually convert senderId to senderName
