@@ -30,7 +30,7 @@ public class Message implements Serializable {
     private Long timestamp;
 
     @Column(nullable = false)
-    private String text;
+    private String text;    // TODO max length?
 
 
     public Long getChatId() {
