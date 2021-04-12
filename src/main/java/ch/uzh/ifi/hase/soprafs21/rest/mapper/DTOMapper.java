@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
+import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import org.mapstruct.*;
@@ -67,4 +69,29 @@ public interface DTOMapper {
     @Mapping(source = "forUserId", target = "forUserId") // this is the id of the user for whose meme the vote is
     @Mapping(source = "round", target = "round")
     MemeVote convertLobbyMemeVotePutDTOToEntity(LobbyMemeVotePutDTO lobbyMemeVotePutDTO);
+
+
+    // CHATS
+
+    // getting chats
+    @Mapping(source = "chatId", target = "chatId")
+    @Mapping(source = "length", target = "length")
+    ChatGetDTO convertEntityToChatGetDTO(Chat chat);
+
+
+    // MESSAGES
+
+    // getting messages
+    @Mapping(source = "chatId", target = "chatId")
+    @Mapping(source = "index", target = "index")
+    // @Mapping(source = "senderId", target = "senderName") WARNING: need to manually convert senderId to senderName
+    @Mapping(source = "timestamp", target = "timestamp")
+    @Mapping(source = "text", target = "text")
+    MessageGetDTO convertEntityToMessageGetDTO(Message message);
+
+    // posting messages
+    @Mapping(source = "senderId", target = "senderId")
+    @Mapping(source = "timestamp", target = "timestamp")
+    @Mapping(source = "text", target = "text")
+    Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
 }

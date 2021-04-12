@@ -1,22 +1,12 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
+public class MessageGetDTO {
 
-public class MessageDTO {
-
-    private Long senderId;
     private Long chatId;
+    private Integer index;
+    private String senderName;
     private Long timestamp;
     private String text;
-
-    public Long getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
-    }
 
     public Long getChatId() {
         return chatId;
@@ -25,6 +15,20 @@ public class MessageDTO {
     public void setChatId(Long chatId) {
         this.chatId = chatId;
     }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public void setSenderName(String senderName) {this.senderName = senderName;}
 
     public Long getTimestamp() {
         return timestamp;
