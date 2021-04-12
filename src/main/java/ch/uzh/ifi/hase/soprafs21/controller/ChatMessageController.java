@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.MessageService;
+import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +24,12 @@ public class ChatMessageController {
 
     private final ChatService chatService;
     private final MessageService messageService;
+    private final UserService userService;
 
-    ChatMessageController(ChatService chatService, MessageService messageService) {
+    ChatMessageController(ChatService chatService, MessageService messageService, UserService userService) {
         this.chatService = chatService;
         this.messageService = messageService;
+        this.userService = userService;
     }
 
 
@@ -53,7 +56,10 @@ public class ChatMessageController {
 
         // convert each message to the API representation
         for (Message m : messages) {
-            messageGetDTOs.add(DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m));
+            MessageGetDTO dto = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m);
+            // need to manually set senderName by senderId.
+            dto.setSenderName(userService.getUserByUserId(m.getSenderId()).getUsername());
+            messageGetDTOs.add(dto);
         }
         return messageGetDTOs;
     }

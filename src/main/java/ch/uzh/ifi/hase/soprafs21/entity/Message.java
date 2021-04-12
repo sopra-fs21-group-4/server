@@ -26,7 +26,7 @@ public class Message implements Serializable {
     @Column(nullable = false)
     private Long senderId;
 
-    @Column
+    @Column(nullable = false)
     private Long timestamp;
 
     @Column(nullable = false)
