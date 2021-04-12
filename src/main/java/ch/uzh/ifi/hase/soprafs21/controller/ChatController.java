@@ -20,13 +20,13 @@ import java.util.List;
  * The controller will receive the request and delegate the execution to the UserService and finally return the result.
  */
 @RestController
-public class ChatMessageController {
+public class ChatController {
 
     private final ChatService chatService;
     private final MessageService messageService;
     private final UserService userService;
 
-    ChatMessageController(ChatService chatService, MessageService messageService, UserService userService) {
+    ChatController(ChatService chatService, MessageService messageService, UserService userService) {
         this.chatService = chatService;
         this.messageService = messageService;
         this.userService = userService;
