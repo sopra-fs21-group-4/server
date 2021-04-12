@@ -48,6 +48,7 @@ public class MessageService {
         message.setChatId(targetChat.getChatId());
         // synchronized method
         message.setIndex(targetChat.incrementLength());
+        message.setTimestamp(System.currentTimeMillis());
 
         return messageRepository.save(message);
     }

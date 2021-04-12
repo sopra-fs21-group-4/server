@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs21.service.MessageService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ChatController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<MessageGetDTO> getMessages(@PathVariable("chatId") Long chatId) {
+
         // fetch all messages in the internal representation
         List<Message> messages = messageService.getMessages(chatId);
         List<MessageGetDTO> messageGetDTOs = new ArrayList<>();
@@ -77,6 +79,7 @@ public class ChatController {
         Message posted = messageService.postMessage(messageToPost, targetChat);
 
         MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
+        response.setSenderName(userService.getUserByUserId(posted.getSenderId()).getUsername());
         return response;
     }
 

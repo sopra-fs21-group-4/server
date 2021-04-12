@@ -20,8 +20,8 @@ public class Chat implements Serializable {
     @Column
     private Long chatId;
 
-    @Column(columnDefinition = "integer default 0")
-    private Integer length;
+    @Column(nullable = false)
+    private Integer length = 0;
 
 
     public Long getChatId() {

@@ -87,7 +87,6 @@ public interface DTOMapper {
 
     // posting messages
     @Mapping(source = "senderId", target = "senderId")
-    @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "text", target = "text")
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
 
