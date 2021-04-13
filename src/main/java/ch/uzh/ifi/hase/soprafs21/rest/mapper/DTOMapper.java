@@ -19,7 +19,7 @@ import org.mapstruct.factory.Mappers;
 public interface DTOMapper {
 
     DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
-    UserService userService = SpringContext.getBean(UserService.class);
+    UserService userService = SpringContext.getBean(UserService.class);     // hacky steal the userService
 
     // USERS
 

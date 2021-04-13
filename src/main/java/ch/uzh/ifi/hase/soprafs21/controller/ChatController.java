@@ -6,10 +6,8 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.MessageService;
-import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +22,10 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MessageService messageService;
-    private final UserService userService;
 
-    ChatController(ChatService chatService, MessageService messageService, UserService userService) {
+    ChatController(ChatService chatService, MessageService messageService) {
         this.chatService = chatService;
         this.messageService = messageService;
-        this.userService = userService;
     }
 
 
