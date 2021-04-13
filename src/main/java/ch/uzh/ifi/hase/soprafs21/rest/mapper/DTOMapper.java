@@ -79,7 +79,7 @@ public interface DTOMapper {
     // getting messages
     @Mapping(source = "messageId", target = "messageId")
     @Mapping(source = "chatId", target = "chatId")
-    @Mapping(target = "senderName", expression = "java(message.getSenderName())")
+    @Mapping(target = "senderName", expression = "java(message.getSenderUsername())")
     @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "text", target = "text")
     MessageGetDTO convertEntityToMessageGetDTO(Message message);
