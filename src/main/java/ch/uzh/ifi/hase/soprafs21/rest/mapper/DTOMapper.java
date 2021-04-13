@@ -19,7 +19,6 @@ import org.mapstruct.factory.Mappers;
 public interface DTOMapper {
 
     DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
-    UserService userService = SpringContext.getBean(UserService.class);     // hacky steal the userService
 
     // USERS
 
@@ -80,7 +79,7 @@ public interface DTOMapper {
     // getting messages
     @Mapping(source = "messageId", target = "messageId")
     @Mapping(source = "chatId", target = "chatId")
-    @Mapping(target = "senderName", expression = "java(getUsername(message.getSenderId()))")
+    @Mapping(target = "senderName", expression = "java(message.getSenderName())")
     @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "text", target = "text")
     MessageGetDTO convertEntityToMessageGetDTO(Message message);
@@ -91,15 +90,4 @@ public interface DTOMapper {
     @Mapping(source = "senderId", target = "senderId")
     @Mapping(source = "text", target = "text")
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
-
-    /**
-     * gets a user's username by its userId.
-     * @param userId
-     * @return the user's username if existent, null otherwise.
-     */
-    default String getUsername(Long userId) {
-        System.out.println("test");
-        User user = userService.getUserByUserId(userId);
-        return (user == null)? null : user.getUsername();
-    }
 }

@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
+import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
+import ch.uzh.ifi.hase.soprafs21.service.UserService;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -14,6 +17,7 @@ import java.io.Serializable;
 public class Message implements Serializable, Comparable<Message> {
 
     private static final long serialVersionUID = 1L;
+    private static UserService userService = SpringContext.getBean(UserService.class);     // hacky steal the userService
 
     @Id
     @GeneratedValue
@@ -67,6 +71,15 @@ public class Message implements Serializable, Comparable<Message> {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    /**
+     * gets the username of this Message's sender.
+     * @return the sender's username if existent, null otherwise.
+     */
+    public String getSenderUsername() {
+        User user = userService.getUserByUserId(senderId);
+        return (user == null)? null : user.getUsername();
     }
 
     @Override

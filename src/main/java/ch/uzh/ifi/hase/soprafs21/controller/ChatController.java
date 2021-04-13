@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.MessageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +40,8 @@ public class ChatController {
         return DTOMapper.INSTANCE.convertEntityToChatGetDTO(newChat);
     }
 
-    /** get all messages from a chat
-     * TODO maybe implement a method that only returns a requested amount of messages
+    /**
+     * get all messages from a chat
      */
     @GetMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
@@ -49,19 +50,35 @@ public class ChatController {
 
         // fetch all messages in the internal representation
         List<Message> messages = messageService.getMessages(chatId);
+
+        return convertMessageListToDTOList(messages);
+    }
+
+    /**
+     * get a query of messages from a chat
+     */
+    @GetMapping("/chat/{chatId}?{query}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<MessageGetDTO> queryMessages(@PathVariable("chatId") Long chatId, @PathVariable("query") String query) {
+
+        // fetch messages in the internal representation
+        List<Message> messages = messageService.getMessages(chatId, query);
+        return convertMessageListToDTOList(messages);
+    }
+
+    private List<MessageGetDTO> convertMessageListToDTOList(List<Message> messages) {
         List<MessageGetDTO> messageGetDTOs = new ArrayList<>();
 
         // convert each message to the API representation
         for (Message m : messages) {
-            MessageGetDTO dto = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m);
-            // need to manually set senderName by senderId.
-            //dto.setSenderName(userService.getUserByUserId(m.getSenderId()).getUsername());
-            messageGetDTOs.add(dto);
+            messageGetDTOs.add(DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m));
         }
         return messageGetDTOs;
     }
 
-    /** post a message to a chat
+    /**
+     * post a message to a chat
      */
     @PostMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
@@ -75,7 +92,6 @@ public class ChatController {
         Message posted = messageService.postMessage(messageToPost, targetChat);
 
         MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
-        //response.setSenderName(userService.getUserByUserId(posted.getSenderId()).getUsername());
         return response;
     }
 
