@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name="MESSAGE")
-public class Message implements Serializable {
+public class Message implements Serializable, Comparable<Message> {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,9 +22,6 @@ public class Message implements Serializable {
 
     @Column(nullable = false)
     private Long chatId;
-
-    @Column(nullable = false)
-    private Integer index;
 
     @Column(nullable = false)
     private Long senderId;
@@ -46,14 +43,6 @@ public class Message implements Serializable {
 
     public void setChatId(Long chatId) {
         this.chatId = chatId;
-    }
-
-    public Integer getIndex() {
-        return index;
-    }
-
-    public void setIndex(Integer index) {
-        this.index = index;
     }
 
     public Long getSenderId() {
@@ -80,4 +69,8 @@ public class Message implements Serializable {
         this.text = text;
     }
 
+    @Override
+    public int compareTo(Message o) {
+        return (int) (this.timestamp - o.timestamp);
+    }
 }

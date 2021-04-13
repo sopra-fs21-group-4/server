@@ -20,9 +20,6 @@ public class Chat implements Serializable {
     @Column
     private Long chatId;
 
-    @Column(nullable = false)
-    private Integer length = 0;
-
 
     public Long getChatId() {
         return chatId;
@@ -30,19 +27,5 @@ public class Chat implements Serializable {
 
     public void setChatId(Long chatId) {
         this.chatId = chatId;
-    }
-
-    public Integer getLength() {
-        return length;
-    }
-
-    /**
-     * synchronized post-increment method.
-     * This replaces setLength() in order to return unique message indices.
-     * increments the length attribute by 1 and returns the old value.
-     * @return length
-     */
-    public synchronized Integer incrementLength() {
-        return length++;
     }
 }

@@ -46,9 +46,15 @@ public class MessageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid chatId!"));
 
         message.setChatId(targetChat.getChatId());
-        // synchronized method
-        message.setIndex(targetChat.incrementLength());
-        message.setTimestamp(System.currentTimeMillis());
+        // avoid simultaneous posts to keep order persistent
+        synchronized (targetChat) {
+            message.setTimestamp(System.currentTimeMillis());
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
         return messageRepository.save(message);
     }
@@ -60,12 +66,7 @@ public class MessageService {
     public List<Message> getMessages(Long chatId) {
 
         List<Message> list = messageRepository.findAllByChatId(chatId);
-        list.sort(new Comparator<Message>() {
-            @Override
-            public int compare(Message o1, Message o2) {
-                return o1.getIndex() - o2.getIndex();
-            }
-        });
+        list.sort(null);
         return list;
     }
 
