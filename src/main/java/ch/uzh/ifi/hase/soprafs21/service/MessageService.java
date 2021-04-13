@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -68,58 +67,6 @@ public class MessageService {
         List<Message> list = messageRepository.findAllByChatId(chatId);
         list.sort(null);
         return list;
-    }
-
-    /**
-     * returns a sorted list of messages referring to a given chatId, filtered by a given query
-     * @param chatId
-     * @param query
-     */
-    public List<Message> getMessages(Long chatId, String query) {
-
-        List<Message> messages = messageRepository.findAllByChatId(chatId);
-        messages.sort(null);
-
-        try {
-
-            int first = 0, last = 0;
-
-            for (String subQuery : query.split("&")){
-                String[] queryPart = subQuery.split("=");
-                String key = queryPart[0];
-                String requirement = queryPart[1];
-                switch(key) {
-                    case "since":
-                        Long sinceTime = Long.parseLong(requirement);
-                        messages.removeIf(m -> m.getTimestamp() < sinceTime);
-                        break;
-                    case "before":
-                        Long beforeTime = Long.parseLong(requirement);
-                        messages.removeIf(m -> m.getTimestamp() > beforeTime);
-                        break;
-                    case "sender":
-                        messages.removeIf(m -> !m.getSenderUsername().equals(requirement));
-                        break;
-                    case "contains":
-                        messages.removeIf(m -> !m.getText().contains(requirement));
-                        break;
-                    case "first":
-                        first = Integer.parseInt(requirement);
-                        break;
-                    case "last":
-                        last = Integer.parseInt(requirement);
-                        break;
-                }
-            }
-
-            if (first * last != 0) throw new Exception();
-            else if (first != 0) messages = messages.subList(0, first);
-            else if (last != 0) messages = messages.subList(messages.size() - last, messages.size());
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("bad query"));
-        }
-
-        return messages;
     }
 
 }

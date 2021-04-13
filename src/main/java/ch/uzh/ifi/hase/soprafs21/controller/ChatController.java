@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Chat Controller
@@ -41,29 +42,45 @@ public class ChatController {
     }
 
     /**
-     * get all messages from a chat
+     * get messages from a chat
      */
     @GetMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<MessageGetDTO> getMessages(@PathVariable("chatId") Long chatId) {
+    public List<MessageGetDTO> getMessages(
+            @PathVariable("chatId") Long chatId,
+            @RequestParam Optional<String> sender,
+            @RequestParam Optional<String> content,
+            @RequestParam Optional<Long> since,
+            @RequestParam Optional<Long> before,
+            @RequestParam Optional<Integer> first,
+            @RequestParam Optional<Integer> latest
+    ) {
 
         // fetch all messages in the internal representation
         List<Message> messages = messageService.getMessages(chatId);
 
-        return convertMessageListToDTOList(messages);
-    }
+        if (sender.isPresent())
+            messages.removeIf(m -> !m.getSenderUsername().equals(sender.get()));
 
-    /**
-     * get a query of messages from a chat
-     */
-    @GetMapping("/chat/{chatId}?{query}")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public List<MessageGetDTO> queryMessages(@PathVariable("chatId") Long chatId, @PathVariable("query") String query) {
+        if (content.isPresent())
+            messages.removeIf(m -> !m.getText().contains(content.get()));
 
-        // fetch messages in the internal representation
-        List<Message> messages = messageService.getMessages(chatId, query);
+        if (since.isPresent())
+            messages.removeIf(m -> m.getTimestamp() < since.get());
+
+        if (before.isPresent())
+            messages.removeIf(m -> m.getTimestamp() > before.get());
+
+        if (first.isPresent() && latest.isPresent())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("bad query"));
+
+        if (first.isPresent())
+            messages = messages.subList(0, Math.min(first.get(), messages.size()));
+
+        if (latest.isPresent())
+            messages = messages.subList(Math.max(messages.size() - latest.get(), 0), messages.size());
+
         return convertMessageListToDTOList(messages);
     }
 

@@ -33,7 +33,7 @@ public class Message implements Serializable, Comparable<Message> {
     private Long timestamp;
 
     @Column(nullable = false)
-    private String text;    // TODO max length?
+    private String text;
 
 
     public Long getMessageId() {
