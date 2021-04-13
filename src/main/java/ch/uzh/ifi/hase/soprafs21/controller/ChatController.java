@@ -59,7 +59,7 @@ public class ChatController {
         for (Message m : messages) {
             MessageGetDTO dto = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m);
             // need to manually set senderName by senderId.
-            dto.setSenderName(userService.getUserByUserId(m.getSenderId()).getUsername());
+            //dto.setSenderName(userService.getUserByUserId(m.getSenderId()).getUsername());
             messageGetDTOs.add(dto);
         }
         return messageGetDTOs;
@@ -79,7 +79,7 @@ public class ChatController {
         Message posted = messageService.postMessage(messageToPost, targetChat);
 
         MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
-        response.setSenderName(userService.getUserByUserId(posted.getSenderId()).getUsername());
+        //response.setSenderName(userService.getUserByUserId(posted.getSenderId()).getUsername());
         return response;
     }
 
