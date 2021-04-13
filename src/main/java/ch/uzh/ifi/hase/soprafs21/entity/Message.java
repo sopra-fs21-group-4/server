@@ -17,7 +17,6 @@ import java.io.Serializable;
 public class Message implements Serializable, Comparable<Message> {
 
     private static final long serialVersionUID = 1L;
-    private static UserService userService = SpringContext.getBean(UserService.class);     // hacky steal the userService
 
     @Id
     @GeneratedValue
@@ -78,6 +77,7 @@ public class Message implements Serializable, Comparable<Message> {
      * @return the sender's username if existent, null otherwise.
      */
     public String getSenderUsername() {
+        UserService userService = SpringContext.getBean(UserService.class);     // hacky steal the userService
         User user = userService.getUserByUserId(senderId);
         return (user == null)? null : user.getUsername();
     }
