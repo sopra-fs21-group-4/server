@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.MessageService;
+import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,10 +25,12 @@ public class ChatController {
 
     private final ChatService chatService;
     private final MessageService messageService;
+    private final UserService userService;
 
-    ChatController(ChatService chatService, MessageService messageService) {
+    ChatController(ChatService chatService, MessageService messageService, UserService userService) {
         this.chatService = chatService;
         this.messageService = messageService;
+        this.userService = userService;
     }
 
 
@@ -42,7 +45,9 @@ public class ChatController {
     }
 
     /**
-     * get messages from a chat
+     * get messages from a chat, can use queries
+     * TODO add more queries?
+     * TODO make chats exclusive to enrolled participants
      */
     @GetMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
@@ -61,7 +66,7 @@ public class ChatController {
         List<Message> messages = messageService.getMessages(chatId);
 
         if (sender.isPresent())
-            messages.removeIf(m -> !m.getSenderUsername().equals(sender.get()));
+            messages.removeIf(m -> !m.getUsername().equals(sender.get()));
 
         if (content.isPresent())
             messages.removeIf(m -> !m.getText().contains(content.get()));
@@ -100,13 +105,20 @@ public class ChatController {
     @PostMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public MessageGetDTO postMessage(@RequestBody MessagePostDTO messagePostDTO, @PathVariable("chatId") Long chatId){
+    public MessageGetDTO postMessage(
+            @PathVariable("chatId") Long chatId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody MessagePostDTO messagePostDTO) {
 
         Message messageToPost = DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO);
 
-        Chat targetChat = chatService.getChat(chatId);
+        // get syncable version of chatId, also verify
+        chatId = chatService.syncableChatId(chatId);
+        // verify userId
+        userService.verifyUser(userId, token);
 
-        Message posted = messageService.postMessage(messageToPost, targetChat);
+        Message posted = messageService.postMessage(messageToPost, userId, chatId);
 
         MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
         return response;

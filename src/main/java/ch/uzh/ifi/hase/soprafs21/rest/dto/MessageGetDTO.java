@@ -5,7 +5,7 @@ public class MessageGetDTO {
     private Long messageId;
     private Long chatId;
     private Long timestamp;
-    private String senderName;
+    private String username;
     private String text;
 
     public Long getMessageId() {
@@ -32,11 +32,11 @@ public class MessageGetDTO {
         this.timestamp = timestamp;
     }
 
-    public String getSenderName() {
-        return senderName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setSenderName(String senderName) {this.senderName = senderName;}
+    public void setUsername(String username) {this.username = username;}
 
     public String getText() {
         return text;

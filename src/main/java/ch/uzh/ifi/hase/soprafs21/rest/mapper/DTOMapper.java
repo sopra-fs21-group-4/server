@@ -79,7 +79,7 @@ public interface DTOMapper {
     // getting messages
     @Mapping(source = "messageId", target = "messageId")
     @Mapping(source = "chatId", target = "chatId")
-    @Mapping(target = "senderName", expression = "java(message.getSenderUsername())")
+    @Mapping(target = "username", expression = "java(message.getUsername())")
     @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "text", target = "text")
     MessageGetDTO convertEntityToMessageGetDTO(Message message);
@@ -87,7 +87,7 @@ public interface DTOMapper {
     // posting messages
     @Mapping(target = "chatId", expression = "java(null)")      // taken from request header
     @Mapping(target = "timestamp", expression = "java(null)")   // generated
-    @Mapping(source = "senderId", target = "senderId")
+    @Mapping(target = "userId", expression = "java(null)")    // taken from request header
     @Mapping(source = "text", target = "text")
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
 }

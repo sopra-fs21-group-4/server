@@ -1,16 +1,13 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
-import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,6 +20,7 @@ import java.util.List;
 @Transactional
 public class MessageService {
 
+    // TODO maybe this could be used
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final MessageRepository messageRepository;
@@ -34,19 +32,16 @@ public class MessageService {
 
     /**
      * sets the correct index of a Message object and stores it in the repository
-     * @param message the message to post
-     * @param targetChat the chat to post it in
+     * @param message message to post
+     * @param userId userId of the sender
+     * @param chatId chatId of the chat to post it in
      * @return Message object successfully stored in the repository
      */
-    public Message postMessage(Message message, Chat targetChat) {
-        if (message == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("message may not be null!"));
-        if (targetChat == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid chatId!"));
-
-        message.setChatId(targetChat.getChatId());
+    public Message postMessage(Message message, Long userId, Long chatId) {
+        message.setUserId(userId);
+        message.setChatId(chatId);
         // avoid simultaneous posts to keep unique order
-        synchronized (targetChat) {
+        synchronized (chatId) {
             message.setTimestamp(System.currentTimeMillis());
             try {
                 Thread.sleep(1);    // wait for 1 ms, otherwise the mutex would be pointless
@@ -54,7 +49,6 @@ public class MessageService {
                 e.printStackTrace();
             }
         }
-
         return messageRepository.save(message);
     }
 
