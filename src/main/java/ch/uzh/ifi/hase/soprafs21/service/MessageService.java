@@ -45,11 +45,11 @@ public class MessageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid chatId!"));
 
         message.setChatId(targetChat.getChatId());
-        // avoid simultaneous posts to keep order persistent
+        // avoid simultaneous posts to keep unique order
         synchronized (targetChat) {
             message.setTimestamp(System.currentTimeMillis());
             try {
-                Thread.sleep(1);
+                Thread.sleep(1);    // wait for 1 ms, otherwise the mutex would be pointless
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -67,6 +67,28 @@ public class MessageService {
         List<Message> list = messageRepository.findAllByChatId(chatId);
         list.sort(null);
         return list;
+    }
+
+    /**
+     * deletes a message from the repository
+     * TODO not verified
+     * @param messageId not null
+     */
+    public void deleteMessage(Long messageId) {
+        messageRepository.deleteById(messageId);
+    }
+
+    /**
+     * updates a message's text
+     * TODO not verified
+     * @param messageId
+     * @param text
+     * @return the updated Message
+     */
+    public Message putMessage(Long messageId, String text) {
+        Message message = messageRepository.findByMessageId(messageId);
+        message.setText(text);
+        return message;
     }
 
 }
