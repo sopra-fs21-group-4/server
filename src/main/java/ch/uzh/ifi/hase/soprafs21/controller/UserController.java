@@ -30,9 +30,8 @@ public class UserController {
 
     /**
      * login a user by id
-     * TODO this should be a patch request
      */
-    @PostMapping("/users/login")
+    @PatchMapping("/users/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public UserLoginDTO loginUser(@RequestBody UserPostDTO userPostDTO){
