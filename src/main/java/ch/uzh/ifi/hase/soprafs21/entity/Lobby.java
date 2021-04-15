@@ -59,6 +59,29 @@ public class Lobby implements Serializable {
     @OneToMany(targetEntity = User.class, cascade = CascadeType.ALL, mappedBy = "currentLobby")
     private List<User> players = new ArrayList();
 
+    @Column
+    @OneToMany(targetEntity = MemeTitle.class, cascade = CascadeType.ALL, mappedBy = "lobbyId")
+    private List<MemeTitle> memeTitles;
+
+    @Column
+    @OneToMany(targetEntity = MemeVote.class, cascade = CascadeType.ALL, mappedBy = "lobbyId")
+    private List<MemeVote> memeVotes;
+
+    public List<MemeTitle> getMemeTitles() {
+        return memeTitles;
+    }
+
+    public void setMemeTitles(List<MemeTitle> memeTitles) {
+        this.memeTitles = memeTitles;
+    }
+
+    public List<MemeVote> getMemeVotes() {
+        return memeVotes;
+    }
+
+    public void setMemeVotes(List<MemeVote> memeVotes) {
+        this.memeVotes = memeVotes;
+    }
 
     public User getGameMaster() {
         return gameMaster;

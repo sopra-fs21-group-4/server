@@ -6,6 +6,8 @@ import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.LobbyRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.MemeTitleRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.MemeVoteRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +35,16 @@ public class LobbyService {
     private final Logger log = LoggerFactory.getLogger(LobbyService.class);
 
     private final LobbyRepository lobbyRepository;
+    private final MemeTitleRepository memeTitleRepository;
+    private final MemeVoteRepository memeVoteRepository;
     private final UserService userService;
 
 
     @Autowired
-    public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, UserService userService) {
+    public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, UserService userService, @Qualifier("memeTitleRepository") MemeTitleRepository memeTitleRepository, @Qualifier("memeVoteRepository")MemeVoteRepository memeVoteRepository) {
         this.lobbyRepository = lobbyRepository;
+        this.memeTitleRepository = memeTitleRepository;
+        this.memeVoteRepository = memeVoteRepository;
         this.userService = userService;
     }
 
@@ -178,16 +184,36 @@ public class LobbyService {
         }
     }
 
+    public void verifyCorrectRoundAndStage(int round, GameState gameState, long lobbyId){
+        Lobby lobby = getLobbyByLobbyId(lobbyId);
+        if(lobby.getRound() != round){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong round of this lobby");
+        }
+        else if(lobby.getGameState() != gameState){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong stage of the game");
+        }
+    }
+
+
+
     public void newTitle(MemeTitle memeTitle, long userId, String token ){
         userService.verifyUser(userId, token);
         verifyUserIsInLobby(userId, memeTitle.getLobbyId());
-        //TODO save new title in lobby
+
+        verifyCorrectRoundAndStage(memeTitle.getRound(), GameState.TITLE, memeTitle.getLobbyId());
+
+        memeTitleRepository.save(memeTitle);
+        memeTitleRepository.flush();
     }
 
     public void newVote(MemeVote memeVote, long userId, String token){
         userService.verifyUser(userId, token);
         verifyUserIsInLobby(userId, memeVote.getLobbyId());
-        // TODO save new vote in lobby
+
+        verifyCorrectRoundAndStage(memeVote.getRound(), GameState.VOTE, memeVote.getLobbyId());
+
+        memeVoteRepository.save(memeVote);
+        memeVoteRepository.flush();
     }
 
 }

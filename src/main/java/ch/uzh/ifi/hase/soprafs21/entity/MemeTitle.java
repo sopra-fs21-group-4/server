@@ -1,11 +1,30 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "MEMETITLE")
 public class MemeTitle {
+
+    @Id
+    @GeneratedValue
+    private long memeTitleId;
 
     private Long lobbyId;
     private Long userId;
     private String title;
     private int round;
+
+    public long getMemeTitleId() {
+        return memeTitleId;
+    }
+
+    public void setMemeTitleId(long memeTitleId) {
+        this.memeTitleId = memeTitleId;
+    }
 
     public Long getLobbyId() {
         return lobbyId;

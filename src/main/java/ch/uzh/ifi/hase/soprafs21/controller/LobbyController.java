@@ -71,7 +71,7 @@ public class LobbyController {
     @PutMapping("/lobbies/{lobbyId}/title")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void startGame(@RequestBody LobbyMemeTitlePutDTO lobbyMemeTitlePutDTO, @PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
+    public void newMemeTitle(@RequestBody LobbyMemeTitlePutDTO lobbyMemeTitlePutDTO, @PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
         MemeTitle memeTitle = DTOMapper.INSTANCE.convertLobbyMemeTitlePutDTOToEntity(lobbyMemeTitlePutDTO);
         memeTitle.setLobbyId(lobbyId);
 
@@ -79,7 +79,6 @@ public class LobbyController {
 
         memeTitle.setUserId(userId);
         lobbyService.newTitle(memeTitle, userId, token);
-        return;
     }
 
     /**
@@ -88,13 +87,12 @@ public class LobbyController {
     @PutMapping("/lobbies/{lobbyId}/vote")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void vote(@RequestBody LobbyMemeVotePutDTO lobbyMemeVotePutDTO, @PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
+    public void newMemeVote(@RequestBody LobbyMemeVotePutDTO lobbyMemeVotePutDTO, @PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
         MemeVote memeVote = DTOMapper.INSTANCE.convertLobbyMemeVotePutDTOToEntity(lobbyMemeVotePutDTO);
         memeVote.setLobbyId(lobbyId);
         Long userId = Long.parseLong(id);
         memeVote.setFromUserId(userId);
         lobbyService.newVote(memeVote, userId, token);
-        return;
     }
 
 
