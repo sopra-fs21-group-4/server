@@ -49,7 +49,9 @@ public class MessageService {
                 e.printStackTrace();
             }
         }
-        return messageRepository.save(message);
+        message = messageRepository.save(message);
+        messageRepository.flush();
+        return message;
     }
 
     /**

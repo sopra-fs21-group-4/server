@@ -35,11 +35,9 @@ public class ChatService {
     }
 
     public Chat createChat() {
-        return chatRepository.save(new Chat());
-    }
-
-    public Chat getChat(Long chatId) {
-        return chatRepository.findByChatId(chatId);
+        Chat chat = chatRepository.save(new Chat());
+        chatRepository.flush();
+        return chat;
     }
 
     /**
