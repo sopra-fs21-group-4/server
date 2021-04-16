@@ -181,7 +181,8 @@ public class LobbyService {
     }
 
 
-    public void verifyUserIsInLobby(Long userId, Long lobbyId){
+    public void verifyUserIsInLobby(Long userId, String token, Long lobbyId){
+        userService.verifyUser(userId, token);
         if(!getLobbyByLobbyId(lobbyId).getPlayers().contains(userService.getUserByUserId(userId))){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not part of this lobby");
         }
@@ -200,8 +201,7 @@ public class LobbyService {
 
 
     public void newTitle(MemeTitle memeTitle, long userId, String token ){
-        userService.verifyUser(userId, token);
-        verifyUserIsInLobby(userId, memeTitle.getLobbyId());
+        verifyUserIsInLobby(userId, token, memeTitle.getLobbyId());
 
         verifyCorrectRoundAndStage(memeTitle.getRound(), GameState.TITLE, memeTitle.getLobbyId());
 
@@ -210,8 +210,7 @@ public class LobbyService {
     }
 
     public void newVote(MemeVote memeVote, long userId, String token){
-        userService.verifyUser(userId, token);
-        verifyUserIsInLobby(userId, memeVote.getLobbyId());
+        verifyUserIsInLobby(userId, token, memeVote.getLobbyId());
 
         verifyCorrectRoundAndStage(memeVote.getRound(), GameState.VOTE, memeVote.getLobbyId());
 

@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.LobbyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,16 +58,16 @@ public class LobbyController {
     }
 
     /**
-     * joining a lobby TODO password?
+     * joining a lobby
      */
-    @PostMapping("/lobbies/{lobbyId}/join")
+    @PutMapping("/lobbies/{lobbyId}/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public LobbyGetDTO joinLobby(
             @PathVariable("lobbyId") Long lobbyId,
-            @RequestParam Long userId,
-            @RequestParam String token,
-            @RequestParam Optional<String> password
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestHeader("password") Optional<String> password
     ) {
         Lobby joinedLobby = lobbyService.joinLobby(lobbyId, userId, token, password);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(joinedLobby);
@@ -123,7 +124,10 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<LobbyGetDTO> getAllLobbies() {
-
+        /*
+        TODO return public DTO with fewer information that doesn't require verification
+         instead of player-exclusive DTO
+         */
         List<Lobby> lobbies = lobbyService.getLobbies();
         List<LobbyGetDTO> lobbyGetDTOs = new ArrayList<>();
 
@@ -140,11 +144,11 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public LobbyGetDTO getSingleLobby(
-            @PathVariable("lobbyId") Long lobbyId,
-            @RequestParam Long userId,
-            @RequestParam String token
+            @PathVariable("lobbyId") Long lobbyId
     ){
-        lobbyService.verifyUserIsInLobby(userId, lobbyId);
+        /*
+        TODO create player-exclusive DTO, then make this request require verification
+         */
         Lobby lobby = lobbyService.getLobbyByLobbyId(lobbyId);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
