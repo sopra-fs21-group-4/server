@@ -3,9 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.controller;
 import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyMemeTitlePutDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.LobbyMemeVotePutDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.LobbyService;
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * lobby Controller
@@ -35,9 +34,13 @@ public class LobbyController {
     @PostMapping("/lobbies/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public LobbyGetDTO createLobby(@RequestHeader("token") String token, @RequestHeader("userId") String id) {
-        Long userId = Long.parseLong(id);
-        Lobby createdLobby = lobbyService.createLobby(userId, token);
+    public LobbyGetDTO createLobby(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody LobbyPostDTO lobbyPostDTO
+    ) {
+        Lobby lobbyToCreate = DTOMapper.INSTANCE.convertLobbyPostDTOToEntity(lobbyPostDTO);
+        Lobby createdLobby = lobbyService.createLobby(userId, token, lobbyToCreate);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(createdLobby);
     }
 
@@ -59,9 +62,13 @@ public class LobbyController {
     @PostMapping("/lobbies/{lobbyId}/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public LobbyGetDTO joinLobby(@PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
-        Long userId = Long.parseLong(id);
-        Lobby joinedLobby = lobbyService.joinLobby(lobbyId, userId, token);
+    public LobbyGetDTO joinLobby(
+            @PathVariable("lobbyId") Long lobbyId,
+            @RequestParam Long userId,
+            @RequestParam String token,
+            @RequestParam Optional<String> password
+    ) {
+        Lobby joinedLobby = lobbyService.joinLobby(lobbyId, userId, token, password);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(joinedLobby);
     }
 
@@ -129,15 +136,18 @@ public class LobbyController {
         return lobbyGetDTOs;
     }
     /**
-    * get specific lobby TODO mainly for debugging purposes at the moment
+    * get specific lobby
     */
     @GetMapping("/lobbies/{lobbyId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public LobbyGetDTO getSingleLobby(@PathVariable(value="lobbyId") long id){ // , @RequestHeader("token") String token, @RequestHeader("id") String Userid
-
-        Lobby lobby = lobbyService.getLobbyByLobbyId(id);
-
+    public LobbyGetDTO getSingleLobby(
+            @PathVariable("lobbyId") Long lobbyId,
+            @RequestParam Long userId,
+            @RequestParam String token
+    ){
+        lobbyService.verifyUserIsInLobby(userId, lobbyId);
+        Lobby lobby = lobbyService.getLobbyByLobbyId(lobbyId);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 

@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Lobby Service
@@ -107,11 +108,9 @@ public class LobbyService {
     }
 
 
-    public Lobby createLobby(Long userId, String token) {
+    public Lobby createLobby(Long userId, String token, Lobby newLobby) {
 
         userService.verifyUser(userId, token);
-
-        Lobby newLobby = new Lobby();
         newLobby.setGameMaster(userService.getUserByUserId(userId));
 
         newLobby = lobbyRepository.save(newLobby);
@@ -121,14 +120,18 @@ public class LobbyService {
         return newLobby;
     }
 
-    //TODO
-    public Lobby joinLobby(Long lobbyId, Long userId, String token){
+
+    public Lobby joinLobby(Long lobbyId, Long userId, String token, Optional<String> password){
         userService.verifyUser(userId, token);
         Lobby lobby = getLobbyByLobbyId(lobbyId);
 
-        if(lobby == null /* TODO || user put in the wrong password */){
+
+        if(lobby == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Invalid lobbyId"));
+
+        String lobbyPassword = lobby.getPassword();
+        if(lobbyPassword != null && !lobbyPassword.equals(password))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Access denied"));
-        }
 
         User user = userService.getUserByUserId(userId);
         user.setCurrentLobby(lobby);
