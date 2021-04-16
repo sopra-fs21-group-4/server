@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
+import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
+import ch.uzh.ifi.hase.soprafs21.service.UserService;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -11,7 +14,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name="MESSAGE")
-public class Message implements Serializable {
+public class Message implements Serializable, Comparable<Message> {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,16 +27,13 @@ public class Message implements Serializable {
     private Long chatId;
 
     @Column(nullable = false)
-    private Integer index;
-
-    @Column(nullable = false)
-    private Long senderId;
+    private Long userId;
 
     @Column(nullable = false)
     private Long timestamp;
 
     @Column(nullable = false)
-    private String text;    // TODO max length?
+    private String text;
 
 
     public Long getMessageId() {
@@ -48,20 +48,12 @@ public class Message implements Serializable {
         this.chatId = chatId;
     }
 
-    public Integer getIndex() {
-        return index;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setIndex(Integer index) {
-        this.index = index;
-    }
-
-    public Long getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
+    public void setUserId(Long senderId) {
+        this.userId = senderId;
     }
 
     public Long getTimestamp() {
@@ -80,4 +72,18 @@ public class Message implements Serializable {
         this.text = text;
     }
 
+    /**
+     * gets the username of this Message's sender.
+     * @return the sender's username if existent, null otherwise.
+     */
+    public String getUsername() {
+        UserService userService = SpringContext.getBean(UserService.class);     // hacky steal the userService
+        User user = userService.getUserByUserId(userId);
+        return (user == null)? null : user.getUsername();
+    }
+
+    @Override
+    public int compareTo(Message o) {
+        return (int) (this.timestamp - o.timestamp);
+    }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Chat Controller
@@ -43,43 +44,83 @@ public class ChatController {
         return DTOMapper.INSTANCE.convertEntityToChatGetDTO(newChat);
     }
 
-    /** get all messages from a chat
-     * TODO maybe implement a method that only returns a requested amount of messages
+    /**
+     * get messages from a chat, can use queries
+     * TODO add more queries?
+     * TODO make chats exclusive to enrolled participants
      */
     @GetMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<MessageGetDTO> getMessages(@PathVariable("chatId") Long chatId) {
+    public List<MessageGetDTO> getMessages(
+            @PathVariable("chatId") Long chatId,
+            @RequestParam Optional<String> sender,
+            @RequestParam Optional<String> content,
+            @RequestParam Optional<Long> since,
+            @RequestParam Optional<Long> before,
+            @RequestParam Optional<Integer> first,
+            @RequestParam Optional<Integer> latest
+    ) {
 
         // fetch all messages in the internal representation
         List<Message> messages = messageService.getMessages(chatId);
+
+        if (sender.isPresent())
+            messages.removeIf(m -> !m.getUsername().equals(sender.get()));
+
+        if (content.isPresent())
+            messages.removeIf(m -> !m.getText().contains(content.get()));
+
+        if (since.isPresent())
+            messages.removeIf(m -> m.getTimestamp() < since.get());
+
+        if (before.isPresent())
+            messages.removeIf(m -> m.getTimestamp() > before.get());
+
+        if (first.isPresent() && latest.isPresent())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("bad query"));
+
+        if (first.isPresent())
+            messages = messages.subList(0, Math.min(first.get(), messages.size()));
+
+        if (latest.isPresent())
+            messages = messages.subList(Math.max(messages.size() - latest.get(), 0), messages.size());
+
+        return convertMessageListToDTOList(messages);
+    }
+
+    private List<MessageGetDTO> convertMessageListToDTOList(List<Message> messages) {
         List<MessageGetDTO> messageGetDTOs = new ArrayList<>();
 
         // convert each message to the API representation
         for (Message m : messages) {
-            MessageGetDTO dto = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m);
-            // need to manually set senderName by senderId.
-            dto.setSenderName(userService.getUserByUserId(m.getSenderId()).getUsername());
-            messageGetDTOs.add(dto);
+            messageGetDTOs.add(DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m));
         }
         return messageGetDTOs;
     }
 
-    /** post a message to a chat
+    /**
+     * post a message to a chat
      */
     @PostMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public MessageGetDTO postMessage(@RequestBody MessagePostDTO messagePostDTO, @PathVariable("chatId") Long chatId){
+    public MessageGetDTO postMessage(
+            @PathVariable("chatId") Long chatId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody MessagePostDTO messagePostDTO) {
 
         Message messageToPost = DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO);
 
-        Chat targetChat = chatService.getChat(chatId);
+        // get syncable version of chatId, also verify
+        chatId = chatService.syncableChatId(chatId);
+        // verify userId
+        userService.verifyUser(userId, token);
 
-        Message posted = messageService.postMessage(messageToPost, targetChat);
+        Message posted = messageService.postMessage(messageToPost, userId, chatId);
 
         MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
-        response.setSenderName(userService.getUserByUserId(posted.getSenderId()).getUsername());
         return response;
     }
 

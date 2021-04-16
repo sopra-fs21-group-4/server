@@ -1,18 +1,14 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
-import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -24,6 +20,7 @@ import java.util.List;
 @Transactional
 public class MessageService {
 
+    // TODO maybe this could be used
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final MessageRepository messageRepository;
@@ -35,38 +32,59 @@ public class MessageService {
 
     /**
      * sets the correct index of a Message object and stores it in the repository
-     * @param message the message to post
-     * @param targetChat the chat to post it in
+     * @param message message to post
+     * @param userId userId of the sender
+     * @param chatId chatId of the chat to post it in
      * @return Message object successfully stored in the repository
      */
-    public Message postMessage(Message message, Chat targetChat) {
-        if (message == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("message may not be null!"));
-        if (targetChat == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid chatId!"));
-
-        message.setChatId(targetChat.getChatId());
-        // synchronized method
-        message.setIndex(targetChat.incrementLength());
-        message.setTimestamp(System.currentTimeMillis());
-
-        return messageRepository.save(message);
+    public Message postMessage(Message message, Long userId, Long chatId) {
+        message.setUserId(userId);
+        message.setChatId(chatId);
+        // avoid simultaneous posts to keep unique order
+        synchronized (chatId) {
+            message.setTimestamp(System.currentTimeMillis());
+            try {
+                Thread.sleep(1);    // wait for 1 ms, otherwise the mutex would be pointless
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        message = messageRepository.save(message);
+        messageRepository.flush();
+        return message;
     }
 
     /**
-     * returns a sorted list of messages referring to a given chatId
-     * TODO not sure if this implementation of Example<Message> works. Needs to be tested.
+     * returns a sorted list of all messages referring to a given chatId
+     * @param chatId
      */
     public List<Message> getMessages(Long chatId) {
 
         List<Message> list = messageRepository.findAllByChatId(chatId);
-        list.sort(new Comparator<Message>() {
-            @Override
-            public int compare(Message o1, Message o2) {
-                return o1.getIndex() - o2.getIndex();
-            }
-        });
+        list.sort(null);
         return list;
+    }
+
+    /**
+     * deletes a message from the repository
+     * TODO not verified
+     * @param messageId not null
+     */
+    public void deleteMessage(Long messageId) {
+        messageRepository.deleteById(messageId);
+    }
+
+    /**
+     * updates a message's text
+     * TODO not verified
+     * @param messageId
+     * @param text
+     * @return the updated Message
+     */
+    public Message putMessage(Long messageId, String text) {
+        Message message = messageRepository.findByMessageId(messageId);
+        message.setText(text);
+        return message;
     }
 
 }

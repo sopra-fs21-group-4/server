@@ -1,7 +1,9 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs21.entity.*;
+import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
+import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -22,6 +24,7 @@ public interface DTOMapper {
 
     // user login
     @Mapping(source = "token", target = "token")
+    @Mapping(source = "username", target = "username")
     @Mapping(source = "userId", target = "userId")
     UserLoginDTO convertEntityToUserLoginDTO(User user);
 
@@ -52,25 +55,23 @@ public interface DTOMapper {
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     // creating a new meme title entity
-    //@Mapping(source = "lobbyId", target = "lobbyId")  // lobbyId is taken from request header
-    //@Mapping(source = "userId", target = "userId")  // userid is taken from request header
+    @Mapping(target = "lobbyId", expression = "java(null)")  // lobbyId is taken from request header
+    @Mapping(target = "userId", expression = "java(null)")  // userid is taken from request header
     @Mapping(source = "title", target = "title")
     @Mapping(source = "round", target = "round")
     MemeTitle convertLobbyMemeTitlePutDTOToEntity(LobbyMemeTitlePutDTO lobbyMemeTitlePutDTO);
 
     // creating a new meme vote entity
-    //@Mapping(source = "lobbyId", target = "lobbyId") // lobbyId is taken from request header
-    //@Mapping(source = "fromUserId", target = "fromUserId")  // userid is taken from request header
+    @Mapping(target = "lobbyId", expression = "java(null)") // lobbyId is taken from request header
+    @Mapping(target = "fromUserId", expression = "java(null)")  // userid is taken from request header
     @Mapping(source = "forUserId", target = "forUserId") // this is the id of the user for whose meme the vote is
     @Mapping(source = "round", target = "round")
     MemeVote convertLobbyMemeVotePutDTOToEntity(LobbyMemeVotePutDTO lobbyMemeVotePutDTO);
-
 
     // CHATS
 
     // getting chats
     @Mapping(source = "chatId", target = "chatId")
-    @Mapping(source = "length", target = "length")
     ChatGetDTO convertEntityToChatGetDTO(Chat chat);
 
 
@@ -79,15 +80,15 @@ public interface DTOMapper {
     // getting messages
     @Mapping(source = "messageId", target = "messageId")
     @Mapping(source = "chatId", target = "chatId")
-    @Mapping(source = "index", target = "index")
-    // @Mapping(source = "senderId", target = "senderName") WARNING: need to manually convert senderId to senderName
+    @Mapping(target = "username", expression = "java(message.getUsername())")
     @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "text", target = "text")
     MessageGetDTO convertEntityToMessageGetDTO(Message message);
 
     // posting messages
-    @Mapping(source = "senderId", target = "senderId")
+    @Mapping(target = "chatId", expression = "java(null)")      // taken from request header
+    @Mapping(target = "timestamp", expression = "java(null)")   // generated
+    @Mapping(target = "userId", expression = "java(null)")    // taken from request header
     @Mapping(source = "text", target = "text")
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
-
 }

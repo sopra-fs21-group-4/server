@@ -8,9 +8,11 @@ import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * User Controller
@@ -26,9 +28,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    /** login a user by id
+    /**
+     * login a user by id
      */
-    @PostMapping("/users/login")
+    @PatchMapping("/users/login")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public UserLoginDTO loginUser(@RequestBody UserPostDTO userPostDTO){
@@ -41,7 +44,8 @@ public class UserController {
         return userLoginDTO;
     }
 
-    /** creating a new user
+    /**
+     * creating a new user
      */
     @PostMapping("/users/create")
     @ResponseStatus(HttpStatus.CREATED)
@@ -75,6 +79,28 @@ public class UserController {
             userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
         }
         return userGetDTOs;
+    }
+
+    /**
+     * get a single user
+     */
+    @GetMapping("/user")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserGetDTO getUser(
+            @RequestParam Optional<Long> userId,
+            @RequestParam Optional<String> username
+    ) {
+        if (userId.isPresent() == username.isPresent())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify either username or userId!");
+
+        // fetch user from internal representation
+        User user = userId.isPresent()?
+                userService.getUserByUserId(userId.get())
+                :
+                userService.getUserByUsername(username.get());
+
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
 
