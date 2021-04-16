@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
+import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -45,6 +46,24 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     private int maxTimer = 15;
 
+    @Column
+    private String currentMeme;
+
+    @Column
+    private String subreddit;
+
+    @Column
+    private MemeType memeType = MemeType.HOT;
+
+    @Column(nullable = false)
+    private int maxTitleTime = 15;
+
+    @Column (nullable = false)
+    private int maxVoteTime = 15;
+
+    @Column(nullable = false)
+    private int maxPointsTime = 10;
+
     @Column(nullable = false)
     private int maxPlayers = 5;
 
@@ -59,6 +78,78 @@ public class Lobby implements Serializable {
     @OneToMany(targetEntity = User.class, cascade = CascadeType.ALL, mappedBy = "currentLobby")
     private List<User> players = new ArrayList();
 
+    @Column
+    @OneToMany(targetEntity = MemeTitle.class, cascade = CascadeType.ALL, mappedBy = "lobbyId")
+    private List<MemeTitle> memeTitles;
+
+    @Column
+    @OneToMany(targetEntity = MemeVote.class, cascade = CascadeType.ALL, mappedBy = "lobbyId")
+    private List<MemeVote> memeVotes;
+
+
+    public String getCurrentMeme() {
+        return currentMeme;
+    }
+
+    public void setCurrentMeme(String currentMeme) {
+        this.currentMeme = currentMeme;
+    }
+
+    public String getSubreddit() {
+        return subreddit;
+    }
+
+    public void setSubreddit(String subreddit) {
+        this.subreddit = subreddit;
+    }
+
+    public MemeType getMemeType() {
+        return memeType;
+    }
+
+    public void setMemeType(MemeType memeType) {
+        this.memeType = memeType;
+    }
+
+    public int getMaxTitleTime() {
+        return maxTitleTime;
+    }
+
+    public void setMaxTitleTime(int maxTitleTime) {
+        this.maxTitleTime = maxTitleTime;
+    }
+
+    public int getMaxVoteTime() {
+        return maxVoteTime;
+    }
+
+    public void setMaxVoteTime(int maxVoteTime) {
+        this.maxVoteTime = maxVoteTime;
+    }
+
+    public int getMaxPointsTime() {
+        return maxPointsTime;
+    }
+
+    public void setMaxPointsTime(int maxPointsTime) {
+        this.maxPointsTime = maxPointsTime;
+    }
+
+    public List<MemeTitle> getMemeTitles() {
+        return memeTitles;
+    }
+
+    public void setMemeTitles(List<MemeTitle> memeTitles) {
+        this.memeTitles = memeTitles;
+    }
+
+    public List<MemeVote> getMemeVotes() {
+        return memeVotes;
+    }
+
+    public void setMemeVotes(List<MemeVote> memeVotes) {
+        this.memeVotes = memeVotes;
+    }
 
     public User getGameMaster() {
         return gameMaster;

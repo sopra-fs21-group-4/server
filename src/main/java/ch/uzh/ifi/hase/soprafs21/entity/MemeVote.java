@@ -1,13 +1,30 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "MEMEVOTE")
 public class MemeVote {
 
-
+    @Id
+    @GeneratedValue
+    private long memeVoteId;
     private Long lobbyId;
     private Long forUserId; // for which user is this vote
     private Long fromUserId; // user who cast the vote
     private int round;
+
+    public long getMemeVoteId() {
+        return memeVoteId;
+    }
+
+    public void setMemeVoteId(long memeVoteId) {
+        this.memeVoteId = memeVoteId;
+    }
 
     public Long getForUserId() {
         return forUserId;
