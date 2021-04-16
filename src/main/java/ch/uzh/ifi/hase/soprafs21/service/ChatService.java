@@ -40,6 +40,10 @@ public class ChatService {
         return chat;
     }
 
+    public Chat getChat(Long chatId) {
+        return chatRepository.findByChatId(chatId);
+    }
+
     /**
      * checks if a chat exists in the repository and returns a Long that can be used for synchronization.
      * @param chatId

@@ -6,20 +6,17 @@ import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.LobbyRepository;
-import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
