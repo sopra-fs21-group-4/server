@@ -42,7 +42,7 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    // @Test TODO outdated
+    // @Test  TODO outdated
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         // given
         User user = new User();
