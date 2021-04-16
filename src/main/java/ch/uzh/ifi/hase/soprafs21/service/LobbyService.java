@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
+import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
 import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
@@ -62,7 +63,7 @@ public class LobbyService {
                 if(now.isAfter(lobby.getTime())){
                     // title giving stage is over:
                     lobby.setGameState(GameState.VOTE);
-                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxVoteTime()));
                     // TODO
 
                 }
@@ -71,7 +72,7 @@ public class LobbyService {
                 if(now.isAfter(lobby.getTime())){
                     // voting stage is over:
                     lobby.setGameState(GameState.POINTS);
-                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxPointsTime()));
                     // TODO
 
                 }
@@ -80,7 +81,7 @@ public class LobbyService {
                 if(now.isAfter(lobby.getTime())){
                     // point giving stage is over:
                     lobby.setRound(lobby.getRound()+1);
-                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTitleTime()));
 
                     if(lobby.getRound()>lobby.getMaxRounds()){
                         // this was the last round:
@@ -90,10 +91,11 @@ public class LobbyService {
                     }
                     else{
                         // there is another round to play:
-                        lobby.setGameState(GameState.VOTE);
+                        lobby.setGameState(GameState.TITLE);
                         // TODO get meme and send it to the players
                         // reddit api
-//                        getMemeLink()
+                        // TODO getMemeLink
+                        lobby.setCurrentMeme(getMemeLink(lobby.getSubreddit(),lobby.getMemeType()));
 
                     }
 
@@ -164,7 +166,7 @@ public class LobbyService {
         // TODO start game
         lobby.setRound(1);
         lobby.setGameState(GameState.TITLE);
-        lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTimer()));
+        lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTitleTime()));
 
         // TODO get meme from reddit
         //getMemeLink
@@ -172,7 +174,7 @@ public class LobbyService {
 
 
 
-    public String getMemeLink(String subreddit){
+    public String getMemeLink(String subreddit, MemeType memeType){
         // TODO go get meme from reddit
         return null;
     }

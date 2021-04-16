@@ -65,10 +65,10 @@ public class UserService {
 
         // check authorization
         if (userByUsername == null )  {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Username doesn't exist "));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Invalid user credentials"));
         }
         else if (!user.getPassword().equals(usertologin.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Wrong password duuh!"));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Invalid user credentials"));
         }
 
         // setting new token and returning it
