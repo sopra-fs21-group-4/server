@@ -43,6 +43,13 @@ public interface DTOMapper {
 
     // LOBBIES
 
+    // crating lobbies
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "maxRounds", target = "maxRounds")
+    @Mapping(source = "maxTimer", target = "maxTimer")
+    @Mapping(source = "maxPlayers", target = "maxPlayers")
+    Lobby convertLobbyPostDTOToEntity(LobbyPostDTO lobbyPostDTO);
+
     // getting lobbies
     @Mapping(source = "lobbyId", target = "lobbyId")
     @Mapping(source = "name", target = "name")
