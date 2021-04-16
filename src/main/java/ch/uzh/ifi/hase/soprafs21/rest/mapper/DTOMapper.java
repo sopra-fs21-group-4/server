@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs21.constant.GameState;
+import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
@@ -56,9 +58,16 @@ public interface DTOMapper {
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "round", target = "round")
     @Mapping(source = "maxRounds", target = "maxRounds")
-    @Mapping(source = "maxTimer", target = "maxTimer")
+    @Mapping(source = "currentMeme", target = "currentMeme")
+    @Mapping(source = "subreddit", target = "subreddit")
+    @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "maxTitleTime", target = "maxTitleTime")
+    @Mapping(source = "maxVoteTime", target = "maxVoteTime")
+    @Mapping(source = "maxPointsTime", target = "maxPointsTime")
+    @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "players", target = "players")
+    @Mapping(source = "chat", target = "chat")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     // creating a new meme title entity
