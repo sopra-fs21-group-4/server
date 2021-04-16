@@ -2,10 +2,7 @@ package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs21.entity.MemeTitle;
-import ch.uzh.ifi.hase.soprafs21.entity.MemeVote;
-import ch.uzh.ifi.hase.soprafs21.entity.User;
+import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MemeTitleRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MemeVoteRepository;
@@ -124,6 +121,7 @@ public class LobbyService {
 
         Lobby newLobby = new Lobby();
         newLobby.setGameMaster(userService.getUserByUserId(userId));
+        newLobby.setChat(new Chat());
 
         newLobby = lobbyRepository.save(newLobby);
         lobbyRepository.flush();

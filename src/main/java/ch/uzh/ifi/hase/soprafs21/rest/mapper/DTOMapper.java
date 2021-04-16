@@ -64,6 +64,7 @@ public interface DTOMapper {
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "players", target = "players")
+    @Mapping(source = "chat", target = "chat")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     // creating a new meme title entity

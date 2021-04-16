@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 
 import java.util.ArrayList;
@@ -24,8 +25,15 @@ public class LobbyGetDTO {
     private int maxPlayers;
     private long gameMaster; // special because we dont want to send the user object just the id
     private List<Long> players = new ArrayList<>(); // players and its setter is special because we dont want to return all user objects, just the ids of all users
+    private long chat;
 
+    public long getChat() {
+        return chat;
+    }
 
+    public void setChat(Chat chat) {
+        this.chat = chat.getChatId();
+    }
 
     public String getCurrentMeme() {
         return currentMeme;
