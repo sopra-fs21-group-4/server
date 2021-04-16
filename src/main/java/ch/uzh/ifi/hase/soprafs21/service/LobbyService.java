@@ -13,14 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Lobby Service
@@ -115,11 +114,9 @@ public class LobbyService {
     }
 
 
-    public Lobby createLobby(Long userId, String token) {
+    public Lobby createLobby(Long userId, String token, Lobby newLobby) {
 
         userService.verifyUser(userId, token);
-
-        Lobby newLobby = new Lobby();
         newLobby.setGameMaster(userService.getUserByUserId(userId));
         newLobby.setChat(new Chat());
 
@@ -130,14 +127,18 @@ public class LobbyService {
         return newLobby;
     }
 
-    //TODO
-    public Lobby joinLobby(Long lobbyId, Long userId, String token){
+
+    public Lobby joinLobby(Long lobbyId, Long userId, String token, Optional<String> password){
         userService.verifyUser(userId, token);
         Lobby lobby = getLobbyByLobbyId(lobbyId);
 
-        if(lobby == null /* TODO || user put in the wrong password */){
+
+        if(lobby == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Invalid lobbyId"));
+
+        String lobbyPassword = lobby.getPassword();
+        if(lobbyPassword != null && !lobbyPassword.equals(password))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Access denied"));
-        }
 
         User user = userService.getUserByUserId(userId);
         user.setCurrentLobby(lobby);
@@ -178,7 +179,8 @@ public class LobbyService {
     }
 
 
-    public void verifyUserIsInLobby(Long userId, Long lobbyId){
+    public void verifyUserIsInLobby(Long userId, String token, Long lobbyId){
+        userService.verifyUser(userId, token);
         if(!getLobbyByLobbyId(lobbyId).getPlayers().contains(userService.getUserByUserId(userId))){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not part of this lobby");
         }
@@ -197,8 +199,7 @@ public class LobbyService {
 
 
     public void newTitle(MemeTitle memeTitle, long userId, String token ){
-        userService.verifyUser(userId, token);
-        verifyUserIsInLobby(userId, memeTitle.getLobbyId());
+        verifyUserIsInLobby(userId, token, memeTitle.getLobbyId());
 
         verifyCorrectRoundAndStage(memeTitle.getRound(), GameState.TITLE, memeTitle.getLobbyId());
 
@@ -207,8 +208,7 @@ public class LobbyService {
     }
 
     public void newVote(MemeVote memeVote, long userId, String token){
-        userService.verifyUser(userId, token);
-        verifyUserIsInLobby(userId, memeVote.getLobbyId());
+        verifyUserIsInLobby(userId, token, memeVote.getLobbyId());
 
         verifyCorrectRoundAndStage(memeVote.getRound(), GameState.VOTE, memeVote.getLobbyId());
 
