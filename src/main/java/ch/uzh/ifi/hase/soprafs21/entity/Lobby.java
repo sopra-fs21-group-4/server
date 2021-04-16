@@ -43,9 +43,6 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     private int maxRounds = 5;
 
-    @Column(nullable = false)
-    private int maxTimer = 15;
-
     @Column
     private String currentMeme;
 
@@ -85,6 +82,9 @@ public class Lobby implements Serializable {
     @Column
     @OneToMany(targetEntity = MemeVote.class, cascade = CascadeType.ALL, mappedBy = "lobbyId")
     private List<MemeVote> memeVotes;
+
+
+
 
 
     public String getCurrentMeme() {
@@ -181,14 +181,6 @@ public class Lobby implements Serializable {
 
     public void setMaxRounds(int maxRounds) {
         this.maxRounds = maxRounds;
-    }
-
-    public int getMaxTimer() {
-        return maxTimer;
-    }
-
-    public void setMaxTimer(int maxTimer) {
-        this.maxTimer = maxTimer;
     }
 
     public int getMaxPlayers() {

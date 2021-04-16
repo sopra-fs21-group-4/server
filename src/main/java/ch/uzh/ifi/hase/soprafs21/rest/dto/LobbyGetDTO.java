@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
+import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 
@@ -14,10 +15,73 @@ public class LobbyGetDTO {
     private GameState gameState;
     private int round;
     private int maxRounds;
-    private int maxTimer;
+    private String currentMeme;
+    private String subreddit;
+    private MemeType memeType;
+    private int maxTitleTime;
+    private int maxVoteTime;
+    private int maxPointsTime;
     private int maxPlayers;
+    private long gameMaster; // special because we dont want to send the user object just the id
     private List<Long> players = new ArrayList<>(); // players and its setter is special because we dont want to return all user objects, just the ids of all users
 
+
+
+    public String getCurrentMeme() {
+        return currentMeme;
+    }
+
+    public void setCurrentMeme(String currentMeme) {
+        this.currentMeme = currentMeme;
+    }
+
+    public String getSubreddit() {
+        return subreddit;
+    }
+
+    public void setSubreddit(String subreddit) {
+        this.subreddit = subreddit;
+    }
+
+    public MemeType getMemeType() {
+        return memeType;
+    }
+
+    public void setMemeType(MemeType memeType) {
+        this.memeType = memeType;
+    }
+
+    public int getMaxTitleTime() {
+        return maxTitleTime;
+    }
+
+    public void setMaxTitleTime(int maxTitleTime) {
+        this.maxTitleTime = maxTitleTime;
+    }
+
+    public int getMaxVoteTime() {
+        return maxVoteTime;
+    }
+
+    public void setMaxVoteTime(int maxVoteTime) {
+        this.maxVoteTime = maxVoteTime;
+    }
+
+    public int getMaxPointsTime() {
+        return maxPointsTime;
+    }
+
+    public void setMaxPointsTime(int maxPointsTime) {
+        this.maxPointsTime = maxPointsTime;
+    }
+
+    public long getGameMaster() {
+        return gameMaster;
+    }
+
+    public void setGameMaster(User gameMaster) {
+        this.gameMaster = gameMaster.getUserId();
+    }
 
     public List<Long> getPlayers() {
         return players;
@@ -36,14 +100,6 @@ public class LobbyGetDTO {
 
     public void setMaxRounds(int maxRounds) {
         this.maxRounds = maxRounds;
-    }
-
-    public int getMaxTimer() {
-        return maxTimer;
-    }
-
-    public void setMaxTimer(int maxTimer) {
-        this.maxTimer = maxTimer;
     }
 
     public int getMaxPlayers() {
