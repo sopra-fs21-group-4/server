@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * User Service
- * This class is the "worker" and responsible for all functionality related to the user
- * (e.g., it creates, modifies, deletes, finds). The result will be passed back to the caller.
+ * User Service This class is the "worker" and responsible for all functionality
+ * related to the user (e.g., it creates, modifies, deletes, finds). The result
+ * will be passed back to the caller.
  */
 @Service
 @Transactional
@@ -45,13 +45,15 @@ public class ChatService {
     }
 
     /**
-     * checks if a chat exists in the repository and returns a Long that can be used for synchronization.
+     * checks if a chat exists in the repository and returns a Long that can be used
+     * for synchronization.
+     * 
      * @param chatId
-     * @return a (possibly different) Long instance with the same value.
-     * same argument values will always return the same instance.
+     * @return a (possibly different) Long instance with the same value. same
+     *         argument values will always return the same instance.
      */
     public Long syncableChatId(Long chatId) {
-        if(!chatRepository.existsById(chatId))
+        if (!chatRepository.existsById(chatId))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid chatId!"));
         syncableIds.putIfAbsent(chatId, chatId);
         return syncableIds.get(chatId);
