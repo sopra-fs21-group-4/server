@@ -146,10 +146,11 @@ public class LobbyService {
         return lobby;
     }
 
-    public void startGame(Long lobbyId, Long userId, String token){
+    public void startGame(Long lobbyId, Long userId, String token, String subreddit, MemeType memeType){
 
         userService.verifyUser(userId, token);
         Lobby lobby = getLobbyByLobbyId(lobbyId);
+        String secret ="hWLk6igtgRKUxN5S7AzKZNbRcRotUQ";
 
 //        System.out.println(userId);
 //        System.out.println(lobby.getGameMaster().getUserId());
@@ -166,15 +167,17 @@ public class LobbyService {
         lobby.setRound(1);
         lobby.setGameState(GameState.TITLE);
         lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTitleTime()));
+        lobby.setSubreddit(subreddit);
+        lobby.setMemeType(memeType);
 
-        // TODO get meme from reddit
-        //getMemeLink
+        // getMemeList for all Rounds
+        // 
     }
 
 
+    public List<String> getMemeArray(String subreddit, MemeType memeType){
+        // TODO go get memes from Reddit
 
-    public String getMemeLink(String subreddit, MemeType memeType){
-        // TODO go get meme from reddit
         return null;
     }
 

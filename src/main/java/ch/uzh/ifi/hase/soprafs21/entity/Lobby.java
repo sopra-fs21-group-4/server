@@ -50,6 +50,9 @@ public class Lobby implements Serializable {
     private String subreddit;
 
     @Column
+    private List<String> memeArray;
+
+    @Column
     private MemeType memeType = MemeType.HOT;
 
     @Column(nullable = false)

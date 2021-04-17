@@ -51,9 +51,9 @@ public class LobbyController {
     @PutMapping("/lobbies/{lobbyId}/start")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public void startGame(@PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id) {
+    public void startGame(@PathVariable(value="lobbyId") long lobbyId, @RequestHeader("token") String token, @RequestHeader("userId") String id, @RequestHeader("subreddit") String subreddit, @RequestHeader MemeType memeType) {
         Long userId = Long.parseLong(id);
-        lobbyService.startGame(lobbyId, userId, token);
+        lobbyService.startGame(lobbyId, userId, token, subreddit, memeType);
         return;
     }
 
@@ -104,17 +104,19 @@ public class LobbyController {
     }
 
 
+    /**
+     * get a meme for the specified subreddit
+     */
 
 
+    @GetMapping("/lobbies/getMeme")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public String getMeme() {
 
-//    @GetMapping("/lobbies/getmeme")
-//    @ResponseStatus(HttpStatus.OK)
-//    @ResponseBody
-//    public String getmeme() {
-//
-//        String memelink = lobbyService.getMemeLink("subreddithere");
-//        return memelink;
-//    }
+        String memelink = lobbyService.getMeme(lobbyid);
+        return memelink;
+    }
 
 
     /**
