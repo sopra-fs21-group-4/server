@@ -38,6 +38,11 @@ public interface DTOMapper {
     @Mapping(source = "status", target = "status")
     UserGetDTO convertEntityToUserGetDTO(User user);
 
+    // update user profile
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "password", target = "password")
+    User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
+
 
     // LOBBIES
 
@@ -118,4 +123,6 @@ public interface DTOMapper {
     @Mapping(target = "userId", expression = "java(null)")    // taken from request header
     @Mapping(source = "text", target = "text")
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
+
+
 }

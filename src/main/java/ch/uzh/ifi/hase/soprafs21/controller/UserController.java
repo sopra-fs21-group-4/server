@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserLoginDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -103,5 +104,29 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
+
+    @PutMapping(value = "/user/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void updateUser(@PathVariable("id") Long userId, @RequestBody UserPutDTO inputUserPutDTO) {
+        // fetch all users in the internal representation
+        User user = userService.getUserByUserId(userId);
+
+        User user1 = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(inputUserPutDTO);
+        if (user1.getUsername() == user.getUsername()){
+            if(user1.getPassword() != null){
+                userService.updatePassword(user1.getPassword(), user);
+            }
+        }
+        else {
+            userService.checkIfUserExists(user1);
+            if (user1.getUsername() != null) {
+                userService.updateUsername(user1.getUsername(), user);
+            }
+            if (user1.getPassword() != null) {
+                userService.updatePassword(user1.getPassword(), user);
+            }
+        }
+    }
 
 }

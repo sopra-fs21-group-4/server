@@ -77,7 +77,16 @@ public class UserService {
         return user;
 
     }
+    public void updateUsername(String newUsername, User user) {
 
+        user.setUsername(newUsername);
+        userRepository.flush();
+    }
+    public void updatePassword(String newPassword, User user) {
+        user.setPassword(newPassword);
+        userRepository.flush();
+
+    }
 
     /**
      * check if user id and token are correct (if user is logged in)
@@ -100,10 +109,10 @@ public class UserService {
      * @throws org.springframework.web.server.ResponseStatusException
      * @see User
      */
-    private void checkIfUserExists(User userToBeCreated) {
+    public void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-
-        String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+//lolol
+        String baseErrorMessage = "The %s provided %s not unique. Please choose another one!";
         if (userByUsername != null ) { //&& userByName != null
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
         }
