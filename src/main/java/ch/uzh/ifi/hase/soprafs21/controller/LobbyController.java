@@ -118,21 +118,19 @@ public class LobbyController {
 
 
     /**
-    get information about all lobbies TODO mainly for debugging purposes at the moment
+     * get information about all lobbies
+     * the information returned is restricted and doesn't contain player-explicit information.
      */
     @GetMapping("/lobbies")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<LobbyGetDTO> getAllLobbies() {
-        /*
-        TODO return public DTO with fewer information that doesn't require verification
-         instead of player-exclusive DTO
-         */
+    public List<LobbyGetDTORestricted> getAllLobbies() {
+
         List<Lobby> lobbies = lobbyService.getLobbies();
-        List<LobbyGetDTO> lobbyGetDTOs = new ArrayList<>();
+        List<LobbyGetDTORestricted> lobbyGetDTOs = new ArrayList<>();
 
         for(Lobby lobby : lobbies){
-            lobbyGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+            lobbyGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTORestricted(lobby));
         }
 
         return lobbyGetDTOs;
@@ -144,11 +142,11 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public LobbyGetDTO getSingleLobby(
-            @PathVariable("lobbyId") Long lobbyId
+            @PathVariable("lobbyId") Long lobbyId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token
     ){
-        /*
-        TODO create player-exclusive DTO, then make this request require verification
-         */
+        lobbyService.verifyUserIsInLobby(userId, token, lobbyId);
         Lobby lobby = lobbyService.getLobbyByLobbyId(lobbyId);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }

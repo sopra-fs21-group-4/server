@@ -8,14 +8,12 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LobbyGetDTO {
+public class LobbyGetDTORestricted {
 
     private Long lobbyId;
     private String name;
     private GameState gameState;
-    private int round;
     private int maxRounds;
-    private String currentMeme;
     private String subreddit;
     private MemeType memeType;
     private int maxTitleTime;
@@ -24,23 +22,7 @@ public class LobbyGetDTO {
     private int maxPlayers;
     private long gameMaster; // special because we dont want to send the user object just the id
     private List<Long> players = new ArrayList<>(); // players and its setter is special because we dont want to return all user objects, just the ids of all users
-    private Long chatId;
 
-    public Long getChatId() {
-        return chatId;
-    }
-
-    public void setChat(Chat chat) {
-        this.chatId = chat.getChatId();
-    }
-
-    public String getCurrentMeme() {
-        return currentMeme;
-    }
-
-    public void setCurrentMeme(String currentMeme) {
-        this.currentMeme = currentMeme;
-    }
 
     public String getSubreddit() {
         return subreddit;
@@ -139,14 +121,6 @@ public class LobbyGetDTO {
 
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
-    }
-
-    public int getRound() {
-        return round;
-    }
-
-    public void setRound(int round) {
-        this.round = round;
     }
 
 }

@@ -1,11 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs21.constant.GameState;
-import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.entity.*;
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
-import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -48,7 +44,7 @@ public interface DTOMapper {
     // crating lobbies
     @Mapping(source = "name", target = "name")
     @Mapping(source = "maxRounds", target = "maxRounds")
-    @Mapping(source = "maxTimer", target = "maxTimer")
+    @Mapping(source = "maxTimer", target = "maxTitleTime")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     Lobby convertLobbyPostDTOToEntity(LobbyPostDTO lobbyPostDTO);
 
@@ -69,6 +65,21 @@ public interface DTOMapper {
     @Mapping(source = "players", target = "players")
     @Mapping(source = "chat", target = "chat")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
+
+    // getting lobby overviews
+    @Mapping(source = "lobbyId", target = "lobbyId")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "gameState", target = "gameState")
+    @Mapping(source = "maxRounds", target = "maxRounds")
+    @Mapping(source = "subreddit", target = "subreddit")
+    @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "maxTitleTime", target = "maxTitleTime")
+    @Mapping(source = "maxVoteTime", target = "maxVoteTime")
+    @Mapping(source = "maxPointsTime", target = "maxPointsTime")
+    @Mapping(source = "gameMaster", target = "gameMaster")
+    @Mapping(source = "maxPlayers", target = "maxPlayers")
+    @Mapping(source = "players", target = "players")
+    LobbyGetDTORestricted convertEntityToLobbyGetDTORestricted(Lobby lobby);
 
     // creating a new meme title entity
     @Mapping(target = "lobbyId", expression = "java(null)")  // lobbyId is taken from request header
