@@ -9,6 +9,7 @@ public class UserGetDTO {
     private String username;
     private UserStatus status;
     private Long currentLobby; // special because we only want to return lobby id and not lobby object
+    private String email;
 
     public Long getCurrentLobby() {
         return currentLobby;
@@ -46,4 +47,8 @@ public class UserGetDTO {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
+
+    public String getEmail(){return email;}
+
+    public void setEmail(String email){this.email = email;}
 }

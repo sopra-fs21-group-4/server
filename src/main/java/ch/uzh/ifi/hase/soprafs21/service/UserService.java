@@ -87,6 +87,11 @@ public class UserService {
         userRepository.flush();
 
     }
+    public void updateEmail(String newEmail, User user) {
+        user.setEmail(newEmail);
+        userRepository.flush();
+
+    }
 
     /**
      * check if user id and token are correct (if user is logged in)

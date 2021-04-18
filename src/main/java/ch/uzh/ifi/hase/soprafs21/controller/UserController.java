@@ -123,6 +123,9 @@ public class UserController {
             if (user1.getUsername() != null) {
                 userService.updateUsername(user1.getUsername(), user);
             }
+            if (user1.getEmail() != null) {
+                userService.updateEmail(user1.getEmail(), user);
+            }
             if (user1.getPassword() != null) {
                 userService.updatePassword(user1.getPassword(), user);
             }
