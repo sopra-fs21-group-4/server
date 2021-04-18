@@ -111,10 +111,10 @@ public class UserService {
      */
     public void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-//lolol
+
         String baseErrorMessage = "The %s provided %s not unique. Please choose another one!";
         if (userByUsername != null ) { //&& userByName != null
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
         }
 
     }
