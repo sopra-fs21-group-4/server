@@ -70,12 +70,27 @@ public class UserController {
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<UserGetDTO> getAllUsers() {
-        // fetch all users in the internal representation
-        List<User> users = userService.getUsers();
-        List<UserGetDTO> userGetDTOs = new ArrayList<>();
+    public List<UserGetDTO> getUsers(
+            @RequestParam Optional<List<Long>> userIds,
+            @RequestParam Optional<List<String>> usernames
+    ) {
+        if (userIds.isPresent() && usernames.isPresent())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't specify both usernames and userIds!");
+
+        List<User> users = new ArrayList<>();
+        if (userIds.isPresent()) {
+            // fetch users by userIds
+            for (Long userId : userIds.get()) users.add(userService.getUserByUserId(userId));
+        } else if (usernames.isPresent()) {
+            // fetch users by usernames
+            for (String username : usernames.get()) users.add(userService.getUserByUsername(username));
+        } else {
+            // fetch all users in the internal representation
+            users = userService.getUsers();
+        }
 
         // convert each user to the API representation
+        List<UserGetDTO> userGetDTOs = new ArrayList<>();
         for (User user : users) {
             userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
         }
