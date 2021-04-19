@@ -8,7 +8,6 @@ import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.LobbyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,13 +123,13 @@ public class LobbyController {
     @GetMapping("/lobbies")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<LobbyGetDTORestricted> getAllLobbies() {
+    public List<LobbyOverviewGetDTO> getAllLobbies() {
 
         List<Lobby> lobbies = lobbyService.getLobbies();
-        List<LobbyGetDTORestricted> lobbyGetDTOs = new ArrayList<>();
+        List<LobbyOverviewGetDTO> lobbyGetDTOs = new ArrayList<>();
 
         for(Lobby lobby : lobbies){
-            lobbyGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTORestricted(lobby));
+            lobbyGetDTOs.add(DTOMapper.INSTANCE.convertEntityToLobbyOverviewGetDTO(lobby));
         }
 
         return lobbyGetDTOs;

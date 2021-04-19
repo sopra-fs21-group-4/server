@@ -2,25 +2,24 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LobbyGetDTORestricted {
+public class LobbyOverviewGetDTO {
 
     private Long lobbyId;
     private String name;
     private GameState gameState;
-    private int maxRounds;
+    private Integer totalRounds;
     private String subreddit;
     private MemeType memeType;
-    private int maxTitleTime;
-    private int maxVoteTime;
-    private int maxPointsTime;
-    private int maxPlayers;
-    private long gameMaster; // special because we dont want to send the user object just the id
+    private Long namingTime;
+    private Long votingTime;
+    private Long resultsTime;
+    private Integer maxPlayers;
+    private String gameMaster; // special because we dont want to send the user object just the username
     private List<Long> players = new ArrayList<>(); // players and its setter is special because we dont want to return all user objects, just the ids of all users
 
 
@@ -40,36 +39,36 @@ public class LobbyGetDTORestricted {
         this.memeType = memeType;
     }
 
-    public int getMaxTitleTime() {
-        return maxTitleTime;
+    public Long getNamingTime() {
+        return namingTime;
     }
 
-    public void setMaxTitleTime(int maxTitleTime) {
-        this.maxTitleTime = maxTitleTime;
+    public void setNamingTime(Long namingTime) {
+        this.namingTime = namingTime;
     }
 
-    public int getMaxVoteTime() {
-        return maxVoteTime;
+    public Long getVotingTime() {
+        return votingTime;
     }
 
-    public void setMaxVoteTime(int maxVoteTime) {
-        this.maxVoteTime = maxVoteTime;
+    public void setVotingTime(Long votingTime) {
+        this.votingTime = votingTime;
     }
 
-    public int getMaxPointsTime() {
-        return maxPointsTime;
+    public Long getResultsTime() {
+        return resultsTime;
     }
 
-    public void setMaxPointsTime(int maxPointsTime) {
-        this.maxPointsTime = maxPointsTime;
+    public void setResultsTime(Long resultsTime) {
+        this.resultsTime = resultsTime;
     }
 
-    public long getGameMaster() {
+    public String getGameMaster() {
         return gameMaster;
     }
 
     public void setGameMaster(User gameMaster) {
-        this.gameMaster = gameMaster.getUserId();
+        this.gameMaster = gameMaster.getUsername();
     }
 
     public List<Long> getPlayers() {
@@ -83,19 +82,19 @@ public class LobbyGetDTORestricted {
         }
     }
 
-    public int getMaxRounds() {
-        return maxRounds;
+    public Integer getTotalRounds() {
+        return totalRounds;
     }
 
-    public void setMaxRounds(int maxRounds) {
-        this.maxRounds = maxRounds;
+    public void setTotalRounds(Integer totalRounds) {
+        this.totalRounds = totalRounds;
     }
 
-    public int getMaxPlayers() {
+    public Integer getMaxPlayers() {
         return maxPlayers;
     }
 
-    public void setMaxPlayers(int maxPlayers) {
+    public void setMaxPlayers(Integer maxPlayers) {
         this.maxPlayers = maxPlayers;
     }
 

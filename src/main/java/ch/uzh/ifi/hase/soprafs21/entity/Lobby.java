@@ -22,8 +22,6 @@ public class Lobby implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-
-
     @Id
     @GeneratedValue
     private Long lobbyId;
@@ -41,7 +39,7 @@ public class Lobby implements Serializable {
     private int round = 0;
 
     @Column(nullable = false)
-    private int maxRounds = 5;
+    private Integer totalRounds = 5;
 
     @Column
     private String currentMeme;
@@ -53,13 +51,13 @@ public class Lobby implements Serializable {
     private MemeType memeType = MemeType.HOT;
 
     @Column(nullable = false)
-    private int maxTitleTime = 15;
+    private Long maxNamingTime = 15L;
 
     @Column (nullable = false)
-    private int maxVoteTime = 15;
+    private Long maxVotingTime = 15L;
 
     @Column(nullable = false)
-    private int maxPointsTime = 10;
+    private Long maxResultsTime = 10L;
 
     @Column(nullable = false)
     private int maxPlayers = 5;
@@ -119,28 +117,28 @@ public class Lobby implements Serializable {
         this.memeType = memeType;
     }
 
-    public int getMaxTitleTime() {
-        return maxTitleTime;
+    public Long getMaxNamingTime() {
+        return maxNamingTime;
     }
 
-    public void setMaxTitleTime(int maxTitleTime) {
-        this.maxTitleTime = maxTitleTime;
+    public void setMaxNamingTime(Long maxTitleTime) {
+        this.maxNamingTime = maxTitleTime;
     }
 
-    public int getMaxVoteTime() {
-        return maxVoteTime;
+    public Long getMaxVotingTime() {
+        return maxVotingTime;
     }
 
-    public void setMaxVoteTime(int maxVoteTime) {
-        this.maxVoteTime = maxVoteTime;
+    public void setMaxVotingTime(Long maxVoteTime) {
+        this.maxVotingTime = maxVoteTime;
     }
 
-    public int getMaxPointsTime() {
-        return maxPointsTime;
+    public Long getMaxResultsTime() {
+        return maxResultsTime;
     }
 
-    public void setMaxPointsTime(int maxPointsTime) {
-        this.maxPointsTime = maxPointsTime;
+    public void setMaxResultsTime(Long maxPointsTime) {
+        this.maxResultsTime = maxPointsTime;
     }
 
     public List<MemeTitle> getMemeTitles() {
@@ -183,12 +181,12 @@ public class Lobby implements Serializable {
         this.time = time;
     }
 
-    public int getMaxRounds() {
-        return maxRounds;
+    public int getTotalRounds() {
+        return totalRounds;
     }
 
-    public void setMaxRounds(int maxRounds) {
-        this.maxRounds = maxRounds;
+    public void setTotalRounds(int maxRounds) {
+        this.totalRounds = maxRounds;
     }
 
     public int getMaxPlayers() {

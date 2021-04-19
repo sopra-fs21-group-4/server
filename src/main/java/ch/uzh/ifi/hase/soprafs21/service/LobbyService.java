@@ -6,7 +6,6 @@ import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MemeTitleRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MemeVoteRepository;
-import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,7 @@ public class LobbyService {
                 if(now.isAfter(lobby.getTime())){
                     // title giving stage is over:
                     lobby.setGameState(GameState.VOTE);
-                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxVoteTime()));
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxVotingTime()));
                     // TODO
 
                 }
@@ -68,7 +67,7 @@ public class LobbyService {
                 if(now.isAfter(lobby.getTime())){
                     // voting stage is over:
                     lobby.setGameState(GameState.POINTS);
-                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxPointsTime()));
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxResultsTime()));
                     // TODO
 
                 }
@@ -77,9 +76,9 @@ public class LobbyService {
                 if(now.isAfter(lobby.getTime())){
                     // point giving stage is over:
                     lobby.setRound(lobby.getRound()+1);
-                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTitleTime()));
+                    lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxNamingTime()));
 
-                    if(lobby.getRound()>lobby.getMaxRounds()){
+                    if(lobby.getRound()>lobby.getTotalRounds()){
                         // this was the last round:
                         lobby.setGameState(GameState.FINISH);
                         // TODO
@@ -165,7 +164,7 @@ public class LobbyService {
         // TODO start game
         lobby.setRound(1);
         lobby.setGameState(GameState.TITLE);
-        lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxTitleTime()));
+        lobby.setTime(LocalDateTime.now().plusSeconds(lobby.getMaxNamingTime()));
 
         // TODO get meme from reddit
         //getMemeLink

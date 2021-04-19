@@ -14,13 +14,13 @@ public class LobbyGetDTO {
     private String name;
     private GameState gameState;
     private int round;
-    private int maxRounds;
+    private int totalRounds;
     private String currentMeme;
     private String subreddit;
     private MemeType memeType;
-    private int maxTitleTime;
-    private int maxVoteTime;
-    private int maxPointsTime;
+    private int namingTime;
+    private int votingTime;
+    private int resultsTime;
     private int maxPlayers;
     private long gameMaster; // special because we dont want to send the user object just the id
     private List<Long> players = new ArrayList<>(); // players and its setter is special because we dont want to return all user objects, just the ids of all users
@@ -58,28 +58,28 @@ public class LobbyGetDTO {
         this.memeType = memeType;
     }
 
-    public int getMaxTitleTime() {
-        return maxTitleTime;
+    public int getNamingTime() {
+        return namingTime;
     }
 
-    public void setMaxTitleTime(int maxTitleTime) {
-        this.maxTitleTime = maxTitleTime;
+    public void setNamingTime(int namingTime) {
+        this.namingTime = namingTime;
     }
 
-    public int getMaxVoteTime() {
-        return maxVoteTime;
+    public int getVotingTime() {
+        return votingTime;
     }
 
-    public void setMaxVoteTime(int maxVoteTime) {
-        this.maxVoteTime = maxVoteTime;
+    public void setVotingTime(int votingTime) {
+        this.votingTime = votingTime;
     }
 
-    public int getMaxPointsTime() {
-        return maxPointsTime;
+    public int getResultsTime() {
+        return resultsTime;
     }
 
-    public void setMaxPointsTime(int maxPointsTime) {
-        this.maxPointsTime = maxPointsTime;
+    public void setResultsTime(int resultsTime) {
+        this.resultsTime = resultsTime;
     }
 
     public long getGameMaster() {
@@ -101,12 +101,12 @@ public class LobbyGetDTO {
         }
     }
 
-    public int getMaxRounds() {
-        return maxRounds;
+    public int getTotalRounds() {
+        return totalRounds;
     }
 
-    public void setMaxRounds(int maxRounds) {
-        this.maxRounds = maxRounds;
+    public void setTotalRounds(int totalRounds) {
+        this.totalRounds = totalRounds;
     }
 
     public int getMaxPlayers() {

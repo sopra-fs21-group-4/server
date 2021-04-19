@@ -50,9 +50,14 @@ public interface DTOMapper {
 
     // crating lobbies
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "maxRounds", target = "maxRounds")
-    @Mapping(source = "maxTimer", target = "maxTitleTime")
+    @Mapping(source = "subreddit", target = "subreddit")
+    @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "password", target = "password")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
+    @Mapping(source = "totalRounds", target = "totalRounds")
+    @Mapping(source = "namingTime", target = "maxNamingTime")
+    @Mapping(source = "votingTime", target = "maxVotingTime")
+    @Mapping(source = "resultsTime", target = "maxResultsTime")
     Lobby convertLobbyPostDTOToEntity(LobbyPostDTO lobbyPostDTO);
 
     // getting lobbies
@@ -60,15 +65,15 @@ public interface DTOMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "round", target = "round")
-    @Mapping(source = "maxRounds", target = "maxRounds")
+    @Mapping(source = "totalRounds", target = "totalRounds")
     @Mapping(source = "currentMeme", target = "currentMeme")
     @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
-    @Mapping(source = "maxTitleTime", target = "maxTitleTime")
-    @Mapping(source = "maxVoteTime", target = "maxVoteTime")
-    @Mapping(source = "maxPointsTime", target = "maxPointsTime")
-    @Mapping(source = "gameMaster", target = "gameMaster")
+    @Mapping(source = "maxNamingTime", target = "namingTime")
+    @Mapping(source = "maxVotingTime", target = "votingTime")
+    @Mapping(source = "maxResultsTime", target = "resultsTime")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
+    @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "players", target = "players")
     @Mapping(source = "chat", target = "chat")
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
@@ -77,16 +82,16 @@ public interface DTOMapper {
     @Mapping(source = "lobbyId", target = "lobbyId")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "gameState", target = "gameState")
-    @Mapping(source = "maxRounds", target = "maxRounds")
+    @Mapping(source = "totalRounds", target = "totalRounds")
     @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
-    @Mapping(source = "maxTitleTime", target = "maxTitleTime")
-    @Mapping(source = "maxVoteTime", target = "maxVoteTime")
-    @Mapping(source = "maxPointsTime", target = "maxPointsTime")
+    @Mapping(source = "maxNamingTime", target = "namingTime")
+    @Mapping(source = "maxVotingTime", target = "votingTime")
+    @Mapping(source = "maxResultsTime", target = "resultsTime")
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "players", target = "players")
-    LobbyGetDTORestricted convertEntityToLobbyGetDTORestricted(Lobby lobby);
+    LobbyOverviewGetDTO convertEntityToLobbyOverviewGetDTO(Lobby lobby);
 
     // creating a new meme title entity
     @Mapping(target = "lobbyId", expression = "java(null)")  // lobbyId is taken from request header
