@@ -71,8 +71,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<UserGetDTO> getUsers(
-            @RequestParam Optional<List<Long>> userIds,
-            @RequestParam Optional<List<String>> usernames
+            @RequestHeader("userIds") Optional<List<Long>> userIds,
+            @RequestHeader("usernames") Optional<List<String>> usernames
     ) {
         if (userIds.isPresent() && usernames.isPresent())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't specify both usernames and userIds!");
@@ -104,8 +104,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public UserGetDTO getUser(
-            @RequestParam Optional<Long> userId,
-            @RequestParam Optional<String> username
+            @RequestHeader("userId") Optional<Long> userId,
+            @RequestHeader("username") Optional<String> username
     ) {
         if (userId.isPresent() == username.isPresent())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify either username or userId!");
