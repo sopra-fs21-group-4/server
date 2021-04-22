@@ -3,7 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 public class MessageGetDTO {
 
     private Long messageId;
-    private Long chatId;
+    private Long messageChannelId;
     private Long timestamp;
     private String username;
     private String text;
@@ -16,12 +16,12 @@ public class MessageGetDTO {
         this.messageId = messageId;
     }
 
-    public Long getChatId() {
-        return chatId;
+    public Long getMessageChannelId() {
+        return messageChannelId;
     }
 
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
+    public void setMessageChannelId(Long messageChannelId) {
+        this.messageChannelId = messageChannelId;
     }
 
     public Long getTimestamp() {

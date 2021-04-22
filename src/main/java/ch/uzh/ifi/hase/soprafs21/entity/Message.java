@@ -20,11 +20,10 @@ public class Message implements Serializable, Comparable<Message> {
 
     @Id
     @GeneratedValue
-    @Column
     private Long messageId;
 
     @Column(nullable = false)
-    private Long chatId;
+    private Long messageChannelId;
 
     @Column(nullable = false)
     private Long userId;
@@ -40,12 +39,12 @@ public class Message implements Serializable, Comparable<Message> {
         return messageId;
     }
 
-    public Long getChatId() {
-        return chatId;
+    public Long getMessageChannelId() {
+        return messageChannelId;
     }
 
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
+    public void setMessageChannelId(Long chatId) {
+        this.messageChannelId = chatId;
     }
 
     public Long getUserId() {

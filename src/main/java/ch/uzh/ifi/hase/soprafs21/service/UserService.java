@@ -96,14 +96,14 @@ public class UserService {
     /**
      * check if user id and token are correct (if user is logged in)
      */
-    public void verifyUser(Long id, String token){
+    public User verifyUser(Long id, String token){
 
         User user = userRepository.findByUserId(id);
-
         //check for token
         if (user==null || !user.getToken().equals(token)){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Access denied"));
         }
+        return user;
     }
 
     /**

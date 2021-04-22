@@ -1,10 +1,10 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
-import ch.uzh.ifi.hase.soprafs21.entity.Chat;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
+import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs21.service.ChatService;
+import ch.uzh.ifi.hase.soprafs21.service.MessageChannelService;
 import ch.uzh.ifi.hase.soprafs21.service.MessageService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,11 +23,11 @@ import java.util.Optional;
 @RestController
 public class ChatController {
 
-    private final ChatService chatService;
+    private final MessageChannelService chatService;
     private final MessageService messageService;
     private final UserService userService;
 
-    ChatController(ChatService chatService, MessageService messageService, UserService userService) {
+    ChatController(MessageChannelService chatService, MessageService messageService, UserService userService) {
         this.chatService = chatService;
         this.messageService = messageService;
         this.userService = userService;
@@ -39,9 +39,9 @@ public class ChatController {
     @PostMapping("/chat/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public ChatGetDTO createChat() {
-        Chat newChat = chatService.createChat();
-        return DTOMapper.INSTANCE.convertEntityToChatGetDTO(newChat);
+    public MessageChannelGetDTO createMessageChannel() {
+        MessageChannel newMessageChannel = chatService.createMessageChannel();
+        return DTOMapper.INSTANCE.convertEntityToMessageChannelGetDTO(newMessageChannel);
     }
 
     /**
@@ -114,7 +114,7 @@ public class ChatController {
         Message messageToPost = DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO);
 
         // get syncable version of chatId, also verify
-        chatId = chatService.syncableChatId(chatId);
+        chatId = chatService.syncableMessageChannelId(chatId);
         // verify userId
         userService.verifyUser(userId, token);
 
