@@ -46,86 +46,68 @@ public interface DTOMapper {
     User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
 
 
-    // LOBBIES
+    // GAMES
 
-    // crating lobbies
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "subreddit", target = "subreddit")
-    @Mapping(source = "memeType", target = "memeType")
     @Mapping(source = "password", target = "password")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "totalRounds", target = "totalRounds")
-    @Mapping(source = "namingTime", target = "maxNamingTime")
-    @Mapping(source = "votingTime", target = "maxVotingTime")
-    @Mapping(source = "resultsTime", target = "maxResultsTime")
-    Lobby convertLobbyPostDTOToEntity(LobbyPostDTO lobbyPostDTO);
-
-    // getting lobbies
-    @Mapping(source = "lobbyId", target = "lobbyId")
-    @Mapping(source = "name", target = "name")
-    @Mapping(source = "gameState", target = "gameState")
-    @Mapping(source = "round", target = "round")
-    @Mapping(source = "totalRounds", target = "totalRounds")
-    @Mapping(source = "currentMeme", target = "currentMeme")
-    @Mapping(source = "subreddit", target = "subreddit")
+    @Mapping(source = "subreddit", target = "memeSourceURL")
     @Mapping(source = "memeType", target = "memeType")
-    @Mapping(source = "maxNamingTime", target = "namingTime")
-    @Mapping(source = "maxVotingTime", target = "votingTime")
-    @Mapping(source = "maxResultsTime", target = "resultsTime")
-    @Mapping(source = "maxPlayers", target = "maxPlayers")
-    @Mapping(source = "gameMaster", target = "gameMaster")
-    @Mapping(source = "players", target = "players")
-    @Mapping(source = "chat", target = "chat")
-    LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
+    @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
+    @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
+    @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
+    GameSettings convertGameSettingsDTOToEntity(GameSettingsDTO gameSettingsDTO);
 
-    // getting lobby overviews
-    @Mapping(source = "lobbyId", target = "lobbyId")
+    // getting restricted game information
+    @Mapping(source = "gameId", target = "gameId")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "totalRounds", target = "totalRounds")
-    @Mapping(source = "subreddit", target = "subreddit")
+    @Mapping(source = "memeSourceURL", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
-    @Mapping(source = "maxNamingTime", target = "namingTime")
-    @Mapping(source = "maxVotingTime", target = "votingTime")
-    @Mapping(source = "maxResultsTime", target = "resultsTime")
-    @Mapping(source = "gameMaster", target = "gameMaster")
+    @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
+    @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
+    @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
-    @Mapping(source = "players", target = "players")
-    LobbyOverviewGetDTO convertEntityToLobbyOverviewGetDTO(Lobby lobby);
+    @Mapping(source = "playerStates", target = "playerStates")
+    GameGetRestrictedDTO convertEntityToGameGetRestrictedDTO(Game game);
 
-    // creating a new meme title entity
-    @Mapping(target = "lobbyId", expression = "java(null)")  // lobbyId is taken from request header
-    @Mapping(target = "userId", expression = "java(null)")  // userid is taken from request header
-    @Mapping(source = "title", target = "title")
-    @Mapping(source = "round", target = "round")
-    MemeTitle convertLobbyMemeTitlePutDTOToEntity(LobbyMemeTitlePutDTO lobbyMemeTitlePutDTO);
+    // getting complete game information
+    @Mapping(source = "gameId", target = "gameId")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "gameState", target = "gameState")
+    @Mapping(source = "totalRounds", target = "totalRounds")
+    @Mapping(source = "memeSourceURL", target = "subreddit")
+    @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
+    @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
+    @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
+    @Mapping(source = "maxPlayers", target = "maxPlayers")
+    @Mapping(source = "playerStates", target = "playerStates")
+    GameGetFullDTO convertEntityToGameGetFullDTO(Game game);    // TODO expand
 
-    // creating a new meme vote entity
-    @Mapping(target = "lobbyId", expression = "java(null)") // lobbyId is taken from request header
-    @Mapping(target = "fromUserId", expression = "java(null)")  // userid is taken from request header
-    @Mapping(source = "forUserId", target = "forUserId") // this is the id of the user for whose meme the vote is
-    @Mapping(source = "round", target = "round")
-    MemeVote convertLobbyMemeVotePutDTOToEntity(LobbyMemeVotePutDTO lobbyMemeVotePutDTO);
+
 
     // CHATS
 
     // getting chats
-    @Mapping(source = "chatId", target = "chatId")
-    ChatGetDTO convertEntityToChatGetDTO(Chat chat);
+    @Mapping(source = "messageChannelId", target = "messageChannelId")
+    MessageChannelGetDTO convertEntityToMessageChannelGetDTO(MessageChannel chat);
 
 
     // MESSAGES
 
     // getting messages
     @Mapping(source = "messageId", target = "messageId")
-    @Mapping(source = "chatId", target = "chatId")
+    @Mapping(source = "messageChannelId", target = "messageChannelId")
     @Mapping(target = "username", expression = "java(message.getUsername())")
     @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "text", target = "text")
     MessageGetDTO convertEntityToMessageGetDTO(Message message);
 
     // posting messages
-    @Mapping(target = "chatId", expression = "java(null)")      // taken from request header
+    @Mapping(target = "messageChannelId", expression = "java(null)")      // taken from request header
     @Mapping(target = "timestamp", expression = "java(null)")   // generated
     @Mapping(target = "userId", expression = "java(null)")    // taken from request header
     @Mapping(source = "text", target = "text")

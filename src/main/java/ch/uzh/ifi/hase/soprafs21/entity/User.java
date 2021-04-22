@@ -38,17 +38,17 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @ManyToOne(targetEntity = Lobby.class)
-    @JoinColumn(name="currentLobbyId")
-    private Lobby currentLobby;
+    @ManyToOne(targetEntity = Game.class)
+    @JoinColumn(name="currentGameId")
+    private Game currentGame;
 
 
-    public Lobby getCurrentLobby() {
-        return currentLobby;
+    public Game getCurrentGame() {
+        return currentGame;
     }
 
-    public void setCurrentLobby(Lobby currentLobby) {
-        this.currentLobby = currentLobby;
+    public void setCurrentGame(Game game) {
+        this.currentGame = game;
     }
 
     public Long getUserId() {

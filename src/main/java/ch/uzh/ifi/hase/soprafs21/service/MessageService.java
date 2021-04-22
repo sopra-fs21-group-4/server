@@ -37,11 +37,11 @@ public class MessageService {
      * @param chatId chatId of the chat to post it in
      * @return Message object successfully stored in the repository
      */
-    public Message postMessage(Message message, Long userId, Long chatId) {
+    public Message postMessage(Message message, Long userId, Long messageChannelId) {
         message.setUserId(userId);
-        message.setChatId(chatId);
+        message.setMessageChannelId(messageChannelId);
         // avoid simultaneous posts to keep unique order
-        synchronized (chatId) {
+        synchronized (messageChannelId) {
             message.setTimestamp(System.currentTimeMillis());
             try {
                 Thread.sleep(1);    // wait for 1 ms, otherwise the mutex would be pointless
@@ -58,9 +58,9 @@ public class MessageService {
      * returns a sorted list of all messages referring to a given chatId
      * @param chatId
      */
-    public List<Message> getMessages(Long chatId) {
+    public List<Message> getMessages(Long messageChannelId) {
 
-        List<Message> list = messageRepository.findAllByChatId(chatId);
+        List<Message> list = messageRepository.findAllByMessageChannelId(messageChannelId);
         list.sort(null);
         return list;
     }
