@@ -77,19 +77,27 @@ public interface DTOMapper {
     // getting complete game information
     @Mapping(source = "gameId", target = "gameId")
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "gameState", target = "gameState")
-    @Mapping(source = "totalRounds", target = "totalRounds")
     @Mapping(source = "memeSourceURL", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "gameState", target = "gameState")
+    @Mapping(source = "currentRoundTitle", target = "currentRoundTitle")
+    @Mapping(source = "currentRoundPhase", target = "currentRoundPhase")
+    @Mapping(source = "currentSuggestions", target = "currentSuggestions")
+    @Mapping(source = "currentVotes", target = "currentVotes")
+    @Mapping(source = "currentMemeURL", target = "currentMemeURL")
+    @Mapping(source = "roundCounter", target = "roundCounter")
+    @Mapping(source = "totalRounds", target = "totalRounds")
+    @Mapping(source = "currentCountdown", target = "currentCountdown")
     @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
     @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "playerStates", target = "playerStates")
+    @Mapping(source = "playerPoints", target = "playerPoints")
     @Mapping(source = "gameMaster", target = "gameMasterName")
     @Mapping(source = "presentPlayers", target = "playerNames")
     @Mapping(source = "gameChat", target = "gameChat")
-    GameGetFullDTO convertEntityToGameGetFullDTO(Game game);    // TODO expand
+    GameGetFullDTO convertEntityToGameGetFullDTO(Game game);
 
 
 

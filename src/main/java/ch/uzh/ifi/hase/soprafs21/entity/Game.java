@@ -43,6 +43,8 @@ public class Game implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    // TODO sort attributes, getters and setters
+
     /* FIELDS */
 
     @Id
@@ -53,7 +55,7 @@ public class Game implements Serializable {
     private final Map<User, PlayerState> playerStates = new HashMap<>(); // get, put
 
     @ElementCollection
-    private final Map<User, Integer> points = new HashMap<>(); // get // TODO calculate on end of round
+    private final Map<User, Integer> playerPoints = new HashMap<>(); // get // TODO calculate on end of round
 
     @OneToOne(targetEntity = MessageChannel.class)
     private final MessageChannel gameChat = new MessageChannel(); // get only
@@ -90,8 +92,8 @@ public class Game implements Serializable {
         return new HashMap<>(playerStates);
     } // only returns a copy
 
-    public Map<User, Integer> getPoints() {
-        return new HashMap<>(points);
+    public Map<User, Integer> getPlayerPoints() {
+        return new HashMap<>(playerPoints);
     } // only returns a copy
 
     public MessageChannel getGameChat() {
@@ -119,7 +121,7 @@ public class Game implements Serializable {
     }
 
     public GameRound getCurrentRound() {
-        return gameRounds.get(roundCounter);
+        return gameState.isActive()? gameRounds.get(roundCounter) : null;
     }
 
     public GameSummary getGameSummary() {
@@ -157,6 +159,32 @@ public class Game implements Serializable {
     public Integer getMaxPlayers() {
         return gameSettings.getMaxPlayers();
     }
+
+    public String getCurrentRoundTitle() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getTitle();
+    }
+
+    public RoundPhase getCurrentRoundPhase() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getPhase();
+    }
+
+    public Map<User, String> getCurrentSuggestions() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getSuggestions();
+    }
+
+    public Map<User, Long> getCurrentVotes() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getVotes();
+    }
+
+    public String getCurrentMemeURL() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getMemeURL();
+    }
+
 
     /* SPECIAL METHODS */
 

@@ -12,6 +12,8 @@ import java.util.Map;
 
 public class GameGetRestrictedDTO {
 
+    // TODO sort attributes, getters and setters
+
     private Long gameId;
     private String name;
     private GameState gameState;
@@ -116,7 +118,7 @@ public class GameGetRestrictedDTO {
     public List<String> getPlayerNames() {
         return playerNames;
     }
-
+  
     public void setPlayerNames(List<User> players) {
         this.playerNames = new ArrayList<>();
         for (User user : players) this.playerNames.add(user.getUsername());
