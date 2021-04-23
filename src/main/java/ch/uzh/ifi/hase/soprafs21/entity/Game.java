@@ -8,7 +8,6 @@ import util.MemeUrlSupplier;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.nio.BufferOverflowException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +65,7 @@ public class Game implements Serializable {
     private GameState gameState = GameState.INIT; // get only
 
     @OneToMany(targetEntity = GameRound.class, cascade = CascadeType.ALL)
-    private final List<GameRound> rounds = new ArrayList<>(); // getCurrentRound
+    private final List<GameRound> gameRounds = new ArrayList<>(); // get, getCurrentRound
 
     @Column(nullable = false)
     private Integer roundCounter = 0; // get, skipRound
@@ -100,8 +99,8 @@ public class Game implements Serializable {
     }
 
     public GameSettings getGameSettings() {
-        return gameSettings.clone();
-    } // only returns a copy
+        return gameSettings;
+    } // hope nobody modifies the settings through this
 
     public GameState getGameState() {
         return gameState;
@@ -115,8 +114,12 @@ public class Game implements Serializable {
         return gameState.isVirgin()? 0 : roundCounter +1;
     } // add +1 for frontend
 
+    public List<GameRound> getGameRounds() {
+        return this.gameRounds;
+    }
+
     public GameRound getCurrentRound() {
-        return rounds.get(roundCounter);
+        return gameRounds.get(roundCounter);
     }
 
     public GameSummary getGameSummary() {
@@ -406,7 +409,7 @@ public class Game implements Serializable {
             GameRound round = new GameRound();
             round.setTitle(String.format("Round %d",(i+1)));
             round.setMemeURL(memeUrlSupplier.get());
-            this.rounds.add(round);
+            this.gameRounds.add(round);
         }
         // 5 seconds until game starts
         setCountdown(5000L);
@@ -606,7 +609,7 @@ public class Game implements Serializable {
         List<GameRoundSummary> summaries = new ArrayList<>();
         for (int i = 0; i < this.roundCounter; i++) {
             GameRoundSummary summary = new GameRoundSummary();
-            summary.adapt(rounds.get(i));
+            summary.adapt(gameRounds.get(i));
             summaries.add(summary);
         }
         return summaries;
