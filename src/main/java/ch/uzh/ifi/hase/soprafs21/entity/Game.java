@@ -8,7 +8,6 @@ import util.MemeUrlSupplier;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.nio.BufferOverflowException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +43,8 @@ public class Game implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    // TODO sort attributes, getters and setters
+
     /* FIELDS */
 
     @Id
@@ -54,7 +55,7 @@ public class Game implements Serializable {
     private final Map<User, PlayerState> playerStates = new HashMap<>(); // get, put
 
     @ElementCollection
-    private final Map<User, Integer> points = new HashMap<>(); // get // TODO calculate on end of round
+    private final Map<User, Integer> playerPoints = new HashMap<>(); // get // TODO calculate on end of round
 
     @OneToOne(targetEntity = MessageChannel.class)
     private final MessageChannel gameChat = new MessageChannel(); // get only
@@ -66,7 +67,7 @@ public class Game implements Serializable {
     private GameState gameState = GameState.INIT; // get only
 
     @OneToMany(targetEntity = GameRound.class, cascade = CascadeType.ALL)
-    private final List<GameRound> rounds = new ArrayList<>(); // getCurrentRound
+    private final List<GameRound> gameRounds = new ArrayList<>(); // get, getCurrentRound
 
     @Column(nullable = false)
     private Integer roundCounter = 0; // get, skipRound
@@ -91,8 +92,8 @@ public class Game implements Serializable {
         return new HashMap<>(playerStates);
     } // only returns a copy
 
-    public Map<User, Integer> getPoints() {
-        return new HashMap<>(points);
+    public Map<User, Integer> getPlayerPoints() {
+        return new HashMap<>(playerPoints);
     } // only returns a copy
 
     public MessageChannel getGameChat() {
@@ -100,8 +101,8 @@ public class Game implements Serializable {
     }
 
     public GameSettings getGameSettings() {
-        return gameSettings.clone();
-    } // only returns a copy
+        return gameSettings;
+    } // hope nobody modifies the settings through this
 
     public GameState getGameState() {
         return gameState;
@@ -115,8 +116,12 @@ public class Game implements Serializable {
         return gameState.isVirgin()? 0 : roundCounter +1;
     } // add +1 for frontend
 
+    public List<GameRound> getGameRounds() {
+        return this.gameRounds;
+    }
+
     public GameRound getCurrentRound() {
-        return rounds.get(roundCounter);
+        return gameState.isActive()? gameRounds.get(roundCounter) : null;
     }
 
     public GameSummary getGameSummary() {
@@ -154,6 +159,32 @@ public class Game implements Serializable {
     public Integer getMaxPlayers() {
         return gameSettings.getMaxPlayers();
     }
+
+    public String getCurrentRoundTitle() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getTitle();
+    }
+
+    public RoundPhase getCurrentRoundPhase() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getPhase();
+    }
+
+    public Map<User, String> getCurrentSuggestions() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getSuggestions();
+    }
+
+    public Map<User, Long> getCurrentVotes() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getVotes();
+    }
+
+    public String getCurrentMemeURL() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getMemeURL();
+    }
+
 
     /* SPECIAL METHODS */
 
@@ -406,7 +437,7 @@ public class Game implements Serializable {
             GameRound round = new GameRound();
             round.setTitle(String.format("Round %d",(i+1)));
             round.setMemeURL(memeUrlSupplier.get());
-            this.rounds.add(round);
+            this.gameRounds.add(round);
         }
         // 5 seconds until game starts
         setCountdown(5000L);
@@ -606,7 +637,7 @@ public class Game implements Serializable {
         List<GameRoundSummary> summaries = new ArrayList<>();
         for (int i = 0; i < this.roundCounter; i++) {
             GameRoundSummary summary = new GameRoundSummary();
-            summary.adapt(rounds.get(i));
+            summary.adapt(gameRounds.get(i));
             summaries.add(summary);
         }
         return summaries;

@@ -1,14 +1,10 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
-import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
-import util.MemeUrlSupplier;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +77,7 @@ public class GameSummary implements Serializable {
 
         this.gameId = game.getGameId();
         this.name = game.getName();
-        this.points = game.getPoints();
+        this.points = game.getPlayerPoints();
         this.gameChat = game.getGameChat();
         this.gameSettings = game.getGameSettings();
         this.gameState = game.getGameState();
