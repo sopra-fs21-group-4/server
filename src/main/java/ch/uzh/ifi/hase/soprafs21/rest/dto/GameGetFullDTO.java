@@ -203,7 +203,7 @@ public class GameGetFullDTO {
             this.playerPoints.put(user.getUserId(), playerPoints.get(user));
         }
     }
-
+  
     public String getGameMasterName() {
         return gameMasterName;
     }

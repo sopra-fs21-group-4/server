@@ -118,7 +118,7 @@ public class GameGetRestrictedDTO {
     public List<String> getPlayerNames() {
         return playerNames;
     }
-
+  
     public void setPlayerNames(List<User> players) {
         this.playerNames = new ArrayList<>();
         for (User user : players) this.playerNames.add(user.getUsername());
