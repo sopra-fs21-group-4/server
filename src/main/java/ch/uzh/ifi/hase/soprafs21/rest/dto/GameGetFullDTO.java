@@ -3,9 +3,12 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
+import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GameGetFullDTO {
@@ -23,6 +26,9 @@ public class GameGetFullDTO {
     private Long maxAftermathSeconds;
     private Integer maxPlayers;
     private Map<Long, PlayerState> playerStates;
+    private String gameMasterName;
+    private List<String> playerNames;
+    private Long gameChatId;
 
     public Long getGameId() {
         return gameId;
@@ -107,12 +113,37 @@ public class GameGetFullDTO {
     public Map<Long, PlayerState> getPlayerStates() {
         return playerStates;
     }
-
+    // convert map to use userId instead of user
     public void setPlayerStates(Map<User, PlayerState> playerStates) {
         this.playerStates = new HashMap<>();
         for (User user : playerStates.keySet()) {
             this.playerStates.put(user.getUserId(), playerStates.get(user));
         }
-    }   // convert map to use userId instead of user
+    }
+
+    public String getGameMasterName() {
+        return gameMasterName;
+    }
+
+    public void setGameMasterName(User gameMaster) {
+        this.gameMasterName = gameMaster.getUsername();
+    }// entity to username
+
+    public List<String> getPlayerNames() {
+        return playerNames;
+    }
+
+    public void setPlayerNames(List<User> players) {
+        this.playerNames = new ArrayList<>();
+        for (User user : players) this.playerNames.add(user.getUsername());
+    }   // entities to usernames
+
+    public Long getGameChatId() {
+        return gameChatId;
+    }
+    // convert entity to id
+    public void setGameChat(MessageChannel gameChat) {
+        this.gameChatId = gameChat.getMessageChannelId();
+    }
 
 }

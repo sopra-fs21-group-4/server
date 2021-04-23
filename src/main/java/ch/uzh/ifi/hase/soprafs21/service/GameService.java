@@ -28,14 +28,27 @@ public class GameService {
 
     private final GameRepository gameRepository;
     private final GameSummaryRepository gameSummaryRepository;
+    private final GameSettingsRepository gameSettingsRepository;
+    private final GameRoundRepository gameRoundRepository;
+    private final GameRoundSummaryRepository gameRoundSummaryRepository;
+    private final MessageChannelRepository messageChannelRepository;
 
 
     @Autowired
     public GameService(
             @Qualifier("gameRepository") GameRepository gameRepository,
-            @Qualifier("gameSummaryRepository") GameSummaryRepository gameSummaryRepository) {
+            @Qualifier("gameSummaryRepository") GameSummaryRepository gameSummaryRepository,
+            @Qualifier("gameSettingsRepository") GameSettingsRepository gameSettingsRepository,
+            @Qualifier("gameRoundRepository") GameRoundRepository gameRoundRepository,
+            @Qualifier("gameRoundSummaryRepository") GameRoundSummaryRepository gameRoundSummaryRepository,
+            @Qualifier("messageChannelRepository") MessageChannelRepository messageChannelRepository
+    ) {
         this.gameRepository = gameRepository;
+        this.gameSettingsRepository = gameSettingsRepository;
         this.gameSummaryRepository = gameSummaryRepository;
+        this.gameRoundRepository = gameRoundRepository;
+        this.gameRoundSummaryRepository = gameRoundSummaryRepository;
+        this.messageChannelRepository = messageChannelRepository;
     }
 
     /**
@@ -54,6 +67,7 @@ public class GameService {
         }
         gameSummaryRepository.flush();
         gameRepository.flush();
+        // TODO not sure if we need to flush other repositories as well if objects are modified by a game
     }
 
 
@@ -86,14 +100,29 @@ public class GameService {
         game.initialize(user);
         game.adaptSettings(gameSettings);
 
+        // put game chat to repository
+        MessageChannel gameChat = game.getGameChat();
+        messageChannelRepository.save(gameChat);
+        messageChannelRepository.flush();
+        // put game settings to repository
+        gameSettings = game.getGameSettings();
+        gameSettingsRepository.save(gameSettings);
+        gameSettingsRepository.flush();
+        // put game rounds to repository
+        List<GameRound> gameRounds = game.getGameRounds();
+        for (GameRound gameRound : gameRounds) gameRoundRepository.save(gameRound);
+        gameRoundRepository.flush();
+        // put game to repository
         game = gameRepository.save(game);
         gameRepository.flush();
+        // TODO do these repositories update automatically when the game modifies its objects?
+
         log.debug("Created new Game: {}", game);
         return game;
     }
 
     /**
-     * TODO
+     * join a game
      * @param user
      * @param gameId
      * @param password

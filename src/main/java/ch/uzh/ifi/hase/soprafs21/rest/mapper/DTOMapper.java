@@ -70,7 +70,8 @@ public interface DTOMapper {
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
     @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
-    @Mapping(source = "playerStates", target = "playerStates")
+    @Mapping(source = "gameMaster", target = "gameMasterName")
+    @Mapping(source = "presentPlayers", target = "playerNames")
     GameGetRestrictedDTO convertEntityToGameGetRestrictedDTO(Game game);
 
     // getting complete game information
@@ -85,6 +86,9 @@ public interface DTOMapper {
     @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "playerStates", target = "playerStates")
+    @Mapping(source = "gameMaster", target = "gameMasterName")
+    @Mapping(source = "presentPlayers", target = "playerNames")
+    @Mapping(source = "gameChat", target = "gameChat")
     GameGetFullDTO convertEntityToGameGetFullDTO(Game game);    // TODO expand
 
 
