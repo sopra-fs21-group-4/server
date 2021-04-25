@@ -202,7 +202,7 @@ public class GameService {
         Game game = findExistingGame(gameId);
 
         if (!game.getGameMaster().equals(gameMaster))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can start the game");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can use this command");
 
         String[] commandSegment = command.split(" ");
 
