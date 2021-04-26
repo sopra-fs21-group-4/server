@@ -632,6 +632,7 @@ public class Game implements Serializable {
             maxVotes = Math.max(maxVotes, value);
             voteCounter.put(candidate, value);
         }
+        if (maxVotes == 0) kill();  // TODO debug
         int[] rankCounter = new int[maxVotes+1];
         int[] rankBonus = new int[maxVotes+1];
         for (Long player : getEnrolledPlayers()) {
