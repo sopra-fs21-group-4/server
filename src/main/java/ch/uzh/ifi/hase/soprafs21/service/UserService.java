@@ -77,19 +77,33 @@ public class UserService {
         return user;
 
     }
+    public void updateUsername(String newUsername, User user) {
 
+        user.setUsername(newUsername);
+        userRepository.flush();
+    }
+    public void updatePassword(String newPassword, User user) {
+        user.setPassword(newPassword);
+        userRepository.flush();
+
+    }
+    public void updateEmail(String newEmail, User user) {
+        user.setEmail(newEmail);
+        userRepository.flush();
+
+    }
 
     /**
      * check if user id and token are correct (if user is logged in)
      */
-    public void verifyUser(Long id, String token){
+    public User verifyUser(Long id, String token){
 
         User user = userRepository.findByUserId(id);
-
         //check for token
         if (user==null || !user.getToken().equals(token)){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Access denied"));
         }
+        return user;
     }
 
     /**
@@ -100,12 +114,12 @@ public class UserService {
      * @throws org.springframework.web.server.ResponseStatusException
      * @see User
      */
-    private void checkIfUserExists(User userToBeCreated) {
+    public void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
 
-        String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
+        String baseErrorMessage = "The %s provided %s not unique. Please choose another one!";
         if (userByUsername != null ) { //&& userByName != null
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
         }
 
     }

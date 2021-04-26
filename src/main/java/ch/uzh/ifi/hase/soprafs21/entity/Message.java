@@ -20,14 +20,13 @@ public class Message implements Serializable, Comparable<Message> {
 
     @Id
     @GeneratedValue
-    @Column
     private Long messageId;
 
-    @Column(nullable = false)
-    private Long chatId;
+    @ManyToOne
+    private MessageChannel messageChannel;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne
+    private User sender;
 
     @Column(nullable = false)
     private Long timestamp;
@@ -35,25 +34,28 @@ public class Message implements Serializable, Comparable<Message> {
     @Column(nullable = false)
     private String text;
 
+    public Message() {
+    }
+
 
     public Long getMessageId() {
         return messageId;
     }
 
-    public Long getChatId() {
-        return chatId;
+    public MessageChannel getMessageChannel() {
+        return messageChannel;
     }
 
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
+    public void setMessageChannel(MessageChannel messageChannel) {
+        this.messageChannel = messageChannel;
     }
 
-    public Long getUserId() {
-        return userId;
+    public User getSender() {
+        return sender;
     }
 
-    public void setUserId(Long senderId) {
-        this.userId = senderId;
+    public void setSender(User sender) {
+        this.sender = sender;
     }
 
     public Long getTimestamp() {
@@ -70,16 +72,6 @@ public class Message implements Serializable, Comparable<Message> {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    /**
-     * gets the username of this Message's sender.
-     * @return the sender's username if existent, null otherwise.
-     */
-    public String getUsername() {
-        UserService userService = SpringContext.getBean(UserService.class);     // hacky steal the userService
-        User user = userService.getUserByUserId(userId);
-        return (user == null)? null : user.getUsername();
     }
 
     @Override

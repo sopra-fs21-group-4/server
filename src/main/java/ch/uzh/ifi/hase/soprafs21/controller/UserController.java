@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserLoginDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -69,12 +70,27 @@ public class UserController {
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<UserGetDTO> getAllUsers() {
-        // fetch all users in the internal representation
-        List<User> users = userService.getUsers();
-        List<UserGetDTO> userGetDTOs = new ArrayList<>();
+    public List<UserGetDTO> getUsers(
+            @RequestHeader("userIds") Optional<List<Long>> userIds,
+            @RequestHeader("usernames") Optional<List<String>> usernames
+    ) {
+        if (userIds.isPresent() && usernames.isPresent())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't specify both usernames and userIds!");
+
+        List<User> users = new ArrayList<>();
+        if (userIds.isPresent()) {
+            // fetch users by userIds
+            for (Long userId : userIds.get()) users.add(userService.getUserByUserId(userId));
+        } else if (usernames.isPresent()) {
+            // fetch users by usernames
+            for (String username : usernames.get()) users.add(userService.getUserByUsername(username));
+        } else {
+            // fetch all users in the internal representation
+            users = userService.getUsers();
+        }
 
         // convert each user to the API representation
+        List<UserGetDTO> userGetDTOs = new ArrayList<>();
         for (User user : users) {
             userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
         }
@@ -88,8 +104,8 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public UserGetDTO getUser(
-            @RequestParam Optional<Long> userId,
-            @RequestParam Optional<String> username
+            @RequestHeader("userId") Optional<Long> userId,
+            @RequestHeader("username") Optional<String> username
     ) {
         if (userId.isPresent() == username.isPresent())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify either username or userId!");
@@ -103,5 +119,32 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
+
+    @PutMapping(value = "/user/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void updateUser(@PathVariable("id") Long userId, @RequestBody UserPutDTO inputUserPutDTO) {
+        // fetch all users in the internal representation
+        User user = userService.getUserByUserId(userId);
+
+        User user1 = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(inputUserPutDTO);
+        if (user1.getUsername() == user.getUsername()){
+            if(user1.getPassword() != null){
+                userService.updatePassword(user1.getPassword(), user);
+            }
+        }
+        else {
+            userService.checkIfUserExists(user1);
+            if (user1.getUsername() != null) {
+                userService.updateUsername(user1.getUsername(), user);
+            }
+            if (user1.getEmail() != null) {
+                userService.updateEmail(user1.getEmail(), user);
+            }
+            if (user1.getPassword() != null) {
+                userService.updatePassword(user1.getPassword(), user);
+            }
+        }
+    }
 
 }

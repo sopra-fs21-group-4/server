@@ -1,25 +1,26 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs21.entity.Game;
 
 public class UserGetDTO {
 
     private Long userId;
     private String username;
     private UserStatus status;
-    private Long currentLobby; // special because we only want to return lobby id and not lobby object
+    private Long currentGame; // special because we only want to return lobby id and not lobby object
+    private String email;
 
-    public Long getCurrentLobby() {
-        return currentLobby;
+    public Long getCurrentGame() {
+        return currentGame;
     }
 
-    public void setCurrentLobby(Lobby currentLobby) {
-        if(currentLobby==null){
-            this.currentLobby = null;
+    public void setCurrentGame(Game currentGame) {
+        if(this.currentGame ==null){
+            this.currentGame = null;
         }
         else{
-        this.currentLobby = currentLobby.getLobbyId();
+        this.currentGame = currentGame.getGameId();
         }
     }
 
@@ -46,4 +47,8 @@ public class UserGetDTO {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
+
+    public String getEmail(){return email;}
+
+    public void setEmail(String email){this.email = email;}
 }

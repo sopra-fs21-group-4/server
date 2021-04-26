@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
+import ch.uzh.ifi.hase.soprafs21.entity.User;
+
 public class MessageGetDTO {
 
     private Long messageId;
-    private Long chatId;
+    private Long messageChannelId;
     private Long timestamp;
     private String username;
     private String text;
@@ -16,12 +19,12 @@ public class MessageGetDTO {
         this.messageId = messageId;
     }
 
-    public Long getChatId() {
-        return chatId;
+    public Long getMessageChannelId() {
+        return messageChannelId;
     }
 
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
+    public void setMessageChannelId(MessageChannel messageChannel) {
+        this.messageChannelId = messageChannel.getMessageChannelId();
     }
 
     public Long getTimestamp() {
@@ -36,7 +39,7 @@ public class MessageGetDTO {
         return username;
     }
 
-    public void setUsername(String username) {this.username = username;}
+    public void setUsername(User user) {this.username = user.getUsername();}
 
     public String getText() {
         return text;

@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Internal User Representation
@@ -38,17 +40,19 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @ManyToOne(targetEntity = Lobby.class)
-    @JoinColumn(name="currentLobbyId")
-    private Lobby currentLobby;
+    @ManyToMany(targetEntity = Message.class)
+    private final List<Message> inbox = new ArrayList<>();
+
+    @ManyToOne(targetEntity = Game.class)
+    private Game currentGame;
 
 
-    public Lobby getCurrentLobby() {
-        return currentLobby;
+    public Game getCurrentGame() {
+        return currentGame;
     }
 
-    public void setCurrentLobby(Lobby currentLobby) {
-        this.currentLobby = currentLobby;
+    public void setCurrentGame(Game game) {
+        this.currentGame = game;
     }
 
     public Long getUserId() {
@@ -94,4 +98,17 @@ public class User implements Serializable {
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
+
+    public List<Message> getInbox() {
+        return inbox;
+    }
+
+    public void notifyMessage(Message message) {
+        inbox.add(message);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return  o instanceof User && ((User) o).userId == this.userId;
+    }
 }
