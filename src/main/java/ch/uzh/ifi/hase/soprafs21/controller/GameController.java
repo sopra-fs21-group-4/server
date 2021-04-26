@@ -55,7 +55,7 @@ public class GameController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void startGame(
-            @PathVariable(value="gameId") long gameId,
+            @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {

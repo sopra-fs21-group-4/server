@@ -61,11 +61,11 @@ public class GameService {
     public void updateLobbies(){
         for (Game game : getRunningGames()) {
             switch(game.update()) {
-                case "modified":    for (GameRound gameRound : game.getGameRounds()) {
+                case UPDATED:       for (GameRound gameRound : game.getGameRounds()) {
                                         gameRoundRepository.save(gameRound);
                                     }
                                     break;
-                case "dead":        GameSummary summary = game.getGameSummary();
+                case DEAD:          GameSummary summary = game.getGameSummary();
                                     gameSummaryRepository.save(summary);
                                     for (GameRoundSummary roundSummary : summary.getRounds()) {
                                         gameRoundSummaryRepository.save(roundSummary);
@@ -107,7 +107,11 @@ public class GameService {
      */
     public Game createGame(User gameMaster, GameSettings gameSettings) {
 
-        Game game = new Game().adaptSettings(gameSettings).initialize(gameMaster);
+        Game game = new Game();
+        game.adaptSettings(gameSettings);
+        game.setGameId(randomGameId());
+        game.initialize(gameMaster);
+
         // put chat bot to repo
         User chatBot = game.getChatBot();
         userRepository.save(chatBot);
@@ -124,7 +128,6 @@ public class GameService {
         List<GameRound> gameRounds = game.getGameRounds();
         for (GameRound gameRound : gameRounds) gameRoundRepository.save(gameRound);
         gameRoundRepository.flush();
-        // TODO does the message channel repository need to flush when the game modifies its channel?
         // put game to repo
         gameRepository.save(game);
 
@@ -268,6 +271,15 @@ public class GameService {
         } catch(IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "the game's current state doesn't allow votes");
         }
+    }
+
+    public Long randomGameId() {
+        Random r = new Random();
+        long randomId;
+        do {
+            randomId = r.nextLong() & 0xFFFFFFFFFFL;
+        } while (gameRepository.existsById(randomId) || gameSummaryRepository.existsById(randomId));
+        return randomId;
     }
 
 }

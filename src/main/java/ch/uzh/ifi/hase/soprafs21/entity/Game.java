@@ -40,7 +40,6 @@ public class Game implements Serializable {
     /* FIELDS */
 
     @Id
-    @GeneratedValue
     private Long gameId; // get only
 
     @ElementCollection
@@ -52,7 +51,7 @@ public class Game implements Serializable {
     @OneToOne(targetEntity = MessageChannel.class)
     private final MessageChannel gameChat = new MessageChannel(); // get only
 
-    @OneToOne(targetEntity = User.class)
+    @OneToOne(targetEntity = User.class)    // TODO cascade delete
     private final User chatBot = new User();
 
     @OneToOne(targetEntity = GameSettings.class)
@@ -80,14 +79,6 @@ public class Game implements Serializable {
 
     public Game() {
         super();
-        // init chat bot
-        this.chatBot.setStatus(UserStatus.ONLINE);
-        this.chatBot.setUsername("Totally unique name"); // TODO !!!!!!
-        this.chatBot.setPassword(UUID.randomUUID().toString());
-        this.chatBot.setToken(UUID.randomUUID().toString());
-        this.chatBot.setEmail("imabot@invalid.com");
-        gameChat.addAdmin(chatBot);
-        gameChat.setConfidential(true);
     }
 
     /* GETTERS AND SETTERS */
@@ -95,6 +86,12 @@ public class Game implements Serializable {
 
     public Long getGameId() {
         return gameId;
+    }
+
+    public Game setGameId(Long gameId) {
+        if (this.gameId != null) throw new IllegalStateException();
+        this.gameId = gameId;
+        return this;
     }
 
     public Map<User, Integer> getScores() {
@@ -440,6 +437,14 @@ public class Game implements Serializable {
     public synchronized Game initialize(User creator) {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
+        // init chat bot
+        this.chatBot.setStatus(UserStatus.ONLINE);
+        this.chatBot.setUsername("Botfather#"+Long.toHexString(gameId));
+        this.chatBot.setPassword(UUID.randomUUID().toString());
+        this.chatBot.setToken(UUID.randomUUID().toString());
+        this.chatBot.setEmail("imabot@invalid.com");
+        gameChat.addAdmin(chatBot);
+        gameChat.setConfidential(true);
         // init game master
         playerStates.put(creator, PlayerState.GAME_MASTER);
         // set next game state
@@ -534,10 +539,11 @@ public class Game implements Serializable {
      * if the game is dead, returns a summary of it
      * if the game is running, updates the countdown and advances if the latter ran out.
      */
-    public synchronized String update() {
+    public synchronized GameUpdateResponse update() {
         // read chat, execute commands
         for (Message message : chatBot.getInbox()) {
-            if (message.getText().equals("/start")) closeLobby(true);
+            if (message.getText().startsWith("/"))
+                interpretCommand(message);
         }
         chatBot.getInbox().clear();
 
@@ -545,11 +551,11 @@ public class Game implements Serializable {
         switch(gameState) {
             case STARTING:  // update countdown. If it ran out, start.
                             if (updateCountdown() < 0) start();
-                            return "modified";  // TODO ugly
+                            return GameUpdateResponse.UPDATED;
 
             case RUNNING:   // update countdown. If it ran out, advance.
                             if (updateCountdown() < 0) advance();
-                            return null;
+                            return GameUpdateResponse.UPDATED;
 
             case ABORTED:
             case ABANDONED:
@@ -558,9 +564,9 @@ public class Game implements Serializable {
                                 GameSummary summary = new GameSummary();
                                 summary.adapt(this);
                             }
-                            return "dead";
+                            return GameUpdateResponse.DEAD;
 
-            default:        return null;
+            default:        return GameUpdateResponse.UPDATED;  // TODO distinguish whether modified or not
         }
     }
 
@@ -668,6 +674,15 @@ public class Game implements Serializable {
             throw new IllegalStateException("current round phase doesn't allow suggestions");
 
         getCurrentRound().putVote(player, vote);
+    }
+
+    private void interpretCommand(Message command) {
+        String[] commandSegment = command.getText().split(" ");
+        PlayerState commanderState = getPlayerState(command.getSender());
+
+        switch (commandSegment[0]) {
+            case "/start": if (commanderState.isPromoted()) closeLobby(true);
+        }
     }
 
     /**

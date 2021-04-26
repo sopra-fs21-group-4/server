@@ -84,7 +84,6 @@ public class MessageChannel implements Serializable {
     }
 
     public void notifyMessage(Message message) {
-        System.out.println("############################");
         for (User user : participants) user.notifyMessage(message);
     }
 }
