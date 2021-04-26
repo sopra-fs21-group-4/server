@@ -1,13 +1,12 @@
-package ch.uzh.ifi.hase.soprafs21.entity;
+package ch.uzh.ifi.hase.soprafs21.nonpersistent;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
+import ch.uzh.ifi.hase.soprafs21.entity.*;
 import util.MemeUrlSupplier;
 
-import javax.persistence.*;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,49 +36,38 @@ import java.util.Map;
  *
  * TODO actually this class doesn't really need user details, it could as well work with the userId.
  */
-@Entity
-@Table(name = "GAME")
-public class Game implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Game {
 
     // TODO sort attributes, getters and setters
 
     /* FIELDS */
 
-    @Id
-    @GeneratedValue
-    private Long gameId; // get only
-
-    @ElementCollection
-    private final Map<User, PlayerState> playerStates = new HashMap<>(); // get, put
-
-    @ElementCollection
-    private final Map<User, Integer> playerPoints = new HashMap<>(); // get // TODO calculate on end of round
-
-    @OneToOne(targetEntity = MessageChannel.class)
-    private final MessageChannel gameChat = new MessageChannel(); // get only
-
-    @OneToOne(targetEntity = GameSettings.class)
-    private final GameSettings gameSettings = new GameSettings(); // get, adapt
-
-    @Column(nullable = false)
-    private GameState gameState = GameState.INIT; // get only
-
-    @OneToMany(targetEntity = GameRound.class, cascade = CascadeType.ALL)
-    private final List<GameRound> gameRounds = new ArrayList<>(); // get, getCurrentRound
-
-    @Column(nullable = false)
-    private Integer roundCounter = 0; // get, skipRound
-
-    @Column
+    private final Long gameId; // get only
+    private final Map<User, PlayerState> playerStates; // get, put
+    private final Map<User, Integer> playerPoints; // get // TODO calculate on end of round
+    private final MessageChannel gameChat; // get only
+    private final GameSettings gameSettings; // get, adapt
+    private GameState gameState; // get only
+    private final List<GameRound> gameRounds; // get, getCurrentRound
+    private Integer roundCounter; // get, skipRound
     private Long currentCountdown; // get only
-
-    @Column
     private Long lastUpdateTime; // intern use only
-
-    @OneToOne(targetEntity = GameSummary.class)
     private GameSummary gameSummary;
+
+    /* CONSTRUCTOR */
+    public Game(Long gameId, User gameMaster, GameSettings gameSettings) {
+        super();
+        this.gameId = gameId;
+        this.playerStates = new HashMap<>();
+        this.playerPoints = new HashMap<>();
+        this.gameChat = new MessageChannel();
+        this.gameSettings = gameSettings;
+        this.gameRounds = new ArrayList<>();
+        this.gameState = GameState.LOBBY;
+        this.roundCounter = -1;
+
+        playerStates.put(gameMaster, PlayerState.GAME_MASTER);
+    }
 
     /* GETTERS AND SETTERS */
     /* scroll down for special methods */
@@ -285,6 +273,11 @@ public class Game implements Serializable {
      * @throws IndexOutOfBoundsException if game is full
      */
     public synchronized PlayerState enrollPlayer(User player, String password) {
+        PlayerState currentPlayerState = currentPlayerState(player);
+        // ignore request if user is already enrolled
+        if (currentPlayerState.isEnrolled()) return currentPlayerState;
+
+        // failing cases
         if (!gameSettings.acceptsPassword(password))
             throw new IllegalArgumentException("wrong password");
         if (gameState != GameState.LOBBY)
@@ -294,9 +287,6 @@ public class Game implements Serializable {
         if (getEnrolledPlayers().size() >= gameSettings.getMaxPlayers())
             throw new IndexOutOfBoundsException("game is full");
 
-        PlayerState currentPlayerState = currentPlayerState(player);
-        // ignore request if user is already enrolled
-        if (currentPlayerState.isEnrolled()) return currentPlayerState;
         // otherwise allow user to join
         playerStates.put(player, PlayerState.ENROLLED);
         gameChat.addParticipant(player);
@@ -354,6 +344,21 @@ public class Game implements Serializable {
     }
 
     /**
+     * TODO
+     * adds a player to the game and to the game chat.
+     * don't call this method directly! use dismissPlayer or banPlayer instead.
+     * @param player the player to remove (not null)
+     * @param playerState the state to assign to the player
+     */
+    private synchronized void addPlayer(User player, PlayerState playerState) {
+        // TODO check max players
+        assert(playerState.isEnrolled());
+        playerStates.put(player, playerState);
+        this.gameChat.addParticipant(player);
+        checkPlayerList(); // TODO
+    }
+
+    /**
      * removes a player from the game and from the game chat.
      * don't call this method directly! use dismissPlayer or banPlayer instead.
      * @param player the player to remove (not null)
@@ -375,6 +380,7 @@ public class Game implements Serializable {
         List<User> remainingPlayers = getPresentPlayers();
         if (remainingPlayers.size() < gameState.minPlayers()) {
             gameState = gameState.abandoningState();
+            // TODO kick remaining players
         } else if (getGameMaster() == null) {
             promotePlayer(remainingPlayers.get(0));
         }
@@ -427,6 +433,7 @@ public class Game implements Serializable {
         if (gameState != GameState.LOBBY) return;
         if (!force && (getReadyPlayers().size() < getPresentPlayers().size()))
             throw new IllegalStateException("not all players ready");
+        // TODO check for minimum player count
 
         gameState = GameState.STARTING;
         String baseURL = gameSettings.getMemeSourceURL();
@@ -455,6 +462,8 @@ public class Game implements Serializable {
         for (User player : getEnrolledPlayers()) {
             playerStates.put(player, currentPlayerState(player).activeState());
         }
+        // set round counter
+        this.roundCounter = 0;
         // go to running state
         this.gameState = GameState.RUNNING;
         // set countdown to 0, so game will advance on next update

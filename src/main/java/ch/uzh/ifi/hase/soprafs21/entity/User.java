@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs21.nonpersistent.Game;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -38,9 +39,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @ManyToOne(targetEntity = Game.class)
-    @JoinColumn(name="currentGameId")
-    private Game currentGame;
+    private transient Game currentGame;
 
 
     public Game getCurrentGame() {
@@ -94,4 +93,9 @@ public class User implements Serializable {
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
+
+    @Override
+    public boolean equals(Object o) {
+        return  o instanceof User && ((User) o).userId == this.userId;
+    }
 }

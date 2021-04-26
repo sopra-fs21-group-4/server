@@ -115,7 +115,7 @@ public class ChatController {
 
         // get syncable version of chatId, also verify
         chatId = chatService.syncableMessageChannelId(chatId);
-        // verify userId
+        // verify userId TODO directly use found User instance?
         userService.verifyUser(userId, token);
 
         Message posted = messageService.postMessage(messageToPost, userId, chatId);

@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
+import ch.uzh.ifi.hase.soprafs21.nonpersistent.GameRound;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -55,7 +57,6 @@ public class GameRoundSummary implements Serializable {
     public void adapt(GameRound gameRound) {
         if (this.gameRoundId != null) throw new IllegalStateException("GameRoundSummaries are immutable!");
 
-        this.gameRoundId = gameRound.getRoundId();
         this.title = gameRound.getTitle();
         this.memeURL = gameRound.getMemeURL();
         this.suggestions = gameRound.getSuggestions();
