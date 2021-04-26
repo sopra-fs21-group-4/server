@@ -1,7 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.Game;
+import ch.uzh.ifi.hase.soprafs21.entity.Game;
 
 public class UserGetDTO {
 

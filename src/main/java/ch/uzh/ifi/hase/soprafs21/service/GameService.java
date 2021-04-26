@@ -1,8 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.entity.*;
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.Game;
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.GameSettings;
+import ch.uzh.ifi.hase.soprafs21.entity.Game;
+import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,21 +26,27 @@ public class GameService {
 
     private final Logger log = LoggerFactory.getLogger(GameService.class);
 
+    private final GameRepository gameRepository;
     private final GameSummaryRepository gameSummaryRepository;
+    private final GameSettingsRepository gameSettingsRepository;
+    private final GameRoundRepository gameRoundRepository;
     private final GameRoundSummaryRepository gameRoundSummaryRepository;
     private final MessageChannelRepository messageChannelRepository;
-
-    private final Map<Long, Game> games = new HashMap<>();
-    private final Random random = new Random();
 
 
     @Autowired
     public GameService(
+            @Qualifier("gameRepository") GameRepository gameRepository,
             @Qualifier("gameSummaryRepository") GameSummaryRepository gameSummaryRepository,
+            @Qualifier("gameSettingsRepository") GameSettingsRepository gameSettingsRepository,
+            @Qualifier("gameRoundRepository") GameRoundRepository gameRoundRepository,
             @Qualifier("gameRoundSummaryRepository") GameRoundSummaryRepository gameRoundSummaryRepository,
             @Qualifier("messageChannelRepository") MessageChannelRepository messageChannelRepository
     ) {
+        this.gameRepository = gameRepository;
+        this.gameSettingsRepository = gameSettingsRepository;
         this.gameSummaryRepository = gameSummaryRepository;
+        this.gameRoundRepository = gameRoundRepository;
         this.gameRoundSummaryRepository = gameRoundSummaryRepository;
         this.messageChannelRepository = messageChannelRepository;
     }
@@ -50,7 +56,7 @@ public class GameService {
      */
     @Scheduled(fixedRate=200)
     public void updateLobbies(){
-        for (Game game : games.values()) {
+        for (Game game : getRunningGames()) {
             GameSummary summary = game.update();
             // summary returned means game is dead -> save summary and remove game from update list
             if (summary != null) {
@@ -58,15 +64,16 @@ public class GameService {
                 for (GameRoundSummary roundSummary : summary.getRounds()) {
                     gameRoundSummaryRepository.save(roundSummary);
                 }
-                games.remove(game.getGameId());
+                gameRepository.delete(game);
             }
         }
+        gameRepository.flush();
         gameSummaryRepository.flush();
         gameRoundSummaryRepository.flush();
     }
 
     public Collection<Game> getRunningGames() {
-        return games.values();
+        return gameRepository.findAll();
     }
 
     /**
@@ -76,7 +83,7 @@ public class GameService {
      * @throws ResponseStatusException 404 if not found
      */
     public Game findRunningGame(Long gameId) {
-        Game game = games.get(gameId);
+        Game game = gameRepository.findByGameId(gameId);
         if (game == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "game not found");
         return game;
@@ -90,17 +97,24 @@ public class GameService {
      */
     public Game createGame(User gameMaster, GameSettings gameSettings) {
 
-        Game game = new Game(randomGameId(), gameMaster, gameSettings);
-        // put game to game list
-        games.put(game.getGameId(), game);
-        // put game chat to repository
+        Game game = new Game().adaptSettings(gameSettings).initialize(gameMaster);
+        // put game chat to repo
         MessageChannel gameChat = game.getGameChat();
         messageChannelRepository.save(gameChat);
         messageChannelRepository.flush();
+        // put game settings to repository
+        gameSettings = game.getGameSettings();
+        gameSettingsRepository.save(gameSettings);
+        gameSettingsRepository.flush();
+        // put game rounds to repository
+        List<GameRound> gameRounds = game.getGameRounds();
+        for (GameRound gameRound : gameRounds) gameRoundRepository.save(gameRound);
+        gameRoundRepository.flush();
         // TODO does the message channel repository need to flush when the game modifies its channel?
+        // put game to repo
+        gameRepository.save(game);
 
         log.debug("Created new Game: {}", game);
-        System.out.println(game.getGameId());
         return game;
     }
 
@@ -241,20 +255,5 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "the game's current state doesn't allow votes");
         }
     }
-
-    /**
-     * generates a random gameId that was never used before
-     * TODO maybe make hexdec IDs for shorter links?
-     * @return Long (gameId) between 0 and Integer.MAX_VALUE
-     */
-    private Long randomGameId() {
-        Long randomId;
-        do {
-            // random positive value
-            randomId = random.nextLong() & Integer.MAX_VALUE;
-        } while (games.containsKey(randomId) || gameSummaryRepository.existsById(randomId));
-        return randomId;
-    }
-
 
 }

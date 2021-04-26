@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs21.controller;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
+import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.MessageChannelService;
@@ -23,12 +24,12 @@ import java.util.Optional;
 @RestController
 public class ChatController {
 
-    private final MessageChannelService chatService;
+    private final MessageChannelService messageChannelService;
     private final MessageService messageService;
     private final UserService userService;
 
-    ChatController(MessageChannelService chatService, MessageService messageService, UserService userService) {
-        this.chatService = chatService;
+    ChatController(MessageChannelService messageChannelService, MessageService messageService, UserService userService) {
+        this.messageChannelService = messageChannelService;
         this.messageService = messageService;
         this.userService = userService;
     }
@@ -40,7 +41,7 @@ public class ChatController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public MessageChannelGetDTO createMessageChannel() {
-        MessageChannel newMessageChannel = chatService.createMessageChannel();
+        MessageChannel newMessageChannel = messageChannelService.createMessageChannel();
         return DTOMapper.INSTANCE.convertEntityToMessageChannelGetDTO(newMessageChannel);
     }
 
@@ -62,11 +63,12 @@ public class ChatController {
             @RequestParam Optional<Integer> latest
     ) {
 
+        MessageChannel messageChannel = messageChannelService.getMessageChannel(chatId);
         // fetch all messages in the internal representation
-        List<Message> messages = messageService.getMessages(chatId);
+        List<Message> messages = messageService.getMessages(messageChannel);
 
         if (sender.isPresent())
-            messages.removeIf(m -> !m.getUsername().equals(sender.get()));
+            messages.removeIf(m -> !m.getSender().getUsername().equals(sender.get()));
 
         if (content.isPresent())
             messages.removeIf(m -> !m.getText().contains(content.get()));
@@ -112,13 +114,13 @@ public class ChatController {
             @RequestBody MessagePostDTO messagePostDTO) {
 
         Message messageToPost = DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO);
+        MessageChannel messageChannel = messageChannelService.getMessageChannel(chatId);
 
-        // get syncable version of chatId, also verify
-        chatId = chatService.syncableMessageChannelId(chatId);
-        // verify userId TODO directly use found User instance?
-        userService.verifyUser(userId, token);
+        // TODO is participant?
+        // verify userId
+        User sender = userService.verifyUser(userId, token);
 
-        Message posted = messageService.postMessage(messageToPost, userId, chatId);
+        Message posted = messageService.postMessage(messageToPost, sender, messageChannel);
 
         MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
         return response;
