@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs21.repository;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
+import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +34,26 @@ public class MessageRepositoryIntegrationTest {
     public void findByMessageId_success() {
 
         // given
+        User user = new User();
+
+        user.setUsername("firstname@lastname");
+        user.setStatus(UserStatus.OFFLINE);
+        user.setToken("1");
+        user.setEmail("firstname@lastname");
+        user.setStatus(UserStatus.ONLINE);
+        user.setPassword("pw");
+
+        MessageChannel messageChannel = new MessageChannel();
+
         Message message = new Message();
 
-        message.setMessageChannelId(2l);
+        message.setMessageChannel(messageChannel);
         message.setText("test");
         message.setTimestamp(2l);
-        message.setUserId(1l);
+        message.setSender(user);
 
-
+        entityManager.persist(user);
+        entityManager.persist(messageChannel);
         entityManager.persist(message);
         entityManager.flush();
 
@@ -49,10 +62,10 @@ public class MessageRepositoryIntegrationTest {
 
         // then
         assertNotNull(found.getMessageId());
-        assertEquals(found.getMessageChannelId(), message.getMessageChannelId());
+        assertEquals(found.getMessageChannel(), message.getMessageChannel());
         assertEquals(found.getText(), message.getText());
         assertEquals(found.getTimestamp(), message.getTimestamp());
-        assertEquals(found.getUserId(), message.getUserId());
+        assertEquals(found.getSender(), message.getSender());
 
     }
     
@@ -60,43 +73,54 @@ public class MessageRepositoryIntegrationTest {
     @Test
     public void findAllByMessageChannelId_success() {
         // given
+        User user = new User();
+
+        user.setUsername("firstname@lastname");
+        user.setStatus(UserStatus.OFFLINE);
+        user.setToken("1");
+        user.setEmail("firstname@lastname");
+        user.setStatus(UserStatus.ONLINE);
+        user.setPassword("pw");
+
+        MessageChannel messageChannel = new MessageChannel();
 
         Message message = new Message();
 
-        message.setMessageChannelId(2l);
+        message.setMessageChannel(messageChannel);
         message.setText("test");
         message.setTimestamp(2l);
-        message.setUserId(1l);
+        message.setSender(user);
 
         Message message2 = new Message();
 
-        message2.setMessageChannelId(2l);
+        message2.setMessageChannel(messageChannel);
         message2.setText("test");
         message2.setTimestamp(2l);
-        message2.setUserId(1l);
+        message.setSender(user);
 
         Message message3 = new Message();
 
-        message3.setMessageChannelId(3l);
+        message3.setMessageChannel(messageChannel);
         message3.setText("test");
         message3.setTimestamp(2l);
-        message3.setUserId(1l);
+        message.setSender(user);
 
+        entityManager.persist(user);
+        entityManager.persist(messageChannel);
         entityManager.persist(message);
         entityManager.persist(message2);
         entityManager.persist(message3);
         entityManager.flush();
 
-
-        // when
-        List<Message> found = messageRepository.findAllByMessageChannelId(message.getMessageChannelId());
-
-        // then
-
         List<Message> expected = new ArrayList<Message>();
         expected.add(message);
         expected.add(message2);
+        expected.add(message3);
 
+        // when
+        List<Message> found = messageRepository.findAllByMessageChannel(message.getMessageChannel());
+
+        // then
         assertNotNull(found);
         assertEquals(found, expected);
 

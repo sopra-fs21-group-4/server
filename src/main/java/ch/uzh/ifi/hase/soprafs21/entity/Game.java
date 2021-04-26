@@ -213,7 +213,7 @@ public class Game implements Serializable {
     public synchronized List<User> getPresentPlayers() {
         List<User> playerList = new ArrayList<>();
         for (User player : playerStates.keySet()) {
-            if (getPlayerState(player).isEnrolled()) playerList.add(player);
+            if (getPlayerState(player).isPresent()) playerList.add(player);
         }
         return playerList;
     }
@@ -225,7 +225,7 @@ public class Game implements Serializable {
     public synchronized List<User> getReadyPlayers() {
         List<User> playerList = new ArrayList<>();
         for (User player : playerStates.keySet()) {
-            if (getPlayerState(player).isEnrolled()) playerList.add(player);
+            if (getPlayerState(player).isReady()) playerList.add(player);
         }
         return playerList;
     }
