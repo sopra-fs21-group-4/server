@@ -28,11 +28,11 @@ public class MemeUrlSupplier implements Supplier<String> {
 
         private TestVersion() {
             baseURL = "https://homepages.cae.wisc.edu/~ece533/images/";
-            String[] images = { "airplane.png", "baboon.png", "barbara.bmp", "boat.png", "boy.bmp",
-                    "cameraman.tif", "cat.png", "fprint3.pgm", "fruits.png", "frymire.png",
-                    "girl.png", "goldhill.bmp", "lena.bmp", "monarch.png", "mountain.png",
-                    "p64int.txt", "peppers.png", "pool.png", "sails.png", "serrano.png",
-                    "tulips.png", "us021.pgm", "us092.pgm", "watch.png", "zelda.png" };
+            String[] images = { "airplane.png", "baboon.png", "barbara.bmp", "boat.png",
+                    "cat.png", "fruits.png", "frymire.png", "girl.png", "goldhill.bmp",
+                    "lena.bmp", "monarch.png", "mountain.png", "peppers.png", "pool.png",
+                    "sails.png", "serrano.png", "tulips.png", "watch.png", "zelda.png"
+            };
             for (String image : images) memeQueue.add(image);
         }
     }
