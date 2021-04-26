@@ -87,6 +87,7 @@ public class Game implements Serializable {
         this.chatBot.setToken(UUID.randomUUID().toString());
         this.chatBot.setEmail("imabot@invalid.com");
         gameChat.addAdmin(chatBot);
+        gameChat.setConfidential(true);
     }
 
     /* GETTERS AND SETTERS */
