@@ -1,7 +1,8 @@
-package ch.uzh.ifi.hase.soprafs21.nonpersistent;
+package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -9,21 +10,43 @@ import java.io.Serializable;
  * taken away from the original class for the sake of simplicity.
  * do not share between games.
  */
+@Entity
+@Table(name = "GAME_SETTINGS")
 public class GameSettings implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /* FIELDS */
 
+    @Id
+    @GeneratedValue
     private Long gameSettingsId;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String password = "NO_PASSWORD";
+
+    @Column(nullable = false)
     private Integer maxPlayers;
+
+    @Column(nullable = false)
     private Integer totalRounds;
+
+    @Column
     private String memeSourceURL;  // subreddit
+
+    @Column(nullable = false)
     private MemeType memeType;
+
+    @Column(nullable = false)
     private Integer maxSuggestSeconds;
+
+    @Column (nullable = false)
     private Integer maxVoteSeconds;
+
+    @Column(nullable = false)
     private Integer maxAftermathSeconds;
 
     /* GETTERS AND SETTERS */
@@ -120,6 +143,7 @@ public class GameSettings implements Serializable {
     }
 
     /**
+     * TODO necessary?
      * creates a copy of this object
      * @return a new GameSettings instance with the same values
      */

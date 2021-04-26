@@ -2,7 +2,6 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.Game;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -29,7 +28,7 @@ public class GameSummary implements Serializable {
     private String name;
 
     @ElementCollection
-    private Map<User, Integer> points;
+    private Map<User, Integer> scores;
 
     @OneToOne(targetEntity = MessageChannel.class)
     private MessageChannel gameChat;
@@ -72,8 +71,8 @@ public class GameSummary implements Serializable {
         return name;
     }
 
-    public Map<User, Integer> getPoints() {
-        return points;
+    public Map<User, Integer> getScores() {
+        return scores;
     }
 
     public MessageChannel getGameChat() {
@@ -121,7 +120,7 @@ public class GameSummary implements Serializable {
 
         this.gameId = game.getGameId();
         this.name = game.getName();
-        this.points = game.getPlayerPoints();
+        this.scores = game.getScores();
         this.gameChat = game.getGameChat();
         this.gameState = game.getGameState();
         this.rounds = game.summarizePastRounds();

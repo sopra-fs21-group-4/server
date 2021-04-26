@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,8 +29,6 @@ public class MessageChannelService {
 
     private final MessageChannelRepository messageChannelRepository;
 
-    private ConcurrentMap<Long, Long> syncableIds = new ConcurrentHashMap<Long, Long>();
-
     @Autowired
     public MessageChannelService(@Qualifier("messageChannelRepository") MessageChannelRepository messageChannelRepository) {
         this.messageChannelRepository = messageChannelRepository;
@@ -40,21 +40,11 @@ public class MessageChannelService {
         return messageChannel;
     }
 
-    public MessageChannel getMessageChannel(Long channelId) {
-        return messageChannelRepository.findByMessageChannelId(channelId);
-    }
-
-    /**
-     * checks if a chat exists in the repository and returns a Long that can be used for synchronization.
-     * @param messageChannelId
-     * @return a (possibly different) Long instance with the same value.
-     * same argument values will always return the same instance.
-     */
-    public Long syncableMessageChannelId(Long messageChannelId) {
+    public MessageChannel getMessageChannel(Long messageChannelId) {
         if(!messageChannelRepository.existsById(messageChannelId))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid chatId!"));
-        syncableIds.putIfAbsent(messageChannelId, messageChannelId);
-        return syncableIds.get(messageChannelId);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid messageChannelId!"));
+        MessageChannel messageChannel = messageChannelRepository.findByMessageChannelId(messageChannelId);
+        return messageChannel;
     }
 
 }

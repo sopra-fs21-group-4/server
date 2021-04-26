@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
+import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
+import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +11,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * User Service
@@ -32,16 +37,16 @@ public class MessageService {
 
     /**
      * sets the correct index of a Message object and stores it in the repository
-     * @param message message to post
-     * @param userId userId of the sender
-     * @param chatId chatId of the chat to post it in
+     * @param message
+     * @param sender
+     * @param messageChannel
      * @return Message object successfully stored in the repository
      */
-    public Message postMessage(Message message, Long userId, Long messageChannelId) {
-        message.setUserId(userId);
-        message.setMessageChannelId(messageChannelId);
+    public Message postMessage(Message message, User sender, MessageChannel messageChannel) {
+        message.setSender(sender);
+        message.setMessageChannel(messageChannel);
         // avoid simultaneous posts to keep unique order
-        synchronized (messageChannelId) {
+        synchronized (messageChannel) {
             message.setTimestamp(System.currentTimeMillis());
             try {
                 Thread.sleep(1);    // wait for 1 ms, otherwise the mutex would be pointless
@@ -51,16 +56,17 @@ public class MessageService {
         }
         message = messageRepository.save(message);
         messageRepository.flush();
+        messageChannel.messagePosted(message);
         return message;
     }
 
     /**
      * returns a sorted list of all messages referring to a given chatId
-     * @param chatId
+     * @param messageChannel
      */
-    public List<Message> getMessages(Long messageChannelId) {
+    public List<Message> getMessages(MessageChannel messageChannel) {
 
-        List<Message> list = messageRepository.findAllByMessageChannelId(messageChannelId);
+        List<Message> list = messageRepository.findAllByMessageChannel(messageChannel);
         list.sort(null);
         return list;
     }
@@ -68,6 +74,7 @@ public class MessageService {
     /**
      * deletes a message from the repository
      * TODO not verified
+     * TODO notify listeners
      * @param messageId not null
      */
     public void deleteMessage(Long messageId) {
@@ -77,6 +84,7 @@ public class MessageService {
     /**
      * updates a message's text
      * TODO not verified
+     * TODO notify listeners
      * @param messageId
      * @param text
      * @return the updated Message

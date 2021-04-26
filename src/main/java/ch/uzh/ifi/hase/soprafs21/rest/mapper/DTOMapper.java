@@ -1,8 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs21.entity.*;
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.Game;
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.GameSettings;
+import ch.uzh.ifi.hase.soprafs21.entity.Game;
+import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -94,8 +94,7 @@ public interface DTOMapper {
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
     @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
-    @Mapping(source = "playerStates", target = "playerStates")
-    @Mapping(source = "playerPoints", target = "playerPoints")
+    @Mapping(source = "scores", target = "playerPoints")
     @Mapping(source = "gameMaster", target = "gameMasterName")
     @Mapping(source = "presentPlayers", target = "playerNames")
     @Mapping(source = "gameChat", target = "gameChat")
@@ -114,16 +113,16 @@ public interface DTOMapper {
 
     // getting messages
     @Mapping(source = "messageId", target = "messageId")
-    @Mapping(source = "messageChannelId", target = "messageChannelId")
-    @Mapping(target = "username", expression = "java(message.getUsername())")
+    @Mapping(source = "messageChannel", target = "messageChannelId")
+    @Mapping(source = "sender", target = "username")
     @Mapping(source = "timestamp", target = "timestamp")
     @Mapping(source = "text", target = "text")
     MessageGetDTO convertEntityToMessageGetDTO(Message message);
 
     // posting messages
-    @Mapping(target = "messageChannelId", expression = "java(null)")      // taken from request header
+    @Mapping(target = "messageChannel", expression = "java(null)")      // taken from request header
     @Mapping(target = "timestamp", expression = "java(null)")   // generated
-    @Mapping(target = "userId", expression = "java(null)")    // taken from request header
+    @Mapping(target = "sender", expression = "java(null)")    // taken from request header
     @Mapping(source = "text", target = "text")
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
 

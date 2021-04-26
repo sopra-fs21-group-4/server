@@ -1,12 +1,14 @@
-package ch.uzh.ifi.hase.soprafs21.nonpersistent;
+package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
-import ch.uzh.ifi.hase.soprafs21.entity.*;
+import ch.uzh.ifi.hase.soprafs21.nonpersistent.GameChatCommandInterpreter;
 import util.MemeUrlSupplier;
 
+import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,37 +38,52 @@ import java.util.Map;
  *
  * TODO actually this class doesn't really need user details, it could as well work with the userId.
  */
-public class Game {
+@Entity
+@Table(name = "GAME")
+public class Game implements Serializable {
 
     // TODO sort attributes, getters and setters
 
     /* FIELDS */
 
-    private final Long gameId; // get only
-    private final Map<User, PlayerState> playerStates; // get, put
-    private final Map<User, Integer> playerPoints; // get // TODO calculate on end of round
-    private final MessageChannel gameChat; // get only
-    private final GameSettings gameSettings; // get, adapt
-    private GameState gameState; // get only
-    private final List<GameRound> gameRounds; // get, getCurrentRound
-    private Integer roundCounter; // get, skipRound
+    @Id
+    @GeneratedValue
+    private Long gameId; // get only
+
+    @ElementCollection
+    private final Map<User, PlayerState> playerStates = new HashMap<>(); // get, put
+
+    @ElementCollection
+    private final Map<User, Integer> scores = new HashMap<>(); // get // TODO calculate on end of round
+
+    @OneToOne(targetEntity = MessageChannel.class)
+    private final MessageChannel gameChat = new MessageChannel(); // get only
+
+    @OneToOne(targetEntity = GameSettings.class)
+    private final GameSettings gameSettings = new GameSettings(); // get, adapt
+
+    @Column(nullable = false)
+    private GameState gameState = GameState.INIT; // get only
+
+    @OneToMany(targetEntity = GameRound.class)
+    private final List<GameRound> gameRounds = new ArrayList<>(); // get, getCurrentRound
+
+    @Column
+    private Integer roundCounter = -1; // get, skipRound
+
+    @Column
     private Long currentCountdown; // get only
+
+    @Column
     private Long lastUpdateTime; // intern use only
+
+    @OneToOne(targetEntity = GameSummary.class)
     private GameSummary gameSummary;
 
     /* CONSTRUCTOR */
-    public Game(Long gameId, User gameMaster, GameSettings gameSettings) {
-        super();
-        this.gameId = gameId;
-        this.playerStates = new HashMap<>();
-        this.playerPoints = new HashMap<>();
-        this.gameChat = new MessageChannel();
-        this.gameSettings = gameSettings;
-        this.gameRounds = new ArrayList<>();
-        this.gameState = GameState.LOBBY;
-        this.roundCounter = -1;
-
-        playerStates.put(gameMaster, PlayerState.GAME_MASTER);
+    public Game() {
+        // set op command listener
+        gameChat.addMessageChannelListener(new GameChatCommandInterpreter(this));
     }
 
     /* GETTERS AND SETTERS */
@@ -76,13 +93,9 @@ public class Game {
         return gameId;
     }
 
-    public Map<User, PlayerState> getPlayerStates() {
-        return new HashMap<>(playerStates);
-    } // only returns a copy
-
-    public Map<User, Integer> getPlayerPoints() {
-        return new HashMap<>(playerPoints);
-    } // only returns a copy
+    public Map<User, Integer> getScores() {
+        return new HashMap<>(scores);
+    }
 
     public MessageChannel getGameChat() {
         return gameChat;
@@ -183,7 +196,7 @@ public class Game {
     public synchronized List<User> getEnrolledPlayers() {
         List<User> playerList = new ArrayList<>();
         for (User player : playerStates.keySet()) {
-            if (currentPlayerState(player).isEnrolled()) playerList.add(player);
+            if (getPlayerState(player).isEnrolled()) playerList.add(player);
         }
         return playerList;
     }
@@ -195,7 +208,7 @@ public class Game {
     public synchronized List<User> getPresentPlayers() {
         List<User> playerList = new ArrayList<>();
         for (User player : playerStates.keySet()) {
-            if (currentPlayerState(player).isPresent()) playerList.add(player);
+            if (getPlayerState(player).isEnrolled()) playerList.add(player);
         }
         return playerList;
     }
@@ -207,7 +220,7 @@ public class Game {
     public synchronized List<User> getReadyPlayers() {
         List<User> playerList = new ArrayList<>();
         for (User player : playerStates.keySet()) {
-            if (currentPlayerState(player).isReady()) playerList.add(player);
+            if (getPlayerState(player).isEnrolled()) playerList.add(player);
         }
         return playerList;
     }
@@ -219,19 +232,18 @@ public class Game {
      */
     public synchronized User getGameMaster() {
         for (User player : playerStates.keySet()){
-            if (currentPlayerState(player).isPromoted()) return player;
+            if (getPlayerState(player).isPromoted()) return player;
         }
         return null;
     }
 
     /**
      * returns a player's current state in this game.
-     * never returns null.
-     * always use this method instead of playerStates.get(player).
+     * never returns null!
      * @param player the player to check (not null)
      * @return the player's current state in this game
      */
-    private synchronized PlayerState currentPlayerState(User player) {
+    public synchronized PlayerState getPlayerState(User player) {
         PlayerState currentPlayerState = playerStates.get(player);
         return (currentPlayerState == null)? PlayerState.STRANGER : currentPlayerState;
     }
@@ -243,8 +255,8 @@ public class Game {
      * @return the player's new state in this game
      */
     public synchronized PlayerState setPlayerReady(User player, boolean ready) {
-        playerStates.put(player, currentPlayerState(player).readyState(ready));
-        return currentPlayerState(player);
+        playerStates.put(player, getPlayerState(player).readyState(ready));
+        return getPlayerState(player);
     }
 
     /**
@@ -256,10 +268,10 @@ public class Game {
     public synchronized PlayerState promotePlayer(User player) {
         User currentGameMaster = getGameMaster();
         if (currentGameMaster != null)
-            playerStates.put(currentGameMaster, currentPlayerState(currentGameMaster).promotedState(false));
-        playerStates.put(player, currentPlayerState(player).promotedState(true));
+            playerStates.put(currentGameMaster, getPlayerState(currentGameMaster).promotedState(false));
+        playerStates.put(player, getPlayerState(player).promotedState(true));
         enrollPlayer(player, null);
-        return currentPlayerState(player);
+        return getPlayerState(player);
     }
 
     /**
@@ -273,7 +285,7 @@ public class Game {
      * @throws IndexOutOfBoundsException if game is full
      */
     public synchronized PlayerState enrollPlayer(User player, String password) {
-        PlayerState currentPlayerState = currentPlayerState(player);
+        PlayerState currentPlayerState = getPlayerState(player);
         // ignore request if user is already enrolled
         if (currentPlayerState.isEnrolled()) return currentPlayerState;
 
@@ -282,7 +294,7 @@ public class Game {
             throw new IllegalArgumentException("wrong password");
         if (gameState != GameState.LOBBY)
             throw new IllegalStateException("players can only join during the lobby state");
-        if (currentPlayerState(player).isBanned())
+        if (getPlayerState(player).isBanned())
             throw new SecurityException("player is banned");
         if (getEnrolledPlayers().size() >= gameSettings.getMaxPlayers())
             throw new IndexOutOfBoundsException("game is full");
@@ -301,7 +313,7 @@ public class Game {
      */
     public synchronized PlayerState dismissPlayer(User player) {
         // failing cases
-        PlayerState currentPlayerState = currentPlayerState(player);
+        PlayerState currentPlayerState = getPlayerState(player);
         if (!currentPlayerState.isEnrolled()) return currentPlayerState;
 
         // decide how to remove player
@@ -312,7 +324,7 @@ public class Game {
         } else {
             removePlayer(player, PlayerState.ABORTED);
         }
-        return currentPlayerState(player);
+        return getPlayerState(player);
     }
 
     /**
@@ -337,7 +349,7 @@ public class Game {
     public synchronized PlayerState forgivePlayer(User player) {
         if (gameState != GameState.LOBBY)
             throw new IllegalStateException("cannot forgive players once the game started");
-        PlayerState currentPlayerState = currentPlayerState(player);
+        PlayerState currentPlayerState = getPlayerState(player);
         if (!currentPlayerState.isBanned()) return currentPlayerState;
         playerStates.put(player, PlayerState.VANISHED);
         return PlayerState.VANISHED;
@@ -390,7 +402,7 @@ public class Game {
      * adapts all non-null settings of a GameSettings instance
      * @param settings the instance to adapt from
      */
-    public synchronized void adaptSettings(GameSettings settings) {
+    public synchronized Game adaptSettings(GameSettings settings) {
         if (settings.getName() != null)
             this.gameSettings.setName(settings.getName());
         if (settings.getPassword() != null)
@@ -409,6 +421,7 @@ public class Game {
             this.gameSettings.setMaxVoteSeconds(settings.getMaxVoteSeconds());
         if (settings.getMaxAftermathSeconds() != null)
             this.gameSettings.setMaxAftermathSeconds(settings.getMaxAftermathSeconds());
+        return this;
     }
 
     /**
@@ -416,11 +429,12 @@ public class Game {
      * and opens the lobby for this game
      * @param creator
      */
-    public synchronized void initialize(User creator) {
+    public synchronized Game initialize(User creator) {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
         playerStates.put(creator, PlayerState.GAME_MASTER);
         gameState = GameState.LOBBY;
+        return this;
     }
 
     /**
@@ -460,7 +474,7 @@ public class Game {
             throw new IllegalStateException("can only start from starting state");
         // set all player states to active
         for (User player : getEnrolledPlayers()) {
-            playerStates.put(player, currentPlayerState(player).activeState());
+            playerStates.put(player, getPlayerState(player).activeState());
         }
         // set round counter
         this.roundCounter = 0;
@@ -610,7 +624,7 @@ public class Game {
      * @throws IllegalStateException if either the game's state or the current round's state doesn't allow suggestions
      */
     public synchronized void putSuggestion(User player, String suggestion) {
-        if (!currentPlayerState(player).isEnrolled())
+        if (!getPlayerState(player).isEnrolled())
             throw new SecurityException("player is not enrolled");
         if (!gameState.isActive())
             throw new IllegalStateException("can only suggest in an active state");
@@ -628,7 +642,7 @@ public class Game {
      * @throws IllegalStateException if either the game's state or the current round's state doesn't allow suggestions
      */
     public synchronized void putVote(User player, Long vote) {
-        if (!currentPlayerState(player).isEnrolled())
+        if (!getPlayerState(player).isEnrolled())
             throw new SecurityException("player is not enrolled");
         if (!gameState.isActive())
             throw new IllegalStateException("can only suggest in an active state");
