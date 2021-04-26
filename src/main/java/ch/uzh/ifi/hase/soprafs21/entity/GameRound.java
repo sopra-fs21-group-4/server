@@ -23,7 +23,6 @@ public class GameRound implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column
     private Long roundId;
 
     @Column(nullable = false)
@@ -36,10 +35,10 @@ public class GameRound implements Serializable {
     private RoundPhase phase = RoundPhase.QUEUED;
 
     @ElementCollection
-    private Map<User, String> suggestions = new HashMap<>();
+    private Map<Long, String> suggestions = new HashMap<>();
 
     @ElementCollection
-    private Map<User, Long> votes = new HashMap<>();
+    private Map<Long, Long> votes = new HashMap<>();
 
 
     public Long getRoundId() {
@@ -74,23 +73,23 @@ public class GameRound implements Serializable {
         this.phase = RoundPhase.CLOSED;
     }
 
-    public void putSuggestion(User user, String suggestion) {
+    public void putSuggestion(Long user, String suggestion) {
         if (!this.getPhase().allowsSuggestions())
             throw new IllegalStateException();
         this.suggestions.put(user, suggestion);
     }
 
-    public Map<User, String> getSuggestions() {
-        return new HashMap<>(suggestions);
-    } // returns only a copy
+    public Map<Long, String> getSuggestions() {
+        return suggestions;
+    }
 
-    public void putVote(User user, Long targetUserId) {
+    public void putVote(Long user, Long targetUserId) { // TODO prevent self-vote
         if (!this.getPhase().allowsVotes())
             throw new IllegalStateException();
         this.votes.put(user, targetUserId);
     }
 
-    public Map<User, Long> getVotes() {
+    public Map<Long, Long> getVotes() {
         return new HashMap<>(votes);
     } // returns only a copy
 

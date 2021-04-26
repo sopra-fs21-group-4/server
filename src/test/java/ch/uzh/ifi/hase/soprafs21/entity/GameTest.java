@@ -44,7 +44,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster);
+        game.initialize(gameMaster.getUserId());
         game.adaptSettings(gameSettings);
 
 
@@ -59,7 +59,7 @@ class GameTest {
         assertEquals(playerlist, game.getReadyPlayers());
 
         // testing if player
-        game.setPlayerReady(player1,true);
+        game.setPlayerReady(player1.getUserId(),true);
         playerlist.add(player1);
 
         assertEquals(playerlist, game.getReadyPlayers());
@@ -88,7 +88,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster);
+        game.initialize(gameMaster.getUserId());
         game.adaptSettings(gameSettings);
 
 

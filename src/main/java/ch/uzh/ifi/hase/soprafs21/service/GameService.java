@@ -110,7 +110,7 @@ public class GameService {
         Game game = new Game();
         game.adaptSettings(gameSettings);
         game.setGameId(randomGameId());
-        game.initialize(gameMaster);
+        game.initialize(gameMaster.getUserId());
 
         // put chat bot to repo
         User chatBot = game.getChatBot();
@@ -145,6 +145,7 @@ public class GameService {
     public Game joinGame(Long gameId, User user, String password) {
         try {
             Game gameToJoin = findRunningGame(gameId);
+            if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()) return gameToJoin;
             Game previousGame = user.getCurrentGame();
             if (previousGame != null) previousGame.dismissPlayer(user);
             gameToJoin.enrollPlayer(user, password);
@@ -180,7 +181,7 @@ public class GameService {
      */
     public Game verifyPlayer(Long gameId, User user) {
         Game game = findRunningGame(gameId);
-        if (!game.getEnrolledPlayers().contains(user))
+        if (!game.getPlayerState(user.getUserId()).isEnrolled())
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");
         return game;
     }
@@ -204,40 +205,6 @@ public class GameService {
     }
 
     /**
-     * TODO this is not the best solution, maybe replace it at some point
-     * runs a command that only the game master can.
-     * eg: force start, ban, forgive TODO anything else?
-     * @param gameId
-     * @param gameMaster
-     * @param command
-     * @param target user targeted by the command
-     */
-    public void runGameMasterCommand(Long gameId, User gameMaster, String command, Optional<User> target) {
-        Game game = findRunningGame(gameId);
-
-        if (!game.getGameMaster().equals(gameMaster))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can use this command");
-
-        String[] commandSegment = command.split(" ");
-
-        try {
-            switch(commandSegment[0]) {
-                case "/start":      startGame(gameId, gameMaster, true);
-                                    break;
-                case "/ban":        game.banPlayer(target.get());
-                                    break;
-                case "/forgive":    game.forgivePlayer(target.get());
-                                    break;
-
-                default: throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown command");
-            }
-        } catch (NoSuchElementException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this command needs to specify a target");
-        }
-
-    }
-
-    /**
      * puts a suggested meme title for the specified user to the specified game's current round
      * @param gameId
      * @param user
@@ -246,7 +213,7 @@ public class GameService {
     public void putSuggestion(Long gameId, User user, String suggestion) {
         Game game = verifyPlayer(gameId, user);
         try {
-            game.putSuggestion(user, suggestion);
+            game.putSuggestion(user.getUserId(), suggestion);
 
         } catch(SecurityException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");
@@ -264,7 +231,7 @@ public class GameService {
     public void putVote(Long gameId, User user, Long vote) {
         Game game = verifyPlayer(gameId, user);
         try {
-            game.putVote(user, vote);
+            game.putVote(user.getUserId(), vote);
 
         } catch(SecurityException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");

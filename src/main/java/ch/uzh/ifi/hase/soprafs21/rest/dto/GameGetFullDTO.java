@@ -34,9 +34,9 @@ public class GameGetFullDTO {
     private Long maxAftermathSeconds;
     private Integer maxPlayers;
     private Map<Long, PlayerState> playerStates;
-    private Map<Long, Integer> playerPoints;
-    private String gameMasterName;
-    private List<String> playerNames;
+    private Map<Long, Integer> scores;
+    private Long gameMaster;
+    private List<Long> players;
     private Long gameChatId;
 
     public Long getGameId() {
@@ -103,22 +103,16 @@ public class GameGetFullDTO {
         return currentSuggestions;
     }
 
-    public void setCurrentSuggestions(Map<User, String> currentSuggestions) {
-        this.currentSuggestions = new HashMap<>();
-        for (User user : currentSuggestions.keySet()) {
-            this.currentSuggestions.put(user.getUserId(), currentSuggestions.get(user));
-        }
+    public void setCurrentSuggestions(Map<Long, String> currentSuggestions) {
+        this.currentSuggestions = currentSuggestions;
     }
 
     public Map<Long, Long> getCurrentVotes() {
         return currentVotes;
     }
 
-    public void setCurrentVotes(Map<User, Long> currentVotes) {
-        this.currentVotes = new HashMap<>();
-        for (User user : currentVotes.keySet()) {
-            this.currentVotes.put(user.getUserId(), currentVotes.get(user));
-        }
+    public void setCurrentVotes(Map<Long, Long> currentVotes) {
+        this.currentVotes = currentVotes;
     }
 
     public String getCurrentMemeURL() {
@@ -192,33 +186,29 @@ public class GameGetFullDTO {
         }
     }
 
-    public Map<Long, Integer> getPlayerPoints() {
-        return playerPoints;
+    public Map<Long, Integer> getScores() {
+        return scores;
     }
-    // entities to userIds
-    public void setPlayerPoints(Map<User, Integer> playerPoints) {
-        this.playerPoints = new HashMap<>();
-        for (User user : playerPoints.keySet()) {
-            this.playerPoints.put(user.getUserId(), playerPoints.get(user));
-        }
+
+    public void setScores(Map<Long, Integer> scores) {
+        this.scores = scores;
     }
   
-    public String getGameMasterName() {
-        return gameMasterName;
+    public Long getGameMaster() {
+        return gameMaster;
     }
 
-    public void setGameMasterName(User gameMaster) {
-        this.gameMasterName = gameMaster.getUsername();
-    }// entity to username
-
-    public List<String> getPlayerNames() {
-        return playerNames;
+    public void setGameMaster(Long gameMaster) {
+        this.gameMaster = gameMaster;
     }
 
-    public void setPlayerNames(List<User> players) {
-        this.playerNames = new ArrayList<>();
-        for (User user : players) this.playerNames.add(user.getUsername());
-    }   // entities to usernames
+    public List<Long> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(List<Long> players) {
+        this.players = players;
+    }
 
     public Long getGameChatId() {
         return gameChatId;

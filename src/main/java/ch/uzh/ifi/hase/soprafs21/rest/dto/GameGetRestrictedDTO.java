@@ -2,13 +2,9 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GameGetRestrictedDTO {
 
@@ -24,8 +20,8 @@ public class GameGetRestrictedDTO {
     private Long maxVoteSeconds;
     private Long maxAftermathSeconds;
     private Integer maxPlayers;
-    private String gameMasterName;
-    private List<String> playerNames;
+    private Long gameMaster;
+    private Integer playerCount;
 
     public Long getGameId() {
         return gameId;
@@ -107,21 +103,20 @@ public class GameGetRestrictedDTO {
         this.maxPlayers = maxPlayers;
     }
 
-    public String getGameMasterName() {
-        return gameMasterName;
+    public Long getGameMaster() {
+        return gameMaster;
     }
 
-    public void setGameMasterName(User gameMaster) {
-        this.gameMasterName = gameMaster.getUsername();
-    }// entity to username
+    public void setGameMaster(Long gameMaster) {
+        this.gameMaster = gameMaster;
+    }
 
-    public List<String> getPlayerNames() {
-        return playerNames;
+    public Integer getPlayerCount() {
+        return playerCount;
     }
   
-    public void setPlayerNames(List<User> players) {
-        this.playerNames = new ArrayList<>();
-        for (User user : players) this.playerNames.add(user.getUsername());
-    }   // entities to usernames
+    public void setPlayerCount(List<Long> players) {
+        this.playerCount = players.size();
+    }
 
 }

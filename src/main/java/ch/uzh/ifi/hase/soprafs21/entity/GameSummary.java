@@ -28,7 +28,7 @@ public class GameSummary implements Serializable {
     private String name;
 
     @ElementCollection
-    private Map<User, Integer> scores;
+    private Map<Long, Integer> scores;
 
     @OneToOne(targetEntity = MessageChannel.class)
     private MessageChannel gameChat;
@@ -71,7 +71,7 @@ public class GameSummary implements Serializable {
         return name;
     }
 
-    public Map<User, Integer> getScores() {
+    public Map<Long, Integer> getScores() {
         return scores;
     }
 

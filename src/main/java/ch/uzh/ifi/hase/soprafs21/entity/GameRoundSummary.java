@@ -27,10 +27,10 @@ public class GameRoundSummary implements Serializable {
     private String memeURL;
 
     @ElementCollection
-    private Map<User, String> suggestions = new HashMap<>();
+    private Map<Long, String> suggestions = new HashMap<>();
 
     @ElementCollection
-    private Map<User, Long> votes = new HashMap<>();
+    private Map<Long, Long> votes = new HashMap<>();
 
     public Long getGameRoundId() {
         return gameRoundId;
@@ -44,12 +44,12 @@ public class GameRoundSummary implements Serializable {
         return memeURL;
     }
 
-    public Map<User, String> getSuggestions() {
-        return new HashMap<>(suggestions);
+    public Map<Long, String> getSuggestions() {
+        return suggestions;
     }
 
-    public Map<User, Long> getVotes() {
-        return new HashMap<>(votes);
+    public Map<Long, Long> getVotes() {
+        return votes;
     }
 
     public void adapt(GameRound gameRound) {

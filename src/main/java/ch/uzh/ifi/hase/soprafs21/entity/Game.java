@@ -43,10 +43,10 @@ public class Game implements Serializable {
     private Long gameId; // get only
 
     @ElementCollection
-    private final Map<User, PlayerState> playerStates = new HashMap<>(); // get, put
+    private final Map<Long, PlayerState> playerStates = new HashMap<>(); // get
 
     @ElementCollection
-    private final Map<User, Integer> scores = new HashMap<>(); // get // TODO calculate on end of round
+    private final Map<Long, Integer> scores = new HashMap<>(); // get
 
     @OneToOne(targetEntity = MessageChannel.class)
     private final MessageChannel gameChat = new MessageChannel(); // get only
@@ -94,8 +94,8 @@ public class Game implements Serializable {
         return this;
     }
 
-    public Map<User, Integer> getScores() {
-        return new HashMap<>(scores);
+    public Map<Long, Integer> getScores() {
+        return scores;
     }
 
     public MessageChannel getGameChat() {
@@ -176,12 +176,12 @@ public class Game implements Serializable {
         return currentRound == null? null : currentRound.getPhase();
     }
 
-    public Map<User, String> getCurrentSuggestions() {
+    public Map<Long, String> getCurrentSuggestions() {
         GameRound currentRound = getCurrentRound();
         return currentRound == null? null : currentRound.getSuggestions();
     }
 
-    public Map<User, Long> getCurrentVotes() {
+    public Map<Long, Long> getCurrentVotes() {
         GameRound currentRound = getCurrentRound();
         return currentRound == null? null : currentRound.getVotes();
     }
@@ -198,9 +198,9 @@ public class Game implements Serializable {
      * finds all the players that are enrolled for this game
      * @return a list of the players found
      */
-    public synchronized List<User> getEnrolledPlayers() {
-        List<User> playerList = new ArrayList<>();
-        for (User player : playerStates.keySet()) {
+    public synchronized List<Long> getEnrolledPlayers() {
+        List<Long> playerList = new ArrayList<>();
+        for (Long player : playerStates.keySet()) {
             if (getPlayerState(player).isEnrolled()) playerList.add(player);
         }
         return playerList;
@@ -210,9 +210,9 @@ public class Game implements Serializable {
      * finds all the players that are enrolled for this game and still present
      * @return a list of the players found
      */
-    public synchronized List<User> getPresentPlayers() {
-        List<User> playerList = new ArrayList<>();
-        for (User player : playerStates.keySet()) {
+    public synchronized List<Long> getPresentPlayers() {
+        List<Long> playerList = new ArrayList<>();
+        for (Long player : playerStates.keySet()) {
             if (getPlayerState(player).isPresent()) playerList.add(player);
         }
         return playerList;
@@ -222,9 +222,9 @@ public class Game implements Serializable {
      * finds all the players that are waiting for the game to start
      * @return a list of the players found
      */
-    public synchronized List<User> getReadyPlayers() {
-        List<User> playerList = new ArrayList<>();
-        for (User player : playerStates.keySet()) {
+    public synchronized List<Long> getReadyPlayers() {
+        List<Long> playerList = new ArrayList<>();
+        for (Long player : playerStates.keySet()) {
             if (getPlayerState(player).isReady()) playerList.add(player);
         }
         return playerList;
@@ -235,8 +235,8 @@ public class Game implements Serializable {
      * note that if the game master left the game, the game will automatically try to elect a new one.
      * @return the player that is game master, or null if there is currently no game master
      */
-    public synchronized User getGameMaster() {
-        for (User player : playerStates.keySet()){
+    public synchronized Long getGameMaster() {
+        for (Long player : playerStates.keySet()){
             if (getPlayerState(player).isPromoted()) return player;
         }
         return null;
@@ -248,7 +248,7 @@ public class Game implements Serializable {
      * @param player the player to check (not null)
      * @return the player's current state in this game
      */
-    public synchronized PlayerState getPlayerState(User player) {
+    public synchronized PlayerState getPlayerState(Long player) {
         PlayerState currentPlayerState = playerStates.get(player);
         return (currentPlayerState == null)? PlayerState.STRANGER : currentPlayerState;
     }
@@ -259,7 +259,7 @@ public class Game implements Serializable {
      * @param ready whether to set ready or to set not ready
      * @return the player's new state in this game
      */
-    public synchronized PlayerState setPlayerReady(User player, boolean ready) {
+    public synchronized PlayerState setPlayerReady(Long player, boolean ready) {
         playerStates.put(player, getPlayerState(player).readyState(ready));
         return getPlayerState(player);
     }
@@ -270,12 +270,12 @@ public class Game implements Serializable {
      * @param player the player to promote (not null)
      * @return the player's new state in this game
      */
-    public synchronized PlayerState promotePlayer(User player) {
-        User currentGameMaster = getGameMaster();
+    public synchronized PlayerState promotePlayer(Long player) {
+        Long currentGameMaster = getGameMaster();
         if (currentGameMaster != null)
             playerStates.put(currentGameMaster, getPlayerState(currentGameMaster).promotedState(false));
         playerStates.put(player, getPlayerState(player).promotedState(true));
-        enrollPlayer(player, null);
+        // TODO undo if didn't work
         return getPlayerState(player);
     }
 
@@ -290,7 +290,7 @@ public class Game implements Serializable {
      * @throws IndexOutOfBoundsException if game is full
      */
     public synchronized PlayerState enrollPlayer(User player, String password) {
-        PlayerState currentPlayerState = getPlayerState(player);
+        PlayerState currentPlayerState = getPlayerState(player.getUserId());
         // ignore request if user is already enrolled
         if (currentPlayerState.isEnrolled()) return currentPlayerState;
 
@@ -299,13 +299,13 @@ public class Game implements Serializable {
             throw new IllegalArgumentException("wrong password");
         if (gameState != GameState.LOBBY)
             throw new IllegalStateException("players can only join during the lobby state");
-        if (getPlayerState(player).isBanned())
+        if (getPlayerState(player.getUserId()).isBanned())
             throw new SecurityException("player is banned");
         if (getEnrolledPlayers().size() >= gameSettings.getMaxPlayers())
             throw new IndexOutOfBoundsException("game is full");
 
         // otherwise allow user to join
-        playerStates.put(player, PlayerState.ENROLLED);
+        playerStates.put(player.getUserId(), PlayerState.ENROLLED);
         gameChat.addParticipant(player);
         return PlayerState.ENROLLED;
     }
@@ -318,7 +318,7 @@ public class Game implements Serializable {
      */
     public synchronized PlayerState dismissPlayer(User player) {
         // failing cases
-        PlayerState currentPlayerState = getPlayerState(player);
+        PlayerState currentPlayerState = getPlayerState(player.getUserId());
         if (!currentPlayerState.isEnrolled()) return currentPlayerState;
 
         // decide how to remove player
@@ -329,7 +329,7 @@ public class Game implements Serializable {
         } else {
             removePlayer(player, PlayerState.ABORTED);
         }
-        return getPlayerState(player);
+        return getPlayerState(player.getUserId());
     }
 
     /**
@@ -351,7 +351,7 @@ public class Game implements Serializable {
      * @return the player's new state in this game
      * @throws IllegalStateException if the game is not in the lobby state
      */
-    public synchronized PlayerState forgivePlayer(User player) {
+    public synchronized PlayerState forgivePlayer(Long player) {
         if (gameState != GameState.LOBBY)
             throw new IllegalStateException("cannot forgive players once the game started");
         PlayerState currentPlayerState = getPlayerState(player);
@@ -370,7 +370,7 @@ public class Game implements Serializable {
     private synchronized void addPlayer(User player, PlayerState playerState) {
         // TODO check max players
         assert(playerState.isEnrolled());
-        playerStates.put(player, playerState);
+        playerStates.put(player.getUserId(), playerState);
         this.gameChat.addParticipant(player);
         checkPlayerList(); // TODO
     }
@@ -383,7 +383,7 @@ public class Game implements Serializable {
      */
     private synchronized void removePlayer(User player, PlayerState playerState) {
         assert(!playerState.isPresent());
-        playerStates.put(player, playerState);
+        playerStates.put(player.getUserId(), playerState);
         this.gameChat.removeParticipant(player);
         checkPlayerList();
     }
@@ -394,7 +394,7 @@ public class Game implements Serializable {
      * should be called after removing players in any way.
      */
     private synchronized void checkPlayerList() {
-        List<User> remainingPlayers = getPresentPlayers();
+        List<Long> remainingPlayers = getPresentPlayers();
         if (remainingPlayers.size() < gameState.minPlayers()) {
             gameState = gameState.abandoningState();
             // TODO kick remaining players
@@ -434,7 +434,7 @@ public class Game implements Serializable {
      * and opens the lobby for this game
      * @param creator
      */
-    public synchronized Game initialize(User creator) {
+    public synchronized Game initialize(Long creator) {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
         // init chat bot
@@ -476,7 +476,7 @@ public class Game implements Serializable {
             this.gameRounds.add(round);
         }
         // 5 seconds until game starts
-        setCountdown(5000L);
+        setCountdown(3000L);
     }
 
     /**
@@ -488,7 +488,7 @@ public class Game implements Serializable {
         if (gameState != GameState.STARTING)
             throw new IllegalStateException("can only start from starting state");
         // set all player states to active
-        for (User player : getEnrolledPlayers()) {
+        for (Long player : getEnrolledPlayers()) {
             playerStates.put(player, getPlayerState(player).activeState());
         }
         // set round counter
@@ -532,7 +532,7 @@ public class Game implements Serializable {
      */
     public synchronized void kill() {
         if (!gameState.isOver()) gameState = GameState.ABORTED;
-        for (User player : getPresentPlayers()) dismissPlayer(player);
+        // TODO kick remaining players
     }
 
     /**
@@ -609,10 +609,54 @@ public class Game implements Serializable {
                             break;
             case VOTE:      setCountdown(gameSettings.getMaxVoteSeconds() * 1000L);
                             break;
-            case AFTERMATH: setCountdown(gameSettings.getMaxAftermathSeconds() * 1000L);
+            case AFTERMATH: distributePoints();
+                            setCountdown(gameSettings.getMaxAftermathSeconds() * 1000L);
                             break;
             case CLOSED:    skipRound();
                             break;
+        }
+    }
+
+    /**
+     * TODO
+     */
+    private void distributePoints() {
+        Map<Long, Integer> voteCounter = new HashMap<>();
+        int maxVotes = 0;
+        for (Long player : getEnrolledPlayers()) {
+            Long candidate = getCurrentVotes().get(player);
+            Integer value = voteCounter.get(candidate);
+            if (value == null) value = 1;
+            else value++;
+            maxVotes = Math.max(maxVotes, value);
+            voteCounter.put(candidate, value);
+        }
+        int[] rankCounter = new int[maxVotes+1];
+        int[] rankBonus = new int[maxVotes+1];
+        for (Long player : getEnrolledPlayers()) {
+            Integer votesReceived = voteCounter.get(player);
+            if (votesReceived == null) votesReceived = null;
+            rankCounter[votesReceived]++;
+        }
+        int bonusPot = 30;
+        int currentBonus = 10;
+        int currentRank = maxVotes;
+        while (bonusPot > 0 && currentRank > 0) {
+            for (int i = 0; i < rankCounter[currentRank]; i++) {
+                rankBonus[currentRank] += currentBonus;
+                currentBonus -= 2;
+            }
+            currentRank--;
+        }
+        for (int i = 0; i < maxVotes; i++) {
+            if (rankCounter[i] > 0) rankBonus[i] /= rankCounter[i];
+        }
+        for (Long player : getEnrolledPlayers()) {
+            Integer currentScore = scores.get(player);
+            Integer votesReceived = voteCounter.get(player);
+            if (currentScore == null) currentScore = 0;
+            if (votesReceived == null) votesReceived = 0;
+            scores.put(player, currentScore + 5*votesReceived + rankBonus[votesReceived]);
         }
     }
 
@@ -647,7 +691,7 @@ public class Game implements Serializable {
      * @throws SecurityException if the player is not enrolled
      * @throws IllegalStateException if either the game's state or the current round's state doesn't allow suggestions
      */
-    public synchronized void putSuggestion(User player, String suggestion) {
+    public synchronized void putSuggestion(Long player, String suggestion) {
         if (!getPlayerState(player).isEnrolled())
             throw new SecurityException("player is not enrolled");
         if (!gameState.isActive())
@@ -665,7 +709,7 @@ public class Game implements Serializable {
      * @throws SecurityException if the player is not enrolled
      * @throws IllegalStateException if either the game's state or the current round's state doesn't allow suggestions
      */
-    public synchronized void putVote(User player, Long vote) {
+    public synchronized void putVote(Long player, Long vote) {
         if (!getPlayerState(player).isEnrolled())
             throw new SecurityException("player is not enrolled");
         if (!gameState.isActive())
@@ -678,10 +722,24 @@ public class Game implements Serializable {
 
     private void interpretCommand(Message command) {
         String[] commandSegment = command.getText().split(" ");
-        PlayerState commanderState = getPlayerState(command.getSender());
+        PlayerState commanderState = getPlayerState(command.getSender().getUserId());
 
         switch (commandSegment[0]) {
-            case "/start": if (commanderState.isPromoted()) closeLobby(true);
+            case "/start":  if (commanderState.isPromoted()) {
+                                closeLobby(true);
+                            }
+                            break;
+            case "/a":      if (commanderState.isPromoted()) {
+                                advance();
+                            }
+                            break;
+            case "/s":      if (commanderState.isEnrolled()) {
+                                putSuggestion(command.getSender().getUserId(), command.getText().substring(3));
+                            }
+                            break;
+            case "/v":      if (commanderState.isEnrolled()) {
+                                putVote(command.getSender().getUserId(), Long.parseLong(commandSegment[1]));
+                            }
         }
     }
 

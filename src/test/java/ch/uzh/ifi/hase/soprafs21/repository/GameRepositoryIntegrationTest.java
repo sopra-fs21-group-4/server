@@ -54,7 +54,7 @@ public class GameRepositoryIntegrationTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster);
+        game.initialize(gameMaster.getUserId());
         game.adaptSettings(gameSettings);
 
         entityManager.persist(gameMaster);
