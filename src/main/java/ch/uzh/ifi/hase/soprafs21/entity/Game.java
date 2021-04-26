@@ -621,13 +621,14 @@ public class Game implements Serializable {
      * TODO
      */
     private void distributePoints() {
+        // TODO save currentScore in separate map
         Map<Long, Integer> voteCounter = new HashMap<>();
         int maxVotes = 0;
         for (Long player : getEnrolledPlayers()) {
             Long candidate = getCurrentVotes().get(player);
             Integer value = voteCounter.get(candidate);
-            if (value == null) value = 1;
-            else value++;
+            if (value == null) value = 0;
+            value++;
             maxVotes = Math.max(maxVotes, value);
             voteCounter.put(candidate, value);
         }
@@ -635,7 +636,7 @@ public class Game implements Serializable {
         int[] rankBonus = new int[maxVotes+1];
         for (Long player : getEnrolledPlayers()) {
             Integer votesReceived = voteCounter.get(player);
-            if (votesReceived == null) votesReceived = null;
+            if (votesReceived == null) votesReceived = 0;
             rankCounter[votesReceived]++;
         }
         int bonusPot = 30;

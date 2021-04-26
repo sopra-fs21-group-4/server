@@ -130,6 +130,7 @@ public class GameService {
         gameRoundRepository.flush();
         // put game to repo
         gameRepository.save(game);
+        gameRepository.flush();
 
         log.debug("Created new Game: {}", game);
         return game;

@@ -54,14 +54,14 @@ class GameTest {
 
 
         // list of players
-        List<User> playerlist = new ArrayList<>();
+        List<Long> playerlist = new ArrayList<>();
 
         // testing if no players are ready
         assertEquals(playerlist, game.getReadyPlayers());
 
         // testing if player
         game.setPlayerReady(player1.getUserId(),true);
-        playerlist.add(player1);
+        playerlist.add(player1.getUserId());
 
         assertEquals(playerlist, game.getReadyPlayers());
 
@@ -94,8 +94,8 @@ class GameTest {
 
 
         // list of players and adding gamemaster who is already enrolled
-        List<User> playerlist = new ArrayList<>();
-        playerlist.add(gameMaster);
+        List<Long> playerlist = new ArrayList<>();
+        playerlist.add(gameMaster.getUserId());
 
 
         // testing if no players are ready
@@ -104,7 +104,7 @@ class GameTest {
 
         // enrolling player
         game.enrollPlayer(player1, "");
-        playerlist.add(player1);
+        playerlist.add(player1.getUserId());
 
         // testing if both players are enrolled
         assertTrue(playerlist.containsAll(game.getEnrolledPlayers()));
