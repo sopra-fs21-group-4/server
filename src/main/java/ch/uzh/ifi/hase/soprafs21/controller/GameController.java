@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
 import ch.uzh.ifi.hase.soprafs21.entity.*;
+import ch.uzh.ifi.hase.soprafs21.nonpersistent.Game;
+import ch.uzh.ifi.hase.soprafs21.nonpersistent.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.GameService;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,7 +124,7 @@ public class GameController {
             @RequestHeader("token") String token
     ) {
         userService.verifyUser(userId, token);
-        List<Game> games = gameService.getGames();
+        Collection<Game> games = gameService.getRunningGames();
         List<GameGetRestrictedDTO> gameGetDTOs = new ArrayList<>();
 
         for(Game game : games){

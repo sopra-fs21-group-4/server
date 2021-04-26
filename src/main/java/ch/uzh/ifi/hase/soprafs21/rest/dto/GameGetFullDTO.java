@@ -4,7 +4,6 @@ import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
-import ch.uzh.ifi.hase.soprafs21.entity.GameRound;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 

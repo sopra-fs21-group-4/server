@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.entity.*;
+import ch.uzh.ifi.hase.soprafs21.nonpersistent.Game;
+import ch.uzh.ifi.hase.soprafs21.nonpersistent.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Lobby Service
@@ -26,27 +26,21 @@ public class GameService {
 
     private final Logger log = LoggerFactory.getLogger(GameService.class);
 
-    private final GameRepository gameRepository;
     private final GameSummaryRepository gameSummaryRepository;
-    private final GameSettingsRepository gameSettingsRepository;
-    private final GameRoundRepository gameRoundRepository;
     private final GameRoundSummaryRepository gameRoundSummaryRepository;
     private final MessageChannelRepository messageChannelRepository;
+
+    private final Map<Long, Game> games = new HashMap<>();
+    private final Random random = new Random();
 
 
     @Autowired
     public GameService(
-            @Qualifier("gameRepository") GameRepository gameRepository,
             @Qualifier("gameSummaryRepository") GameSummaryRepository gameSummaryRepository,
-            @Qualifier("gameSettingsRepository") GameSettingsRepository gameSettingsRepository,
-            @Qualifier("gameRoundRepository") GameRoundRepository gameRoundRepository,
             @Qualifier("gameRoundSummaryRepository") GameRoundSummaryRepository gameRoundSummaryRepository,
             @Qualifier("messageChannelRepository") MessageChannelRepository messageChannelRepository
     ) {
-        this.gameRepository = gameRepository;
-        this.gameSettingsRepository = gameSettingsRepository;
         this.gameSummaryRepository = gameSummaryRepository;
-        this.gameRoundRepository = gameRoundRepository;
         this.gameRoundSummaryRepository = gameRoundSummaryRepository;
         this.messageChannelRepository = messageChannelRepository;
     }
@@ -56,23 +50,23 @@ public class GameService {
      */
     @Scheduled(fixedRate=200)
     public void updateLobbies(){
-        List<Game> games = gameRepository.findAll();
-        for (Game game : games) {
+        for (Game game : games.values()) {
             GameSummary summary = game.update();
-            // summary returned means game is dead
+            // summary returned means game is dead -> save summary and remove game from update list
             if (summary != null) {
                 gameSummaryRepository.save(summary);
-                gameRepository.delete(game);
+                for (GameRoundSummary roundSummary : summary.getRounds()) {
+                    gameRoundSummaryRepository.save(roundSummary);
+                }
+                games.remove(game.getGameId());
             }
         }
         gameSummaryRepository.flush();
-        gameRepository.flush();
-        // TODO not sure if we need to flush other repositories as well if objects are modified by a game
+        gameRoundSummaryRepository.flush();
     }
 
-
-    public List<Game> getGames() {
-        return gameRepository.findAll();
+    public Collection<Game> getRunningGames() {
+        return games.values();
     }
 
     /**
@@ -81,8 +75,8 @@ public class GameService {
      * @return game
      * @throws ResponseStatusException 404 if not found
      */
-    public Game findExistingGame(Long gameId) {
-        Game game = gameRepository.findByGameId(gameId);
+    public Game findRunningGame(Long gameId) {
+        Game game = games.get(gameId);
         if (game == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "game not found");
         return game;
@@ -90,34 +84,23 @@ public class GameService {
 
     /**
      * creates a new game
-     * @param user creator, hence game master
+     * @param gameMaster
      * @param gameSettings
      * @return
      */
-    public Game createGame(User user, GameSettings gameSettings) {
+    public Game createGame(User gameMaster, GameSettings gameSettings) {
 
-        Game game = new Game();
-        game.initialize(user);
-        game.adaptSettings(gameSettings);
-
+        Game game = new Game(randomGameId(), gameMaster, gameSettings);
+        // put game to game list
+        games.put(game.getGameId(), game);
         // put game chat to repository
         MessageChannel gameChat = game.getGameChat();
         messageChannelRepository.save(gameChat);
         messageChannelRepository.flush();
-        // put game settings to repository
-        gameSettings = game.getGameSettings();
-        gameSettingsRepository.save(gameSettings);
-        gameSettingsRepository.flush();
-        // put game rounds to repository
-        List<GameRound> gameRounds = game.getGameRounds();
-        for (GameRound gameRound : gameRounds) gameRoundRepository.save(gameRound);
-        gameRoundRepository.flush();
-        // put game to repository
-        game = gameRepository.save(game);
-        gameRepository.flush();
-        // TODO do these repositories update automatically when the game modifies its objects?
+        // TODO does the message channel repository need to flush when the game modifies its channel?
 
         log.debug("Created new Game: {}", game);
+        System.out.println(game.getGameId());
         return game;
     }
 
@@ -130,7 +113,7 @@ public class GameService {
      */
     public Game joinGame(Long gameId, User user, String password) {
         try {
-            Game gameToJoin = findExistingGame(gameId);
+            Game gameToJoin = findRunningGame(gameId);
             Game previousGame = user.getCurrentGame();
             if (previousGame != null) previousGame.dismissPlayer(user);
             gameToJoin.enrollPlayer(user, password);
@@ -154,7 +137,7 @@ public class GameService {
      * @param user
      */
     public void leaveGame(Long gameId, User user) {
-        Game game = findExistingGame(gameId);
+        Game game = findRunningGame(gameId);
         game.dismissPlayer(user);
     }
 
@@ -165,7 +148,7 @@ public class GameService {
      * @return the game instance found in the repository
      */
     public Game verifyPlayer(Long gameId, User user) {
-        Game game = findExistingGame(gameId);
+        Game game = findRunningGame(gameId);
         if (!game.getEnrolledPlayers().contains(user))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");
         return game;
@@ -177,7 +160,7 @@ public class GameService {
      * @param user game master
      */
     public void startGame(Long gameId, User user, boolean force) {
-        Game game = findExistingGame(gameId);
+        Game game = findRunningGame(gameId);
 
         if (!game.getGameMaster().equals(user))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can start the game");
@@ -199,7 +182,7 @@ public class GameService {
      * @param target user targeted by the command
      */
     public void runGameMasterCommand(Long gameId, User gameMaster, String command, Optional<User> target) {
-        Game game = findExistingGame(gameId);
+        Game game = findRunningGame(gameId);
 
         if (!game.getGameMaster().equals(gameMaster))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can use this command");
@@ -259,6 +242,19 @@ public class GameService {
         }
     }
 
+    /**
+     * generates a random gameId that was never used before
+     * TODO maybe make hexdec IDs for shorter links?
+     * @return Long (gameId) between 0 and Integer.MAX_VALUE
+     */
+    private Long randomGameId() {
+        Long randomId;
+        do {
+            // random positive value
+            randomId = random.nextLong() & Integer.MAX_VALUE;
+        } while (games.containsKey(randomId) || gameSummaryRepository.existsById(randomId));
+        return randomId;
+    }
 
 
 }

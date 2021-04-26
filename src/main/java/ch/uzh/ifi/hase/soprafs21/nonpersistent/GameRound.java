@@ -1,7 +1,8 @@
-package ch.uzh.ifi.hase.soprafs21.entity;
+package ch.uzh.ifi.hase.soprafs21.nonpersistent;
 
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
+import ch.uzh.ifi.hase.soprafs21.entity.User;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -15,36 +16,15 @@ import java.util.Map;
  * defines how they are stored in the database.
  */
 
-@Entity
-@Table(name="GAME_ROUND")
 public class GameRound implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue
-    @Column
-    private Long roundId;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
     private String memeURL;
-
-    @Column(nullable = false)
     private RoundPhase phase = RoundPhase.QUEUED;
-
-    @ElementCollection
     private Map<User, String> suggestions = new HashMap<>();
-
-    @ElementCollection
     private Map<User, Long> votes = new HashMap<>();
-
-
-    public Long getRoundId() {
-        return roundId;
-    }
 
     public String getTitle() {
         return title;
