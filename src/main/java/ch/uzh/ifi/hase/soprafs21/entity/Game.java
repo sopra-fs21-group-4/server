@@ -542,8 +542,13 @@ public class Game implements Serializable {
     public synchronized GameUpdateResponse update() {
         // read chat, execute commands
         for (Message message : chatBot.getInbox()) {
-            if (message.getText().startsWith("/"))
-                interpretCommand(message);
+            if (message.getText().startsWith("/")) {
+                try {
+                    interpretCommand(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         chatBot.getInbox().clear();
 
