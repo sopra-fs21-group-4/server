@@ -32,6 +32,7 @@ public class GameService {
     private final GameRoundRepository gameRoundRepository;
     private final GameRoundSummaryRepository gameRoundSummaryRepository;
     private final MessageChannelRepository messageChannelRepository;
+    private final UserRepository userRepository;
 
 
     @Autowired
@@ -41,7 +42,8 @@ public class GameService {
             @Qualifier("gameSettingsRepository") GameSettingsRepository gameSettingsRepository,
             @Qualifier("gameRoundRepository") GameRoundRepository gameRoundRepository,
             @Qualifier("gameRoundSummaryRepository") GameRoundSummaryRepository gameRoundSummaryRepository,
-            @Qualifier("messageChannelRepository") MessageChannelRepository messageChannelRepository
+            @Qualifier("messageChannelRepository") MessageChannelRepository messageChannelRepository,
+            @Qualifier("userRepository") UserRepository userRepository
     ) {
         this.gameRepository = gameRepository;
         this.gameSettingsRepository = gameSettingsRepository;
@@ -49,6 +51,7 @@ public class GameService {
         this.gameRoundRepository = gameRoundRepository;
         this.gameRoundSummaryRepository = gameRoundSummaryRepository;
         this.messageChannelRepository = messageChannelRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -57,19 +60,26 @@ public class GameService {
     @Scheduled(fixedRate=200)
     public void updateLobbies(){
         for (Game game : getRunningGames()) {
-            GameSummary summary = game.update();
-            // summary returned means game is dead -> save summary and remove game from update list
-            if (summary != null) {
-                gameSummaryRepository.save(summary);
-                for (GameRoundSummary roundSummary : summary.getRounds()) {
-                    gameRoundSummaryRepository.save(roundSummary);
-                }
-                gameRepository.delete(game);
+            switch(game.update()) {
+                case "modified":    for (GameRound gameRound : game.getGameRounds()) {
+                                        gameRoundRepository.save(gameRound);
+                                    }
+                                    break;
+                case "dead":        GameSummary summary = game.getGameSummary();
+                                    gameSummaryRepository.save(summary);
+                                    for (GameRoundSummary roundSummary : summary.getRounds()) {
+                                        gameRoundSummaryRepository.save(roundSummary);
+                                    }
+                                    gameRepository.delete(game);
+                                    break;
+                default:            break;
             }
         }
-        gameRepository.flush();
-        gameSummaryRepository.flush();
+        messageChannelRepository.flush();
         gameRoundSummaryRepository.flush();
+        gameSummaryRepository.flush();
+        gameRoundRepository.flush();
+        gameRepository.flush();
     }
 
     public Collection<Game> getRunningGames() {
@@ -98,6 +108,10 @@ public class GameService {
     public Game createGame(User gameMaster, GameSettings gameSettings) {
 
         Game game = new Game().adaptSettings(gameSettings).initialize(gameMaster);
+        // put chat bot to repo
+        User chatBot = game.getChatBot();
+        userRepository.save(chatBot);
+        userRepository.flush();
         // put game chat to repo
         MessageChannel gameChat = game.getGameChat();
         messageChannelRepository.save(gameChat);
