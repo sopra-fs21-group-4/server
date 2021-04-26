@@ -1,18 +1,11 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
-import ch.uzh.ifi.hase.soprafs21.constant.GameState;
-import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
-import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.GameChatCommandInterpreter;
+import ch.uzh.ifi.hase.soprafs21.constant.*;
 import util.MemeUrlSupplier;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Internal Game Representation.
@@ -59,6 +52,9 @@ public class Game implements Serializable {
     @OneToOne(targetEntity = MessageChannel.class)
     private final MessageChannel gameChat = new MessageChannel(); // get only
 
+    @OneToOne(targetEntity = User.class)
+    private final User chatBot = new User();
+
     @OneToOne(targetEntity = GameSettings.class)
     private final GameSettings gameSettings = new GameSettings(); // get, adapt
 
@@ -75,15 +71,22 @@ public class Game implements Serializable {
     private Long currentCountdown; // get only
 
     @Column
-    private Long lastUpdateTime; // intern use only
+    private Long lastUpdateTime; // internal use only
 
     @OneToOne(targetEntity = GameSummary.class)
     private GameSummary gameSummary;
 
     /* CONSTRUCTOR */
+
     public Game() {
-        // set op command listener
-        gameChat.addMessageChannelListener(new GameChatCommandInterpreter(this));
+        super();
+        // init chat bot
+        this.chatBot.setStatus(UserStatus.ONLINE);
+        this.chatBot.setUsername("Totally unique name"); // TODO !!!!!!
+        this.chatBot.setPassword(UUID.randomUUID().toString());
+        this.chatBot.setToken(UUID.randomUUID().toString());
+        this.chatBot.setEmail("imabot@invalid.com");
+        gameChat.addAdmin(chatBot);
     }
 
     /* GETTERS AND SETTERS */
@@ -99,6 +102,10 @@ public class Game implements Serializable {
 
     public MessageChannel getGameChat() {
         return gameChat;
+    }
+
+    public User getChatBot() {
+        return chatBot;
     }
 
     public GameSettings getGameSettings() {
@@ -432,7 +439,9 @@ public class Game implements Serializable {
     public synchronized Game initialize(User creator) {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
+        // init game master
         playerStates.put(creator, PlayerState.GAME_MASTER);
+        // set next game state
         gameState = GameState.LOBBY;
         return this;
     }
@@ -524,11 +533,18 @@ public class Game implements Serializable {
      * if the game is dead, returns a summary of it
      * if the game is running, updates the countdown and advances if the latter ran out.
      */
-    public synchronized GameSummary update() {
+    public synchronized String update() {
+        // read chat, execute commands
+        for (Message message : chatBot.getInbox()) {
+            if (message.getText().equals("/start")) closeLobby(true);
+        }
+        chatBot.getInbox().clear();
+
+        // advance depending on game state
         switch(gameState) {
             case STARTING:  // update countdown. If it ran out, start.
                             if (updateCountdown() < 0) start();
-                            return null;
+                            return "modified";  // TODO ugly
 
             case RUNNING:   // update countdown. If it ran out, advance.
                             if (updateCountdown() < 0) advance();
@@ -536,11 +552,12 @@ public class Game implements Serializable {
 
             case ABORTED:
             case ABANDONED:
-            case FINISHED:  if (gameSummary != null) return gameSummary;
-                            // summarize
-                            GameSummary summary = new GameSummary();
-                            summary.adapt(this);
-                            return summary;
+            case FINISHED:  if (gameSummary == null) {
+                                // summarize
+                                GameSummary summary = new GameSummary();
+                                summary.adapt(this);
+                            }
+                            return "dead";
 
             default:        return null;
         }

@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Internal User Representation
@@ -38,7 +40,11 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    private transient Game currentGame;
+    @ManyToMany(targetEntity = Message.class)
+    private final List<Message> inbox = new ArrayList<>();
+
+    @ManyToOne(targetEntity = Game.class)
+    private Game currentGame;
 
 
     public Game getCurrentGame() {
@@ -92,6 +98,14 @@ public class User implements Serializable {
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
+
+    public List<Message> getInbox() {
+        return inbox;
+    }
+
+    public void notifyMessage(Message message) {
+        inbox.add(message);
+    }
 
     @Override
     public boolean equals(Object o) {

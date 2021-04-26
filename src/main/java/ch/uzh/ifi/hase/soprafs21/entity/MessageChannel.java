@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
-import ch.uzh.ifi.hase.soprafs21.nonpersistent.MessageChannelListener;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,9 +32,6 @@ public class MessageChannel implements Serializable {
 
     @ManyToMany(targetEntity = User.class)
     private final List<User> participants = new ArrayList();
-
-    @Transient
-    private transient List<MessageChannelListener> observerList;
 
 
 
@@ -71,6 +66,7 @@ public class MessageChannel implements Serializable {
     public boolean addAdmin(User user) {
         if (this.admins.contains(user)) return false;
         this.addParticipant(user);
+        if (!this.participants.contains(user)) return false;
         return this.admins.add(user);
     }
 
@@ -87,29 +83,8 @@ public class MessageChannel implements Serializable {
         return this.participants.remove(user);
     }
 
-    public boolean addMessageChannelListener(MessageChannelListener mcl) {
-        if (observerList == null) observerList = new ArrayList<>(); // lazy init
-        return observerList.add(mcl);
+    public void notifyMessage(Message message) {
+        System.out.println("############################");
+        for (User user : participants) user.notifyMessage(message);
     }
-
-    public boolean removeMessageChannelListener(MessageChannelListener mcl) {
-        if (observerList == null) return false;
-        return observerList.remove(mcl);
-    }
-
-    public void messagePosted(Message message) {
-        if (observerList == null) return;
-        for (MessageChannelListener mcl : observerList) mcl.messagePosted(message);
-    }
-
-    public void messageModified(Message message, String originalText) {
-        if (observerList == null) return;
-        for (MessageChannelListener mcl : observerList) mcl.messageModified(message, originalText);
-    }
-
-    public void messageDeleted(Message message) {
-        if (observerList == null) return;
-        for (MessageChannelListener mcl : observerList) mcl.messageDeleted(message);
-    }
-
 }

@@ -56,7 +56,7 @@ public class MessageService {
         }
         message = messageRepository.save(message);
         messageRepository.flush();
-        messageChannel.messagePosted(message);
+        messageChannel.notifyMessage(message);
         return message;
     }
 
