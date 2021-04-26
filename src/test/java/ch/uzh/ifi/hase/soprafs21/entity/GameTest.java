@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,7 +107,7 @@ class GameTest {
         playerlist.add(player1);
 
         // testing if both players are enrolled
-        assertEquals(playerlist, game.getEnrolledPlayers());
+        assertTrue(playerlist.containsAll(game.getEnrolledPlayers()));
     }
 
     @Test
