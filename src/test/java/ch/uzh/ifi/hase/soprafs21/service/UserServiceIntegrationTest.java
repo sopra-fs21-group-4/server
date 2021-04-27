@@ -34,43 +34,92 @@ public class UserServiceIntegrationTest {
         userRepository.deleteAll();
     }
 
-    // @Test  TODO outdated
-    public void createUser_validInputs_success() {
+    @Test
+    public void updateUsername_success() {
         // given
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
         testUser.setPassword("testName");
         testUser.setUsername("testUsername");
+        testUser.setEmail("asdasd");
+        testUser.setToken("token");
+        testUser.setStatus(UserStatus.ONLINE);
 
         // when
         User createdUser = userService.createUser(testUser);
+        userService.updateUsername("newname", testUser);
 
         // then
         assertEquals(testUser.getUserId(), createdUser.getUserId());
         assertEquals(testUser.getPassword(), createdUser.getPassword());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
-        assertNotNull(createdUser.getToken());
-        assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+        assertEquals(testUser.getEmail(), createdUser.getEmail());
     }
 
-    // @Test  TODO outdated
-    public void createUser_duplicateUsername_throwsException() {
-        assertNull(userRepository.findByUsername("testUsername"));
 
+
+    @Test
+    public void updatePassword_success() {
+        // given
+        assertNull(userRepository.findByUsername("testUsername"));
         User testUser = new User();
         testUser.setPassword("testName");
         testUser.setUsername("testUsername");
+        testUser.setEmail("asdasd");
+        testUser.setToken("token");
+        testUser.setStatus(UserStatus.ONLINE);
+
+        // when
         User createdUser = userService.createUser(testUser);
+        userService.updatePassword("newpw", testUser);
 
-        // attempt to create second user with same username
-        User testUser2 = new User();
-
-        // change the name but forget about the username
-        testUser2.setPassword("testName2");
-        testUser2.setUsername("testUsername");
-
-        // check that an error is thrown
-        assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
+        // then
+        assertEquals(testUser.getUserId(), createdUser.getUserId());
+        assertEquals(testUser.getPassword(), createdUser.getPassword());
+        assertEquals(testUser.getUsername(), createdUser.getUsername());
+        assertEquals(testUser.getEmail(), createdUser.getEmail());
     }
+
+    @Test
+    public void updateEmail_success() {
+        // given
+        assertNull(userRepository.findByUsername("testUsername"));
+        User testUser = new User();
+        testUser.setPassword("testName");
+        testUser.setUsername("testUsername");
+        testUser.setEmail("asdasd");
+        testUser.setToken("token");
+        testUser.setStatus(UserStatus.ONLINE);
+
+        // when
+        User createdUser = userService.createUser(testUser);
+        userService.updateEmail("newpw", testUser);
+
+        // then
+        assertEquals(testUser.getUserId(), createdUser.getUserId());
+        assertEquals(testUser.getPassword(), createdUser.getPassword());
+        assertEquals(testUser.getUsername(), createdUser.getUsername());
+        assertEquals(testUser.getEmail(), createdUser.getEmail());
+    }
+
+//     @Test
+//    public void test() {
+//        assertNull(userRepository.findByUsername("testUsername"));
+//
+//        User testUser = new User();
+//        testUser.setPassword("testName");
+//        testUser.setUsername("testUsername");
+//        User createdUser = userService.createUser(testUser);
+//
+//        // attempt to create second user with same username
+//        User testUser2 = new User();
+//
+//        // change the name but forget about the username
+//        testUser2.setPassword("testName2");
+//        testUser2.setUsername("testUsername");
+//
+//        // check that an error is thrown
+//        assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
+//    }
 }

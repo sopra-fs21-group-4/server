@@ -31,10 +31,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+/**
+ * Test class for the GameService
+ *
+ */
 @SpringBootTest
 @RunWith(SpringRunner.class)
-class GameServiceTest {
+class GameServiceIntegrationTest {
 
 
     @Autowired
@@ -61,6 +64,7 @@ class GameServiceTest {
         player1.setUsername("testUsername2");
 
         gameSettings = new GameSettings();
+        gameSettings.setGameSettingsId(1l);
         gameSettings.setName("testname");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
@@ -82,7 +86,7 @@ class GameServiceTest {
 
 
     @Test
-    void createGame() {
+    void createGame_success() {
         assertDoesNotThrow(()-> gameService.createGame(gameMaster, gameSettings));
         Game newgame = gameService.createGame(gameMaster, gameSettings);
         assertEquals(game.getName(), newgame.getName());
@@ -101,7 +105,7 @@ class GameServiceTest {
     }
 
     @Test
-    void startGame() {
+    void startGame_errorAndSuccess() {
         //workaround because we cannot persist gamerounds
         gameSettings.setTotalRounds(0);
         game.adaptSettings(gameSettings);
@@ -116,40 +120,54 @@ class GameServiceTest {
     }
 
     @Test
-    void verifyPlayer() {
+    void verifyPlayer_errorAndSuccess() {
+
+        Game game = gameService.createGame(gameMaster, gameSettings);
+        // test for error when user is not erolled
+        assertThrows(ResponseStatusException.class, () ->gameService.verifyPlayer(game.getGameId(), player1));
+        // test when user is enrolled
+        assertDoesNotThrow(() ->gameService.verifyPlayer(game.getGameId(), gameMaster));
 
     }
 
     @Test
-    void findRunningGame() {
-
-
-
-    }
-
-
-
-    @Test
-    void joinGame() {
-    }
-
-    @Test
-    void leaveGame() {
+    void findRunningGame_errorAndSuccess() {
+        // test for error when game does not exist
+        assertThrows(ResponseStatusException.class, () -> gameService.findRunningGame(1l));
+        // create game
+        Game game = gameService.createGame(gameMaster, gameSettings);
+        // test for finding game
+        assertDoesNotThrow(() ->gameService.findRunningGame(game.getGameId()));
+        assertEquals(game.getName(), gameService.findRunningGame(game.getGameId()).getName());
     }
 
 
 
 
-
-    @Test
-    void putSuggestion() {
-    }
-
-    @Test
-    void putVote() {
-    }
 
 //    @Test
-//    void randomGameId() {
+//    void joinGame() {
+//        Game game = gameService.createGame(gameMaster, gameSettings);
+//
+//        Game game2 = gameService.joinGame(game.getGameId(),player1,"");
+//
+//        assertEquals(game,game2);
 //    }
+//
+//    @Test
+//    void leaveGame() {
+//    }
+//
+//    @Test
+//    void putSuggestion() {
+//        Game game = gameService.createGame(gameMaster, gameSettings);
+//        gameService.startGame(game.getGameId(),gameMaster.getUserId(),true);
+//        gameService.putSuggestion(game.getGameId(),gameMaster,"suggestion");
+//    }
+//
+//    @Test
+//    void putVote() {
+//    }
+
+
 }
