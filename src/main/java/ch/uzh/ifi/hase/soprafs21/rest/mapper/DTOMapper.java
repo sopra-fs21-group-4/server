@@ -86,6 +86,7 @@ public interface DTOMapper {
     @Mapping(source = "currentRoundPhase", target = "currentRoundPhase")
     @Mapping(source = "currentSuggestions", target = "currentSuggestions")
     @Mapping(source = "currentVotes", target = "currentVotes")
+    @Mapping(source = "currentScores", target = "currentScores")
     @Mapping(source = "currentMemeURL", target = "currentMemeURL")
     @Mapping(source = "roundCounter", target = "roundCounter")
     @Mapping(source = "totalRounds", target = "totalRounds")
@@ -97,6 +98,7 @@ public interface DTOMapper {
     @Mapping(source = "scores", target = "scores")
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "presentPlayers", target = "players")
+    @Mapping(source = "playerStates", target = "playerStates")
     @Mapping(source = "gameChat", target = "gameChat")
     GameGetFullDTO convertEntityToGameGetFullDTO(Game game);
 

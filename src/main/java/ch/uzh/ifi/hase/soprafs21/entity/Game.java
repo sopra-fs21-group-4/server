@@ -29,7 +29,6 @@ import java.util.*;
  * 6)   as soon as the game has finished, update() returns a GameSummary object. Save it and delete the game.
  * ! the game finishes automatically as soon as all players are dismissed. kill() aborts the game.
  *
- * TODO actually this class doesn't really need user details, it could as well work with the userId.
  */
 @Entity
 @Table(name = "GAME")
@@ -131,6 +130,9 @@ public class Game implements Serializable {
     }
 
     public GameSummary getGameSummary() {
+        if (gameState.isOver() && gameSummary == null) {
+            gameSummary = new GameSummary().adapt(this);
+        }
         return gameSummary;
     }
 
@@ -186,10 +188,21 @@ public class Game implements Serializable {
         return currentRound == null? null : currentRound.getVotes();
     }
 
+    public Map<Long, Integer> getCurrentScores() {
+        GameRound currentRound = getCurrentRound();
+        return currentRound == null? null : currentRound.getScores();
+    }
+
     public String getCurrentMemeURL() {
         GameRound currentRound = getCurrentRound();
         return currentRound == null? null : currentRound.getMemeURL();
     }
+
+    public Map<Long, PlayerState> getPlayerStates() {
+        return playerStates;
+    }
+
+    // TODO sort getters and setters
 
 
     /* SPECIAL METHODS */
@@ -322,14 +335,13 @@ public class Game implements Serializable {
         if (!currentPlayerState.isEnrolled()) return currentPlayerState;
 
         // decide how to remove player
-        if (gameState == GameState.LOBBY) {
-            removePlayer(player, PlayerState.VANISHED);
-        } else if (gameState.isOver()) {
-            removePlayer(player, PlayerState.LEFT);
-        } else {
-            removePlayer(player, PlayerState.ABORTED);
+        switch(gameState) {
+            case LOBBY:     return removePlayer(player, PlayerState.VANISHED);
+            case STARTING:
+            case RUNNING:
+            case PAUSED:    return removePlayer(player, PlayerState.ABORTED);
+            default:        return removePlayer(player, PlayerState.LEFT);
         }
-        return getPlayerState(player.getUserId());
     }
 
     /**
@@ -381,11 +393,12 @@ public class Game implements Serializable {
      * @param player the player to remove (not null)
      * @param playerState the state to assign to the player
      */
-    private synchronized void removePlayer(User player, PlayerState playerState) {
+    private synchronized PlayerState removePlayer(User player, PlayerState playerState) {
         assert(!playerState.isPresent());
         playerStates.put(player.getUserId(), playerState);
-        this.gameChat.removeParticipant(player);
+        gameChat.removeParticipant(player);
         checkPlayerList();
+        return playerState;
     }
 
     /**
@@ -397,7 +410,7 @@ public class Game implements Serializable {
         List<Long> remainingPlayers = getPresentPlayers();
         if (remainingPlayers.size() < gameState.minPlayers()) {
             gameState = gameState.abandoningState();
-            // TODO kick remaining players
+            kill();
         } else if (getGameMaster() == null) {
             promotePlayer(remainingPlayers.get(0));
         }
@@ -454,15 +467,17 @@ public class Game implements Serializable {
 
     /**
      * leaves the lobby phase and initializes the game rounds.
-     * does nothing if the game is not in the lobby state
+     * does nothing and returns false if :
+     * 1) the game is not in the lobby state
+     * 2) less than 3 players are present
+     * 3) not forced and not all players are ready
      * @param force set true if the lobby should be closed regardless of whether players are ready or not.
-     * @throws IllegalStateException if not forced and not all players are ready.
+     * @return whether the lobby was closed successfully
      */
-    public synchronized void closeLobby(boolean force) {
-        if (gameState != GameState.LOBBY) return;
-        if (!force && (getReadyPlayers().size() < getPresentPlayers().size()))
-            throw new IllegalStateException("not all players ready");
-        // TODO check for minimum player count
+    public synchronized boolean closeLobby(boolean force) {
+        if (gameState != GameState.LOBBY) return false;
+        if (getPresentPlayers().size() < 3) return false;
+        if (!force && (getReadyPlayers().size() < getPresentPlayers().size())) return false;
 
         gameState = GameState.STARTING;
         String baseURL = gameSettings.getMemeSourceURL();
@@ -475,8 +490,13 @@ public class Game implements Serializable {
             round.setMemeURL(memeUrlSupplier.get());
             this.gameRounds.add(round);
         }
+        // initialize scores
+        for (Long player : getEnrolledPlayers()) {
+            scores.put(player, 0);
+        }
         // 5 seconds until game starts
         setCountdown(3000L);
+        return true;
     }
 
     /**
@@ -532,7 +552,8 @@ public class Game implements Serializable {
      */
     public synchronized void kill() {
         if (!gameState.isOver()) gameState = GameState.ABORTED;
-        // TODO kick remaining players
+        for (Long player : getPresentPlayers()) playerStates.put(player, PlayerState.LEFT);
+        gameChat.close();
     }
 
     /**
@@ -554,6 +575,9 @@ public class Game implements Serializable {
 
         // advance depending on game state
         switch(gameState) {
+            case LOBBY:     closeLobby(false);
+                            return GameUpdateResponse.UPDATED;
+
             case STARTING:  // update countdown. If it ran out, start.
                             if (updateCountdown() < 0) start();
                             return GameUpdateResponse.UPDATED;
@@ -564,12 +588,7 @@ public class Game implements Serializable {
 
             case ABORTED:
             case ABANDONED:
-            case FINISHED:  if (gameSummary == null) {
-                                // summarize
-                                GameSummary summary = new GameSummary();
-                                summary.adapt(this);
-                            }
-                            return GameUpdateResponse.DEAD;
+            case FINISHED:  return GameUpdateResponse.DEAD;
 
             default:        return GameUpdateResponse.UPDATED;  // TODO distinguish whether modified or not
         }
@@ -626,18 +645,19 @@ public class Game implements Serializable {
      * TODO
      */
     private void distributePoints() {
-        // TODO save currentScore in separate map
         Map<Long, Integer> voteCounter = new HashMap<>();
         int maxVotes = 0;
         for (Long player : getEnrolledPlayers()) {
             Long candidate = getCurrentVotes().get(player);
-            Integer value = voteCounter.get(candidate);
-            if (value == null) value = 0;
-            value++;
-            maxVotes = Math.max(maxVotes, value);
-            voteCounter.put(candidate, value);
+            if (candidate == null) continue;
+            Integer currentVoteCount = voteCounter.get(candidate);
+            if (currentVoteCount == null) currentVoteCount = 0;
+            currentVoteCount++;
+            maxVotes = Math.max(maxVotes, currentVoteCount);
+            voteCounter.put(candidate, currentVoteCount);
         }
-        if (maxVotes == 0) kill();  // TODO debug
+        if (maxVotes == 0) return; // no votes, no scores
+
         int[] rankCounter = new int[maxVotes+1];
         int[] rankBonus = new int[maxVotes+1];
         for (Long player : getEnrolledPlayers()) {
@@ -659,11 +679,12 @@ public class Game implements Serializable {
             if (rankCounter[i] > 0) rankBonus[i] /= rankCounter[i];
         }
         for (Long player : getEnrolledPlayers()) {
-            Integer currentScore = scores.get(player);
+            Integer previousScore = scores.get(player);
             Integer votesReceived = voteCounter.get(player);
-            if (currentScore == null) currentScore = 0;
             if (votesReceived == null) votesReceived = 0;
-            scores.put(player, currentScore + 5*votesReceived + rankBonus[votesReceived]);
+            Integer currentScore = 5*votesReceived + rankBonus[votesReceived];
+            getCurrentScores().put(player, currentScore);
+            scores.put(player, previousScore + currentScore);
         }
     }
 
@@ -703,8 +724,6 @@ public class Game implements Serializable {
             throw new SecurityException("player is not enrolled");
         if (!gameState.isActive())
             throw new IllegalStateException("can only suggest in an active state");
-        if (!getCurrentRound().getPhase().allowsSuggestions())
-            throw new IllegalStateException("current round phase doesn't allow suggestions");
 
         getCurrentRound().putSuggestion(player, suggestion);
     }
@@ -720,9 +739,7 @@ public class Game implements Serializable {
         if (!getPlayerState(player).isEnrolled())
             throw new SecurityException("player is not enrolled");
         if (!gameState.isActive())
-            throw new IllegalStateException("can only suggest in an active state");
-        if (!getCurrentRound().getPhase().allowsVotes())
-            throw new IllegalStateException("current round phase doesn't allow suggestions");
+            throw new IllegalStateException("can only vote in an active state");
 
         getCurrentRound().putVote(player, vote);
     }
@@ -731,22 +748,21 @@ public class Game implements Serializable {
         String[] commandSegment = command.getText().split(" ");
         PlayerState commanderState = getPlayerState(command.getSender().getUserId());
 
-        switch (commandSegment[0]) {
-            case "/start":  if (commanderState.isPromoted()) {
-                                closeLobby(true);
-                            }
-                            break;
-            case "/a":      if (commanderState.isPromoted()) {
-                                advance();
-                            }
-                            break;
-            case "/s":      if (commanderState.isEnrolled()) {
-                                putSuggestion(command.getSender().getUserId(), command.getText().substring(3));
-                            }
-                            break;
-            case "/v":      if (commanderState.isEnrolled()) {
-                                putVote(command.getSender().getUserId(), Long.parseLong(commandSegment[1]));
-                            }
+        if (commanderState.isPromoted()) {
+            // game master commands
+            switch (commandSegment[0]) {
+                case "/start":  closeLobby(true); break;
+                case "/a":      advance(); break;
+                case "/kill":   kill(); break;
+            }
+        }
+        if (commanderState.isPresent()) {
+            // player commands
+            switch (commandSegment[0]) {
+                case "/r":      setPlayerReady(command.getSender().getUserId(), !commanderState.isReady()); break;
+                case "/s":      putSuggestion(command.getSender().getUserId(), command.getText().substring(3)); break;
+                case "/v":      putVote(command.getSender().getUserId(), Long.parseLong(commandSegment[1])); break;
+            }
         }
     }
 

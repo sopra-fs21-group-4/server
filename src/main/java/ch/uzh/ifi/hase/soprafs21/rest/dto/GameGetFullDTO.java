@@ -25,6 +25,7 @@ public class GameGetFullDTO {
     private RoundPhase currentRoundPhase;
     private Map<Long, String> currentSuggestions;
     private Map<Long, Long> currentVotes;
+    private Map<Long, Integer> currentScores;
     private String currentMemeURL;
     private Integer roundCounter;
     private Integer totalRounds;
@@ -115,6 +116,14 @@ public class GameGetFullDTO {
         this.currentVotes = currentVotes;
     }
 
+    public Map<Long, Integer> getCurrentScores() {
+        return currentScores;
+    }
+
+    public void setCurrentScores(Map<Long, Integer> currentScores) {
+        this.currentScores = currentScores;
+    }
+
     public String getCurrentMemeURL() {
         return currentMemeURL;
     }
@@ -178,12 +187,9 @@ public class GameGetFullDTO {
     public Map<Long, PlayerState> getPlayerStates() {
         return playerStates;
     }
-    // entities to userIds
-    public void setPlayerStates(Map<User, PlayerState> playerStates) {
-        this.playerStates = new HashMap<>();
-        for (User user : playerStates.keySet()) {
-            this.playerStates.put(user.getUserId(), playerStates.get(user));
-        }
+
+    public void setPlayerStates(Map<Long, PlayerState> playerStates) {
+        this.playerStates = playerStates;
     }
 
     public Map<Long, Integer> getScores() {

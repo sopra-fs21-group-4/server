@@ -115,7 +115,7 @@ public class GameSummary implements Serializable {
         return maxAftermathSeconds;
     }
 
-    public void adapt(Game game) {
+    public GameSummary adapt(Game game) {
         if (this.gameId != null) throw new IllegalStateException("GameSummaries are immutable!");
 
         this.gameId = game.getGameId();
@@ -132,6 +132,7 @@ public class GameSummary implements Serializable {
         this.maxVoteSeconds = game.getMaxVoteSeconds();
         this.maxAftermathSeconds = game.getMaxAftermathSeconds();
 
+        return this;
     }
 
 }

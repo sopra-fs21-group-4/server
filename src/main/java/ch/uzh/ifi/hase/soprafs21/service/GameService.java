@@ -66,10 +66,10 @@ public class GameService {
                                     }
                                     break;
                 case DEAD:          GameSummary summary = game.getGameSummary();
-                                    gameSummaryRepository.save(summary);
                                     for (GameRoundSummary roundSummary : summary.getRounds()) {
                                         gameRoundSummaryRepository.save(roundSummary);
                                     }
+                                    gameSummaryRepository.save(summary);
                                     gameRepository.delete(game);
                                     break;
                 default:            break;

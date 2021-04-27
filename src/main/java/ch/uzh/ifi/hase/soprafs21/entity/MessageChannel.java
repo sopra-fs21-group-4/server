@@ -86,4 +86,12 @@ public class MessageChannel implements Serializable {
     public void notifyMessage(Message message) {
         for (User user : participants) user.notifyMessage(message);
     }
+
+    public boolean verifyParticipant(User user) {
+        return !closed && (confidential || participants.contains(user));
+    }
+
+    public boolean verifyAdmin(User user) {
+        return !closed && admins.contains(user);
+    }
 }

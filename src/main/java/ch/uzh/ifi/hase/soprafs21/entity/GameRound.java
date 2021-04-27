@@ -40,6 +40,9 @@ public class GameRound implements Serializable {
     @ElementCollection
     private Map<Long, Long> votes = new HashMap<>();
 
+    @ElementCollection
+    private Map<Long, Integer> scores = new HashMap<>();
+
 
     public Long getRoundId() {
         return roundId;
@@ -75,7 +78,9 @@ public class GameRound implements Serializable {
 
     public void putSuggestion(Long user, String suggestion) {
         if (!this.getPhase().allowsSuggestions())
-            throw new IllegalStateException();
+            throw new IllegalStateException("current round phase doesn't allow suggestions");
+        if (user == null)
+            throw new NullPointerException("\"null\" can't suggest");
         this.suggestions.put(user, suggestion);
     }
 
@@ -83,15 +88,31 @@ public class GameRound implements Serializable {
         return suggestions;
     }
 
-    public void putVote(Long user, Long targetUserId) { // TODO prevent self-vote
+    public void putVote(Long user, Long targetUserId) {
         if (!this.getPhase().allowsVotes())
-            throw new IllegalStateException();
+            throw new IllegalStateException("current round phase doesn't allow votes");
+        if (user == null)
+            throw new NullPointerException("\"null\" can't vote");
+        if (user.equals(targetUserId))
+            throw new IllegalArgumentException("can't vote for yourself");
+
         this.votes.put(user, targetUserId);
     }
 
     public Map<Long, Long> getVotes() {
         return new HashMap<>(votes);
     } // returns only a copy
+
+    public Map<Long, Integer> getScores() {
+        return scores;
+    }
+
+    public void putScore(Long user, Integer score) {
+        if (this.getPhase() != RoundPhase.AFTERMATH)
+            throw new IllegalStateException();
+        this.scores.put(user, score);
+    }
+
 
 
 }
