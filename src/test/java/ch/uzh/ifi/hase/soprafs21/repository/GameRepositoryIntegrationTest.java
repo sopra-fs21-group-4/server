@@ -30,10 +30,11 @@ public class GameRepositoryIntegrationTest {
     private GameRepository gameRepository;
 
 
-    // @Test TODO reactivate
+    @Test
     public void findByGameId_success() {
         // given
         User gameMaster = new User();
+        gameMaster.setUserId(1l);
         gameMaster.setStatus(UserStatus.OFFLINE);
         gameMaster.setToken("1");
         gameMaster.setEmail("firstname@lastname");
@@ -58,13 +59,13 @@ public class GameRepositoryIntegrationTest {
         game.initialize(gameMaster.getUserId());
         game.adaptSettings(gameSettings);
 
-        entityManager.persist(gameMaster);
+
         entityManager.persist(game.getGameSettings());
         entityManager.persist(game.getChatBot());
         entityManager.persist(game.getGameChat());
         entityManager.persist(game);
 
-        entityManager.flush();  // TODO ConstraintViolationException thrown here
+        entityManager.flush();
 
         // when
         Game found = gameRepository.findByGameId(game.getGameId());

@@ -21,11 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GameTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
-    @MockBean
-    private UserService userService;
 
 
     /**
