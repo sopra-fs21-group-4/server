@@ -190,12 +190,12 @@ public class GameService {
     /**
      * starts a game
      * @param gameId
-     * @param user game master
+     * @param userId game master
      */
-    public void startGame(Long gameId, User user, boolean force) {
+    public void startGame(Long gameId, Long userId, boolean force) {
         Game game = findRunningGame(gameId);
 
-        if (!game.getGameMaster().equals(user))
+        if (!game.getGameMaster().equals(userId))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can start the game");
 
         try {

@@ -59,8 +59,8 @@ public class GameController {
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {
-        User user = userService.verifyUser(userId, token);
-        gameService.startGame(gameId, user, true);  // TODO set force to false as soon as readiness implemented
+        userService.verifyUser(userId, token);
+        gameService.startGame(gameId, userId, true);  // TODO set force to false as soon as readiness implemented
     }
 
     /**
