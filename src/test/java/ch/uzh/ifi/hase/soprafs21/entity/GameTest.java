@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
+import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.junit.jupiter.api.Assertions;
@@ -95,12 +96,14 @@ class GameTest {
         // testing if gameMaster is actually gameMaster
         assertEquals(gameMaster.getUserId(), game.getGameMaster());
 
-        // promote new player
-        game.promotePlayer(player1.getUserId());
+        // promote new player and test return value
+        assertEquals(PlayerState.GAME_MASTER, game.promotePlayer(player1.getUserId()));
 
         // test if new player is gameMaster
         assertEquals(player1.getUserId(),game.getGameMaster());
 
+        // test if old user is not gamemaster anymore
+        assertNotEquals(PlayerState.GAME_MASTER, game.getPlayerState(gameMaster.getUserId()));
     }
 
     @Test
@@ -370,8 +373,9 @@ class GameTest {
         game.initialize(gameMaster.getUserId());
         game.adaptSettings(gameSettings);
 
-        // test if error is thrown if not all players are ready
+        // test if lobby is not closed when players are not ready
         assertEquals(false, game.closeLobby(false));
+        assertEquals(GameState.LOBBY, game.getGameState());
 
         // setting the player to ready
         game.setPlayerReady(gameMaster.getUserId(),true);
@@ -385,8 +389,6 @@ class GameTest {
 
         // test if the game is starting
         assertEquals(GameState.STARTING, game.getGameState());
-
-
     }
 
     @Test
@@ -421,7 +423,7 @@ class GameTest {
         game.enrollPlayer(player2, "");
         game.enrollPlayer(player3, "");
 
-        // closing the lobby to start the game with force
+        // closing the lobby to start the game with force (without the players being ready)
         assertEquals(true,game.closeLobby(true));
 
         // test if the game is starting
@@ -643,7 +645,7 @@ class GameTest {
 
     @Test
     void putSuggestion() {
-        // creating objects
+        // creating given objects
         User gameMaster = new User();
         gameMaster.setUserId(1l);
 
@@ -673,9 +675,8 @@ class GameTest {
         game.enrollPlayer(player2, "");
         game.enrollPlayer(player3, "");
 
-        //test exceptions
+        //test exception when not in title giving Phase
         assertThrows(IllegalStateException.class,()->game.putSuggestion(1l,suggestion));
-
 
         // closing the lobby to start the game with force
         game.closeLobby(true);
@@ -691,6 +692,7 @@ class GameTest {
         Map<Long, String> expected = new HashMap<>();
         expected.put(gameMaster.getUserId(), suggestion);
 
+        // suggesting title
         game.putSuggestion(gameMaster.getUserId(),suggestion);
 
         // test suggestions

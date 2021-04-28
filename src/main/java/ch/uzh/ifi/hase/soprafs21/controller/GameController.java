@@ -130,6 +130,25 @@ public class GameController {
     }
 
     /**
+     * update game settings
+     */
+    @PutMapping("/games/{gameId}/updateSettings")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void updateSettings(
+            @RequestBody GameSettingsDTO gameSettingsDTO,
+            @PathVariable(value="gameId") Long gameId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token
+    ) {
+        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOToEntity(gameSettingsDTO);
+        userService.verifyUser(userId, token);
+        gameService.updateSettings(gameId, userId, gameSettings);
+    }
+
+
+
+    /**
      * suggest a meme title
      */
     @PutMapping("/games/{gameId}/suggest")
