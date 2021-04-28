@@ -318,8 +318,7 @@ public class Game implements Serializable {
             throw new IndexOutOfBoundsException("game is full");
 
         // otherwise allow user to join
-        playerStates.put(player.getUserId(), PlayerState.ENROLLED);
-        gameChat.addParticipant(player);
+        addPlayer(player, PlayerState.ENROLLED);
         return PlayerState.ENROLLED;
     }
 
@@ -373,15 +372,14 @@ public class Game implements Serializable {
     }
 
     /**
-     * TODO
      * adds a player to the game and to the game chat.
-     * don't call this method directly! use dismissPlayer or banPlayer instead.
+     * don't call this method directly! use enrollPlayer instead.
      * @param player the player to remove (not null)
      * @param playerState the state to assign to the player
      */
     private synchronized void addPlayer(User player, PlayerState playerState) {
-        // TODO check max players
         assert(playerState.isEnrolled());
+        // TODO check max players
         playerStates.put(player.getUserId(), playerState);
         this.gameChat.addParticipant(player);
         checkPlayerList(); // TODO
@@ -445,9 +443,9 @@ public class Game implements Serializable {
     /**
      * sets the creator of this game as its game master (without asking for a password)
      * and opens the lobby for this game
-     * @param creator
+     * @param gameMaster the creator of this game
      */
-    public synchronized Game initialize(Long creator) {
+    public synchronized Game initialize(Long gameMaster) {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
         // init chat bot
@@ -459,7 +457,7 @@ public class Game implements Serializable {
         gameChat.addAdmin(chatBot);
         gameChat.setConfidential(true);
         // init game master
-        playerStates.put(creator, PlayerState.GAME_MASTER);
+        playerStates.put(gameMaster, PlayerState.GAME_MASTER);
         // set next game state
         gameState = GameState.LOBBY;
         return this;
@@ -620,31 +618,27 @@ public class Game implements Serializable {
      * or issue the next round if the current one has ended.
      * Automatically sets the countdown.
      */
-    private void advance() {
+    private synchronized void advance() {
         assert (gameState == GameState.RUNNING);
         getCurrentRound().nextPhase();
         // set timer for next round phase or go to next round
-        switch(getCurrentRound().getPhase()) {
-            case QUEUED:    throw new AssertionError("current round should not be in phase QUEUED");
-
-            case STARTING:  setCountdown(3000L);    // 3 seconds for players to prepare for new round
-                            break;
-            case SUGGEST:   setCountdown(gameSettings.getMaxSuggestSeconds() * 1000L);
-                            break;
-            case VOTE:      setCountdown(gameSettings.getMaxVoteSeconds() * 1000L);
-                            break;
-            case AFTERMATH: distributePoints();
-                            setCountdown(gameSettings.getMaxAftermathSeconds() * 1000L);
-                            break;
-            case CLOSED:    skipRound();
-                            break;
+        switch (getCurrentRound().getPhase()) {
+            case QUEUED ->      throw new AssertionError("current round should not be in phase QUEUED");
+            case STARTING ->    setCountdown(3000L);    // 3 seconds for players to prepare for new round
+            case SUGGEST ->     setCountdown(gameSettings.getMaxSuggestSeconds() * 1000L);
+            case VOTE ->        setCountdown(gameSettings.getMaxVoteSeconds() * 1000L);
+            case AFTERMATH ->   {
+                                    distributePoints();
+                                    setCountdown(gameSettings.getMaxAftermathSeconds() * 1000L);
+                                }
+            case CLOSED ->      skipRound();
         }
     }
 
     /**
      * TODO
      */
-    private void distributePoints() {
+    private synchronized void distributePoints() {
         Map<Long, Integer> voteCounter = new HashMap<>();
         int maxVotes = 0;
         for (Long player : getEnrolledPlayers()) {
@@ -665,10 +659,9 @@ public class Game implements Serializable {
             if (votesReceived == null) votesReceived = 0;
             rankCounter[votesReceived]++;
         }
-        int bonusPot = 30;
         int currentBonus = 10;
         int currentRank = maxVotes;
-        while (bonusPot > 0 && currentRank > 0) {
+        while (currentBonus > 0 && currentRank > 0) {
             for (int i = 0; i < rankCounter[currentRank]; i++) {
                 rankBonus[currentRank] += currentBonus;
                 currentBonus -= 2;
@@ -751,17 +744,19 @@ public class Game implements Serializable {
         if (commanderState.isPromoted()) {
             // game master commands
             switch (commandSegment[0]) {
-                case "/start":  closeLobby(true); break;
-                case "/a":      advance(); break;
-                case "/kill":   kill(); break;
+                case "/start" -> closeLobby(true);
+                case "/a" -> advance();
+                case "/kill" -> kill();
+                case "/pause" -> pause();
+                case "/resume" -> resume();
             }
         }
         if (commanderState.isPresent()) {
             // player commands
             switch (commandSegment[0]) {
-                case "/r":      setPlayerReady(command.getSender().getUserId(), !commanderState.isReady()); break;
-                case "/s":      putSuggestion(command.getSender().getUserId(), command.getText().substring(3)); break;
-                case "/v":      putVote(command.getSender().getUserId(), Long.parseLong(commandSegment[1])); break;
+                case "/r" -> setPlayerReady(command.getSender().getUserId(), !commanderState.isReady());
+                case "/s" -> putSuggestion(command.getSender().getUserId(), command.getText().substring(3));
+                case "/v" -> putVote(command.getSender().getUserId(), Long.parseLong(commandSegment[1]));
             }
         }
     }

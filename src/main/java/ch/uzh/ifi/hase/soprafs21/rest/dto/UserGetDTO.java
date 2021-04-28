@@ -7,21 +7,16 @@ public class UserGetDTO {
 
     private Long userId;
     private String username;
-    private UserStatus status;
-    private Long currentGame; // special because we only want to return lobby id and not lobby object
     private String email;
+    private UserStatus status;
+    private Long currentGameId;
 
-    public Long getCurrentGame() {
-        return currentGame;
+    public Long getCurrentGameId() {
+        return currentGameId;
     }
 
-    public void setCurrentGame(Game currentGame) {
-        if(this.currentGame ==null){
-            this.currentGame = null;
-        }
-        else{
-        this.currentGame = currentGame.getGameId();
-        }
+    public void setCurrentGameId(Long currentGameId) {
+        this.currentGameId = currentGameId;
     }
 
     public Long getUserId() {

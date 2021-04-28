@@ -39,6 +39,7 @@ public interface DTOMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "email", target = "email")
+    @Mapping(source = "currentGameId", target = "currentGameId")
     UserGetDTO convertEntityToUserGetDTO(User user);
 
     // update user profile

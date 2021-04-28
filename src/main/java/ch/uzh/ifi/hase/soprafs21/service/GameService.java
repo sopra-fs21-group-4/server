@@ -107,10 +107,12 @@ public class GameService {
      */
     public Game createGame(User gameMaster, GameSettings gameSettings) {
 
-        Game game = new Game();
-        game.adaptSettings(gameSettings);
-        game.setGameId(randomGameId());
-        game.initialize(gameMaster.getUserId());
+        Game game = new Game()
+                .adaptSettings(gameSettings)
+                .setGameId(randomGameId())
+                .initialize(gameMaster.getUserId());
+
+        gameMaster.setCurrentGameId(game.getGameId());
 
         // put chat bot to repo
         User chatBot = game.getChatBot();
@@ -147,10 +149,12 @@ public class GameService {
         try {
             Game gameToJoin = findRunningGame(gameId);
             if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()) return gameToJoin;
-            Game previousGame = user.getCurrentGame();
+            Long previousGameId = user.getCurrentGameId();
+            Game previousGame = previousGameId == null? null : gameRepository.findByGameId(previousGameId);
             if (previousGame != null) previousGame.dismissPlayer(user);
             gameToJoin.enrollPlayer(user, password);
-            user.setCurrentGame(gameToJoin);
+            user.setCurrentGameId(gameId);
+            // TODO need to flush here?
             return gameToJoin;
 
         } catch (IllegalArgumentException e) {
@@ -172,6 +176,7 @@ public class GameService {
     public void leaveGame(Long gameId, User user) {
         Game game = findRunningGame(gameId);
         game.dismissPlayer(user);
+        user.setCurrentGameId(null);
     }
 
     /**
@@ -203,6 +208,17 @@ public class GameService {
         } catch(IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.GONE, "game is already running");
         }
+    }
+
+    /**
+     * sets a player to the ready state or to the unready state respectively
+     * @param gameId
+     * @param user
+     * @param ready whether the player is ready or not
+     */
+    public void setPlayerReady(Long gameId, User user, boolean ready) {
+        Game game = verifyPlayer(gameId, user);
+        game.setPlayerReady(user.getUserId(), ready);
     }
 
     /**

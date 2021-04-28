@@ -43,16 +43,16 @@ public class User implements Serializable {
     @ManyToMany(targetEntity = Message.class)
     private final List<Message> inbox = new ArrayList<>();
 
-    @ManyToOne(targetEntity = Game.class)
-    private Game currentGame;
+    @Column
+    private Long currentGameId;
 
 
-    public Game getCurrentGame() {
-        return currentGame;
+    public Long getCurrentGameId() {
+        return currentGameId;
     }
 
-    public void setCurrentGame(Game game) {
-        this.currentGame = game;
+    public void setCurrentGameId(Long gameId) {
+        this.currentGameId = gameId;
     }
 
     public Long getUserId() {

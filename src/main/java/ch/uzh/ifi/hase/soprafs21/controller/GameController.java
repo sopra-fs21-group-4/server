@@ -81,6 +81,37 @@ public class GameController {
     }
 
     /**
+     * leave a game
+     */
+    @PutMapping("/games/{gameId}/leave")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void leaveLobby(
+            @PathVariable("gameId") Long gameId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token
+    ) {
+        User user = userService.verifyUser(userId, token);
+        gameService.leaveGame(gameId, user);
+    }
+
+    /**
+     * set a player ready
+     */
+    @PutMapping("/games/{gameId}/ready")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void putReady(
+            @RequestBody Boolean ready,
+            @PathVariable(value="gameId") Long gameId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token
+    ) {
+        User user = userService.verifyUser(userId, token);
+        gameService.setPlayerReady(gameId, user, ready);
+    }
+
+    /**
      * suggest a meme title
      */
     @PutMapping("/games/{gameId}/suggest")
