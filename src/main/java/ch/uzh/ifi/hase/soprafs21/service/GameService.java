@@ -257,6 +257,25 @@ public class GameService {
         }
     }
 
+    /**
+     * updates the game settings with new values
+     * @param gameId
+     * @param userId
+     * @param gameSettings
+     */
+    public void updateSettings(Long gameId, Long userId, GameSettings gameSettings){
+        Game game = findRunningGame(gameId);
+
+        if (!game.getGameMaster().equals(userId))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can update the settings");
+
+        try {
+        game.adaptSettings(gameSettings);
+        } catch(SecurityException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "something went wrong updating the settings");
+        }
+    }
+
     public Long randomGameId() {
         Random r = new Random();
         long randomId;
