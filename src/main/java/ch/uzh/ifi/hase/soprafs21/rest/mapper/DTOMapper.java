@@ -104,6 +104,26 @@ public interface DTOMapper {
     GameGetFullDTO convertEntityToGameGetFullDTO(Game game);
 
 
+    // GAME SUMMARIES
+
+    // game round summaries
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "memeURL", target = "memeURL")
+    @Mapping(source = "suggestions", target = "suggestions")
+    @Mapping(source = "votes", target = "votes")
+    @Mapping(source = "scores", target = "scores")
+    GameRoundSummaryDTO convertEntityToGameRoundSummaryDTO(GameRoundSummary gameRoundSummary);
+
+    // game summaries
+    @Mapping(source = "gameId", target = "gameId")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "scores", target = "scores")
+    @Mapping(source = "gameChatId", target = "gameChatId")
+    @Mapping(source = "gameState", target = "gameState")
+    @Mapping(source = "rounds", target = "rounds")
+    @Mapping(source = "memeSourceURL", target = "subreddit")
+    @Mapping(source = "memeType", target = "memeType")
+    GameSummaryDTO convertEntityToGameSummaryDTO(GameSummary gameSummary);
 
     // CHATS
 

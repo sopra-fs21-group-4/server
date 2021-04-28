@@ -419,6 +419,8 @@ public class Game implements Serializable {
      * @param settings the instance to adapt from
      */
     public synchronized Game adaptSettings(GameSettings settings) {
+        if (!gameState.isVirgin())
+            throw new IllegalStateException("game has already started");
         if (settings.getName() != null)
             this.gameSettings.setName(settings.getName());
         if (settings.getPassword() != null)

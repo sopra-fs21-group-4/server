@@ -139,11 +139,28 @@ public class GameService {
     }
 
     /**
-     * join a game
-     * @param user
+     * updates a game's settings
      * @param gameId
-     * @param password
-     * @return
+     * @param gameMaster
+     * @param gameSettings
+     * @return the game
+     */
+    public Game adaptGameSettings(Long gameId, User gameMaster, GameSettings gameSettings) {
+        Game game = verifyGameMaster(gameId, gameMaster.getUserId());
+        try {
+            game = game.adaptSettings(gameSettings);
+        } catch(IllegalStateException e) {
+            throw new ResponseStatusException(HttpStatus.GONE, "game is already running");
+        }
+        return game;
+    }
+
+    /**
+     * join a game
+     * @param user the user who wants to join
+     * @param gameId id of the game to join
+     * @param password password of the game (doesn't matter if not demanded by the game)
+     * @return the game
      */
     public Game joinGame(Long gameId, User user, String password) {
         try {
@@ -193,16 +210,25 @@ public class GameService {
     }
 
     /**
+     * verifies that a user is the game master of a game
+     * @param gameId
+     * @param userId
+     * @return the game instance found in the repository
+     */
+    public Game verifyGameMaster(Long gameId, Long userId) {
+        Game game = findRunningGame(gameId);
+        if (!game.getPlayerState(userId).isPromoted())
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you are not the game master of this game");
+        return game;
+    }
+
+    /**
      * starts a game
      * @param gameId
      * @param userId game master
      */
     public void startGame(Long gameId, Long userId, boolean force) {
-        Game game = findRunningGame(gameId);
-
-        if (!game.getGameMaster().equals(userId))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can start the game");
-
+        Game game = verifyGameMaster(gameId, userId);
         try {
             game.closeLobby(force);
         } catch(IllegalStateException e) {
@@ -266,4 +292,11 @@ public class GameService {
         return randomId;
     }
 
+    public GameSummary verifyReviewer(Long gameId, User user) {
+        // TODO possibility to make summaries private
+        GameSummary gameSummary = gameSummaryRepository.findByGameId(gameId);
+        if (gameSummary == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "game not found");
+        return gameSummary;
+    }
 }

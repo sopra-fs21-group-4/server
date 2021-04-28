@@ -49,6 +49,24 @@ public class GameController {
     }
 
     /**
+     * update a game's settings
+     */
+    @PutMapping("/games/{gameId}/update")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public GameGetFullDTO updateGameSettings(
+            @PathVariable(value="gameId") Long gameId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody GameSettingsDTO gameSettingsDTO
+    ) {
+        User user = userService.verifyUser(userId, token);
+        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOToEntity(gameSettingsDTO);
+        Game updatedGame = gameService.adaptGameSettings(gameId, user, gameSettings);
+        return DTOMapper.INSTANCE.convertEntityToGameGetFullDTO(updatedGame);
+    }
+
+    /**
      * start the game
      */
     @PutMapping("/games/{gameId}/start")
@@ -60,7 +78,7 @@ public class GameController {
             @RequestHeader("token") String token
     ) {
         userService.verifyUser(userId, token);
-        gameService.startGame(gameId, userId, true);  // TODO set force to false as soon as readiness implemented
+        gameService.startGame(gameId, userId, true);
     }
 
     /**
@@ -178,6 +196,22 @@ public class GameController {
         User user = userService.verifyUser(userId, token);
         Game game = gameService.verifyPlayer(gameId, user);
         return DTOMapper.INSTANCE.convertEntityToGameGetFullDTO(game);
+    }
+
+    /**
+     * get specific game summary
+     */
+    @GetMapping("/archive/games/{gameId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public GameSummaryDTO getGameSummary(
+            @PathVariable(value="gameId") Long gameId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token
+    ){
+        User user = userService.verifyUser(userId, token);
+        GameSummary gameSummary = gameService.verifyReviewer(gameId, user);
+        return DTOMapper.INSTANCE.convertEntityToGameSummaryDTO(gameSummary);
     }
 
 

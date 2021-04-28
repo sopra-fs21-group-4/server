@@ -27,10 +27,13 @@ public class GameRoundSummary implements Serializable {
     private String memeURL;
 
     @ElementCollection
-    private Map<Long, String> suggestions = new HashMap<>();
+    private Map<Long, String> suggestions;
 
     @ElementCollection
-    private Map<Long, Long> votes = new HashMap<>();
+    private Map<Long, Long> votes;
+
+    @ElementCollection
+    private Map<Long, Integer> scores;
 
     public Long getGameRoundId() {
         return gameRoundId;
@@ -52,6 +55,10 @@ public class GameRoundSummary implements Serializable {
         return votes;
     }
 
+    public Map<Long, Integer> getScores() {
+        return scores;
+    }
+
     public void adapt(GameRound gameRound) {
         if (this.gameRoundId != null) throw new IllegalStateException("GameRoundSummaries are immutable!");
 
@@ -59,6 +66,7 @@ public class GameRoundSummary implements Serializable {
         this.memeURL = gameRound.getMemeURL();
         this.suggestions = gameRound.getSuggestions();
         this.votes = gameRound.getVotes();
+        this.scores = gameRound.getScores();
     }
 
 }
