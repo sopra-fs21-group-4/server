@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
+import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
+import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +32,18 @@ public class MessageService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
+    private final GameRepository gameRepository;
 
     @Autowired
-    public MessageService(@Qualifier("messageRepository") MessageRepository messageRepository) {
+    public MessageService(
+            @Qualifier("messageRepository") MessageRepository messageRepository,
+            @Qualifier("userRepository") UserRepository userRepository,
+            @Qualifier("gameRepository") GameRepository gameRepository
+    ) {
         this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
     }
 
     /**
@@ -54,6 +65,25 @@ public class MessageService {
                 e.printStackTrace();
             }
         }
+
+        // parse @-references from message text
+        List<User> references = message.getReferenced();
+        String[] words = message.getText().split(" ");
+        for (String word : words) {
+            if (!word.startsWith("@")) continue;
+            switch(word) {
+                case "@all":    references.addAll(messageChannel.getParticipants());
+                                continue;
+                case "@admins": references.addAll(messageChannel.getAdmins());
+                                continue;
+                case "@gm":     Game game = gameRepository.findByGameId(messageChannel.getAssociatedGameId());
+                                if (game != null) references.add(userRepository.findByUserId(game.getGameMaster()));
+                                break;
+                default:        references.add(userRepository.findByUsername(word.substring(1)));
+                                break;
+            }
+        }
+
         message = messageRepository.save(message);
         messageRepository.flush();
         messageChannel.notifyMessage(message);

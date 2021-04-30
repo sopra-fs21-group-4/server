@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
+import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageChannelRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +35,40 @@ public class MessageChannelService {
         this.messageChannelRepository = messageChannelRepository;
     }
 
-    public MessageChannel createMessageChannel() {
+    public MessageChannel createMessageChannel(User owner) {
         MessageChannel messageChannel = messageChannelRepository.save(new MessageChannel());
+        messageChannel.addAdmin(owner);
         messageChannelRepository.flush();
         return messageChannel;
     }
 
     public MessageChannel getMessageChannel(Long messageChannelId) {
         if(!messageChannelRepository.existsById(messageChannelId))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("invalid messageChannelId!"));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid messageChannelId!");
         MessageChannel messageChannel = messageChannelRepository.findByMessageChannelId(messageChannelId);
+        return messageChannel;
+    }
+
+    public MessageChannel verifyReader(Long messageChannelId, User user) {
+        MessageChannel messageChannel = getMessageChannel(messageChannelId);
+        if (messageChannel.getConfidential() && !messageChannel.verifyParticipant(user))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this is a private channel");
+        return messageChannel;
+    }
+
+    public MessageChannel verifySender(Long messageChannelId, User user) {
+        MessageChannel messageChannel = getMessageChannel(messageChannelId);
+        if (messageChannel.getClosed())
+            throw new ResponseStatusException(HttpStatus.GONE, "this channel is closed");
+        if (messageChannel.getConfidential() && !messageChannel.verifyParticipant(user))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "this is a private channel");
+        return messageChannel;
+    }
+
+    public MessageChannel verifyAdmin(Long messageChannelId, User user) {
+        MessageChannel messageChannel = getMessageChannel(messageChannelId);
+        if (!messageChannel.verifyAdmin(user))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "you don't have admin rights in this channel");
         return messageChannel;
     }
 

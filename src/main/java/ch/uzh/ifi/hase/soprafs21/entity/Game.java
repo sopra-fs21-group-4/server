@@ -352,8 +352,11 @@ public class Game implements Serializable {
      * bans a player from this game
      * @param player the player to ban (not null)
      * @return the player's new state in this game: BANNED
+     * @throws IllegalArgumentException if the given player is the game master
      */
     public synchronized PlayerState banPlayer(User player) {
+        if (getPlayerState(player.getUserId()).isPromoted())
+            throw new IllegalArgumentException("can't ban the game master");
         PlayerState bannedState = (gameState == GameState.LOBBY)?
                 PlayerState.BANNED_FROM_LOBBY : PlayerState.BANNED_FROM_GAME;
         removePlayer(player, bannedState);
@@ -461,6 +464,7 @@ public class Game implements Serializable {
         this.chatBot.setPassword(UUID.randomUUID().toString());
         this.chatBot.setToken(UUID.randomUUID().toString());
         this.chatBot.setEmail("imabot@invalid.com");
+        gameChat.setAssociatedGameId(this.gameId);
         gameChat.addAdmin(chatBot);
         gameChat.setConfidential(true);
         // init game master
@@ -555,6 +559,7 @@ public class Game implements Serializable {
     public synchronized void kill() {
         if (!gameState.isOver()) gameState = GameState.ABORTED;
         for (Long player : getPresentPlayers()) playerStates.put(player, PlayerState.LEFT);
+        gameChat.removeParticipant(chatBot);
         gameChat.close();
     }
 
@@ -756,6 +761,12 @@ public class Game implements Serializable {
                 case "/kill" -> kill();
                 case "/pause" -> pause();
                 case "/resume" -> resume();
+                case "/ban" ->  {
+                                    for (User player : command.getReferenced()) {
+                                        try { banPlayer(player); } catch (Exception e) { e.printStackTrace(); }
+                                    }
+                                }
+                case "/forgive" -> {for (User player : command.getReferenced()) forgivePlayer(player.getUserId());}
             }
         }
         if (commanderState.isPresent()) {
@@ -763,7 +774,7 @@ public class Game implements Serializable {
             switch (commandSegment[0]) {
                 case "/r" -> setPlayerReady(command.getSender().getUserId(), !commanderState.isReady());
                 case "/s" -> putSuggestion(command.getSender().getUserId(), command.getText().substring(3));
-                case "/v" -> putVote(command.getSender().getUserId(), Long.parseLong(commandSegment[1]));
+                case "/v" -> putVote(command.getSender().getUserId(), command.getReferenced().get(0).getUserId());
             }
         }
     }

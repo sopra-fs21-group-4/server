@@ -40,21 +40,27 @@ public class ChatController {
     @PostMapping("/chat/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public MessageChannelGetDTO createMessageChannel() {
-        MessageChannel newMessageChannel = messageChannelService.createMessageChannel();
+    public MessageChannelGetDTO createMessageChannel(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token
+    ) {
+        // authenticate
+        User user = userService.verifyUser(userId, token);
+        // create
+        MessageChannel newMessageChannel = messageChannelService.createMessageChannel(user);
         return DTOMapper.INSTANCE.convertEntityToMessageChannelGetDTO(newMessageChannel);
     }
 
     /**
      * get messages from a chat, can use queries
-     * TODO add more queries?
-     * TODO make chats exclusive to enrolled participants
      */
     @GetMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public List<MessageGetDTO> getMessages(
             @PathVariable("chatId") Long chatId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
             @RequestParam Optional<String> sender,
             @RequestParam Optional<String> content,
             @RequestParam Optional<Long> since,
@@ -62,29 +68,24 @@ public class ChatController {
             @RequestParam Optional<Integer> first,
             @RequestParam Optional<Integer> latest
     ) {
-
-        MessageChannel messageChannel = messageChannelService.getMessageChannel(chatId);
+        // authenticate
+        User user = userService.verifyUser(userId, token);
+        MessageChannel messageChannel = messageChannelService.verifyReader(chatId, user);
         // fetch all messages in the internal representation
         List<Message> messages = messageService.getMessages(messageChannel);
-
+        // filter
         if (sender.isPresent())
             messages.removeIf(m -> !m.getSender().getUsername().equals(sender.get()));
-
         if (content.isPresent())
             messages.removeIf(m -> !m.getText().contains(content.get()));
-
         if (since.isPresent())
             messages.removeIf(m -> m.getTimestamp() < since.get());
-
         if (before.isPresent())
             messages.removeIf(m -> m.getTimestamp() > before.get());
-
         if (first.isPresent() && latest.isPresent())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("bad query"));
-
         if (first.isPresent())
             messages = messages.subList(0, Math.min(first.get(), messages.size()));
-
         if (latest.isPresent())
             messages = messages.subList(Math.max(messages.size() - latest.get(), 0), messages.size());
 
@@ -111,19 +112,15 @@ public class ChatController {
             @PathVariable("chatId") Long chatId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
-            @RequestBody MessagePostDTO messagePostDTO) {
-
-        Message messageToPost = DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO);
-        MessageChannel messageChannel = messageChannelService.getMessageChannel(chatId);
-
-        // TODO is participant?
-        // verify userId
+            @RequestBody MessagePostDTO messagePostDTO
+    ) {
+        // authenticate
         User sender = userService.verifyUser(userId, token);
-
+        MessageChannel messageChannel = messageChannelService.verifySender(chatId, sender);
+        // post
+        Message messageToPost = DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO);
         Message posted = messageService.postMessage(messageToPost, sender, messageChannel);
-
-        MessageGetDTO response = DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
-        return response;
+        return DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
     }
 
 }

@@ -5,6 +5,8 @@ import ch.uzh.ifi.hase.soprafs21.service.UserService;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Internal Message representation
@@ -33,6 +35,9 @@ public class Message implements Serializable, Comparable<Message> {
 
     @Column(nullable = false)
     private String text;
+
+    @ManyToMany(targetEntity = User.class)
+    private final List<User> referenced = new ArrayList<>();
 
     public Message() {
     }
@@ -72,6 +77,10 @@ public class Message implements Serializable, Comparable<Message> {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public List<User> getReferenced() {
+        return referenced;
     }
 
     @Override

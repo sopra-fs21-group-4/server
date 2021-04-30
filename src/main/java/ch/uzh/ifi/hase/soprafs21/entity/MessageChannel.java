@@ -33,6 +33,8 @@ public class MessageChannel implements Serializable {
     @ManyToMany(targetEntity = User.class)
     private final List<User> participants = new ArrayList();
 
+    @Column
+    private Long associatedGameId;
 
 
     public Long getMessageChannelId() {
@@ -53,6 +55,14 @@ public class MessageChannel implements Serializable {
 
     public List<User> getParticipants() {
         return new ArrayList<>(participants);
+    }
+
+    public Long getAssociatedGameId() {
+        return associatedGameId;
+    }
+
+    public void setAssociatedGameId(Long associatedGameId) {
+        this.associatedGameId = associatedGameId;
     }
 
     public void setConfidential(Boolean confidential) {
@@ -80,6 +90,7 @@ public class MessageChannel implements Serializable {
     }
 
     public boolean removeParticipant(User user) {
+        admins.remove(user);
         return this.participants.remove(user);
     }
 
