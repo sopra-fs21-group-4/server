@@ -301,6 +301,21 @@ public class GameService {
         }
     }
 
+    /**
+     * bans a player from a game
+     * @param gameId
+     * @param userId game master
+     */
+    public void banPlayer(Long gameId, Long gameMasterId, Long userId) {
+        Game game = verifyGameMaster(gameId, gameMasterId);
+        User user = userRepository.findByUserId(userId);
+        try {
+            game.banPlayer(user);
+        } catch(IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
     public Long randomGameId() {
         Random r = new Random();
         long randomId;

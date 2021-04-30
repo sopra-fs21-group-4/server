@@ -478,13 +478,15 @@ public class Game implements Serializable {
      * leaves the lobby phase and initializes the game rounds.
      * does nothing and returns false if :
      * 1) the game is not in the lobby state
-     * 2) less than 3 players are present
-     * 3) not forced and not all players are ready
+     * 2) there are no rounds
+     * 3) less than 3 players are present
+     * 4) not forced and not all players are ready
      * @param force set true if the lobby should be closed regardless of whether players are ready or not.
      * @return whether the lobby was closed successfully
      */
     public synchronized boolean closeLobby(boolean force) {
         if (gameState != GameState.LOBBY) return false;
+        if (getTotalRounds() < 1) return false;
 //        if (getPresentPlayers().size() < 3) return false; // TODO uncomment (debugging)
         if (!force && (getReadyPlayers().size() < getPresentPlayers().size())) return false;
 
