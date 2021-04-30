@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs21.repository;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
-import ch.uzh.ifi.hase.soprafs21.entity.GameRound;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import org.junit.jupiter.api.Test;
@@ -46,8 +45,8 @@ public class GameRepositoryIntegrationTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(4);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(4); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -56,19 +55,19 @@ public class GameRepositoryIntegrationTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
 
         entityManager.persist(game.getGameSettings());
         entityManager.persist(game.getChatBot());
         entityManager.persist(game.getGameChat());
-        entityManager.persist(game);
+        Game found = entityManager.persist(game);
 
-        entityManager.flush();
-
-        // when
-        Game found = gameRepository.findByGameId(game.getGameId());
+//        entityManager.flush();
+//
+//        // when
+//        Game found = gameRepository.findByGameId(game.getGameId());
 
         // then
         assertNotNull(found.getGameId());

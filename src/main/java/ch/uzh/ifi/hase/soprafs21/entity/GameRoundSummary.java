@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
+import javax.annotation.processing.Generated;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class GameRoundSummary implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue
     private Long gameRoundId;
 
     @Column(nullable = false)
@@ -64,9 +66,9 @@ public class GameRoundSummary implements Serializable {
 
         this.title = gameRound.getTitle();
         this.memeURL = gameRound.getMemeURL();
-        this.suggestions = gameRound.getSuggestions();
-        this.votes = gameRound.getVotes();
-        this.scores = gameRound.getScores();
+        this.suggestions = new HashMap(gameRound.getSuggestions());
+        this.votes = new HashMap<>(gameRound.getVotes());
+        this.scores = new HashMap(gameRound.getScores());
     }
 
 }

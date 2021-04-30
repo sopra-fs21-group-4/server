@@ -59,26 +59,24 @@ public class GameService {
      */
     @Scheduled(fixedRate=200)
     public void updateLobbies(){
+        List<Game> deleteList = new ArrayList<>();
         for (Game game : getRunningGames()) {
             switch(game.update()) {
-                case UPDATED:       for (GameRound gameRound : game.getGameRounds()) {
-                                        gameRoundRepository.save(gameRound);
-                                    }
+                case MODIFIED:      gameRoundRepository.saveAll(game.getGameRounds());
                                     break;
-                case DEAD:          GameSummary summary = game.getGameSummary();
-                                    for (GameRoundSummary roundSummary : summary.getRounds()) {
-                                        gameRoundSummaryRepository.save(roundSummary);
-                                    }
+                case DEAD:          deleteList.add(game);
+                case COMPLETE:      if (gameSummaryRepository.existsById(game.getGameId())) break;
+                                    GameSummary summary = game.getGameSummary();
+                                    gameRoundSummaryRepository.saveAll(summary.getRounds());
                                     gameSummaryRepository.save(summary);
-                                    gameRepository.delete(game);
-                                    break;
+                                    gameRoundSummaryRepository.flush();
+                                    gameSummaryRepository.flush();
                 default:            break;
             }
         }
-        messageChannelRepository.flush();
-        gameRoundSummaryRepository.flush();
-        gameSummaryRepository.flush();
-        gameRoundRepository.flush();
+//        messageChannelRepository.flush();
+//        gameRoundRepository.flush();
+        gameRepository.deleteAll(deleteList);
         gameRepository.flush();
     }
 
@@ -110,7 +108,7 @@ public class GameService {
         Game game = new Game()
                 .adaptSettings(gameSettings)
                 .setGameId(randomGameId())
-                .initialize(gameMaster.getUserId());
+                .initialize(gameMaster);
 
         gameMaster.setCurrentGameId(game.getGameId());
 
@@ -149,6 +147,7 @@ public class GameService {
         Game game = verifyGameMaster(gameId, gameMaster.getUserId());
         try {
             game = game.adaptSettings(gameSettings);
+            gameRepository.flush();
         } catch(IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.GONE, "game is already running");
         }

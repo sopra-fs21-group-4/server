@@ -54,8 +54,8 @@ public interface DTOMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "password", target = "password")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
-    @Mapping(source = "totalRounds", target = "totalRounds")
-    @Mapping(source = "subreddit", target = "memeSourceURL")
+    @Mapping(source = "memeURLs", target = "memeURLs")
+    @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
     @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
@@ -67,7 +67,7 @@ public interface DTOMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "totalRounds", target = "totalRounds")
-    @Mapping(source = "memeSourceURL", target = "subreddit")
+    @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
     @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
@@ -80,7 +80,7 @@ public interface DTOMapper {
     // getting complete game information
     @Mapping(source = "gameId", target = "gameId")
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "memeSourceURL", target = "subreddit")
+    @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "currentRoundTitle", target = "currentRoundTitle")
@@ -121,7 +121,7 @@ public interface DTOMapper {
     @Mapping(source = "gameChatId", target = "gameChatId")
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "rounds", target = "rounds")
-    @Mapping(source = "memeSourceURL", target = "subreddit")
+    @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
     GameSummaryDTO convertEntityToGameSummaryDTO(GameSummary gameSummary);
 

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.*;
+import org.springframework.expression.AccessException;
 import util.MemeUrlSupplier;
 
 import javax.persistence.*;
@@ -47,10 +48,10 @@ public class Game implements Serializable {
     @ElementCollection
     private final Map<Long, Integer> scores = new HashMap<>(); // get
 
-    @OneToOne(targetEntity = MessageChannel.class)
+    @OneToOne(targetEntity = MessageChannel.class, cascade = CascadeType.PERSIST)
     private final MessageChannel gameChat = new MessageChannel(); // get only
 
-    @OneToOne(targetEntity = User.class)    // TODO cascade delete
+    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)    // TODO cascade delete
     private final User chatBot = new User();
 
     @OneToOne(targetEntity = GameSettings.class)
@@ -59,7 +60,7 @@ public class Game implements Serializable {
     @Column(nullable = false)
     private GameState gameState = GameState.INIT; // get only
 
-    @OneToMany(targetEntity = GameRound.class)
+    @OneToMany(targetEntity = GameRound.class, cascade = CascadeType.ALL)
     private final List<GameRound> gameRounds = new ArrayList<>(); // get, getCurrentRound
 
     @Column
@@ -144,12 +145,16 @@ public class Game implements Serializable {
         return gameSettings.getTotalRounds();
     }
 
-    public String getMemeSourceURL() {
-        return gameSettings.getMemeSourceURL();
-    }
-
     public MemeType getMemeType() {
         return gameSettings.getMemeType();
+    }
+
+    public String getSubreddit() {
+        return gameSettings.getSubreddit();
+    }
+
+    public List<String> getMemeURLs() {
+        return gameSettings.getMemeURLs();
     }
 
     public Integer getMaxSuggestSeconds() {
@@ -427,10 +432,10 @@ public class Game implements Serializable {
             this.gameSettings.setPassword(settings.getPassword());
         if (settings.getMaxPlayers() != null)
             this.gameSettings.setMaxPlayers(settings.getMaxPlayers());
-        if (settings.getTotalRounds() != null)
-            this.gameSettings.setTotalRounds(settings.getTotalRounds());
-        if (settings.getMemeSourceURL() != null)
-            this.gameSettings.setMemeSourceURL(settings.getMemeSourceURL());
+        if (settings.getMemeURLs() != null)
+            this.gameSettings.setMemeURLs(settings.getMemeURLs());
+        if (settings.getSubreddit() != null)
+            this.gameSettings.setSubreddit(settings.getSubreddit());
         if (settings.getMemeType() != null)
             this.gameSettings.setMemeType(settings.getMemeType());
         if (settings.getMaxSuggestSeconds() != null)
@@ -447,7 +452,7 @@ public class Game implements Serializable {
      * and opens the lobby for this game
      * @param gameMaster the creator of this game
      */
-    public synchronized Game initialize(Long gameMaster) {
+    public synchronized Game initialize(User gameMaster) {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
         // init chat bot
@@ -459,7 +464,7 @@ public class Game implements Serializable {
         gameChat.addAdmin(chatBot);
         gameChat.setConfidential(true);
         // init game master
-        playerStates.put(gameMaster, PlayerState.GAME_MASTER);
+        addPlayer(gameMaster, PlayerState.GAME_MASTER);
         // set next game state
         gameState = GameState.LOBBY;
         return this;
@@ -476,18 +481,15 @@ public class Game implements Serializable {
      */
     public synchronized boolean closeLobby(boolean force) {
         if (gameState != GameState.LOBBY) return false;
-        if (getPresentPlayers().size() < 3) return false;
+//        if (getPresentPlayers().size() < 3) return false; // TODO uncomment (debugging)
         if (!force && (getReadyPlayers().size() < getPresentPlayers().size())) return false;
 
         gameState = GameState.STARTING;
-        String baseURL = gameSettings.getMemeSourceURL();
-        String config = gameSettings.getMemeType().toString();
-        MemeUrlSupplier memeUrlSupplier = MemeUrlSupplier.create(baseURL, config);
 
         for (int i = 0; i < gameSettings.getTotalRounds(); i++) {
             GameRound round = new GameRound();
             round.setTitle(String.format("Round %d",(i+1)));
-            round.setMemeURL(memeUrlSupplier.get());
+            round.setMemeURL(getMemeURLs().get(i));
             this.gameRounds.add(round);
         }
         // initialize scores
@@ -575,22 +577,25 @@ public class Game implements Serializable {
 
         // advance depending on game state
         switch(gameState) {
+            // TODO distinguish whether modified or not
             case LOBBY:     closeLobby(false);
-                            return GameUpdateResponse.UPDATED;
+                            return GameUpdateResponse.MODIFIED;
 
             case STARTING:  // update countdown. If it ran out, start.
                             if (updateCountdown() < 0) start();
-                            return GameUpdateResponse.UPDATED;
+                            return GameUpdateResponse.MODIFIED;
 
             case RUNNING:   // update countdown. If it ran out, advance.
                             if (updateCountdown() < 0) advance();
-                            return GameUpdateResponse.UPDATED;
+                            return GameUpdateResponse.MODIFIED;
+
+            case AFTERMATH: return GameUpdateResponse.COMPLETE;
 
             case ABORTED:
             case ABANDONED:
             case FINISHED:  return GameUpdateResponse.DEAD;
 
-            default:        return GameUpdateResponse.UPDATED;  // TODO distinguish whether modified or not
+            default:        return GameUpdateResponse.MODIFIED;
         }
     }
 

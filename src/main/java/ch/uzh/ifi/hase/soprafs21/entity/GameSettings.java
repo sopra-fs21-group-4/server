@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * a collection of information about a game.
@@ -31,11 +32,11 @@ public class GameSettings implements Serializable {
     @Column(nullable = false)
     private Integer maxPlayers;
 
-    @Column(nullable = false)
-    private Integer totalRounds;
+    @ElementCollection
+    private List<String> memeURLs;
 
     @Column
-    private String memeSourceURL;  // subreddit
+    private String subreddit;
 
     @Column(nullable = false)
     private MemeType memeType;
@@ -84,19 +85,23 @@ public class GameSettings implements Serializable {
     }
 
     public Integer getTotalRounds() {
-        return totalRounds;
+        return memeURLs == null? 0 : memeURLs.size();
     }
 
-    public void setTotalRounds(Integer totalRounds) {
-        this.totalRounds = totalRounds;
+    public List<String> getMemeURLs() {
+        return memeURLs;
     }
 
-    public String getMemeSourceURL() {
-        return memeSourceURL;
+    public void setMemeURLs(List<String> memeURLs) {
+        this.memeURLs = memeURLs;
     }
 
-    public void setMemeSourceURL(String memeFetcherURL) {
-        this.memeSourceURL = memeFetcherURL;
+    public String getSubreddit() {
+        return subreddit;
+    }
+
+    public void setSubreddit(String memeFetcherURL) {
+        this.subreddit = memeFetcherURL;
     }
 
     public MemeType getMemeType() {
@@ -140,26 +145,6 @@ public class GameSettings implements Serializable {
     public boolean acceptsPassword(String password) {
         // password can never be null.
         return this.password.equals("NO_PASSWORD") || this.password.equals(password);
-    }
-
-    /**
-     * TODO necessary?
-     * creates a copy of this object
-     * @return a new GameSettings instance with the same values
-     */
-    public GameSettings clone() {
-        GameSettings clone = new GameSettings();
-
-        // clone.gameSettingsId = this.gameSettingsId;
-        clone.password = this.password;
-        clone.maxPlayers = this.maxPlayers;
-        clone.totalRounds = this.totalRounds;
-        clone.memeSourceURL = this.memeSourceURL;
-        clone.memeType = this.memeType;
-        clone.maxSuggestSeconds = this.maxSuggestSeconds;
-        clone.maxVoteSeconds = this.maxVoteSeconds;
-        clone.maxAftermathSeconds = this.maxAftermathSeconds;
-        return clone;
     }
 
 }

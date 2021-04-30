@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
+import java.util.List;
 
 public class GameSettingsDTO {
 
@@ -11,6 +12,7 @@ public class GameSettingsDTO {
     private String password;
     private Integer maxPlayers;
     private Integer totalRounds;
+    private List<String> memeURLs;
     private String subreddit;
     private MemeType memeType;
     private Integer maxSuggestSeconds;
@@ -47,6 +49,14 @@ public class GameSettingsDTO {
 
     public void setTotalRounds(Integer totalRounds) {
         this.totalRounds = totalRounds;
+    }
+
+    public List<String> getMemeURLs() {
+        return memeURLs;
+    }
+
+    public void setMemeURLs(List<String> memeURLs) {
+        this.memeURLs = memeURLs;
     }
 
     public String getSubreddit() {

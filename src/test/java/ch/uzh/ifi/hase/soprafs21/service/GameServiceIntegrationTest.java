@@ -1,33 +1,19 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
-import ch.uzh.ifi.hase.soprafs21.Application;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
-import ch.uzh.ifi.hase.soprafs21.entity.GameRound;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.repository.*;
-import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,8 +54,8 @@ class GameServiceIntegrationTest {
         gameSettings.setName("testname");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -77,7 +63,7 @@ class GameServiceIntegrationTest {
 
         game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
 
@@ -107,7 +93,8 @@ class GameServiceIntegrationTest {
     @Test
     void startGame_errorAndSuccess() {
         //workaround because we cannot persist gamerounds
-        gameSettings.setTotalRounds(0);
+//        gameSettings.setTotalRounds(0); TODO
+        gameSettings.setSubreddit("cats");
         game.adaptSettings(gameSettings);
         Game game = gameService.createGame(gameMaster, gameSettings);
 

@@ -3,15 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
-import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
-import ch.uzh.ifi.hase.soprafs21.service.UserService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +39,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
 
@@ -87,7 +79,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         //join game with new player
@@ -124,7 +116,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
 
@@ -162,7 +154,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         // list of players and adding gamemaster who is already enrolled
@@ -199,7 +191,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         // list of players and adding gamemaster who is already enrolled
@@ -238,7 +230,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         // list of players and adding gamemaster who is already enrolled
@@ -273,8 +265,7 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -284,16 +275,16 @@ class GameTest {
         gameSettings2.setName("test2");
         gameSettings2.setPassword("2");
         gameSettings2.setMaxPlayers(10);
-        gameSettings2.setTotalRounds(10);
-        gameSettings2.setMemeSourceURL("test2");
-        gameSettings2.setMemeType(MemeType.RANDOM);
+//        gameSettings2.setTotalRounds(10); TODO
+        gameSettings2.setSubreddit("test2");
+        gameSettings2.setMemeType(MemeType.RISING);
         gameSettings2.setMaxSuggestSeconds(10);
         gameSettings2.setMaxAftermathSeconds(10);
         gameSettings2.setMaxVoteSeconds(10);
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         // check if settings are set
@@ -303,7 +294,7 @@ class GameTest {
         assertEquals(gameSettings.getMaxSuggestSeconds(), game.getMaxSuggestSeconds());
         assertEquals(gameSettings.getTotalRounds(), game.getTotalRounds());
         assertEquals(gameSettings.getName(), game.getName());
-        assertEquals(gameSettings.getMemeSourceURL(), game.getMemeSourceURL());
+        assertEquals(gameSettings.getSubreddit(), game.getSubreddit());
         assertEquals(gameSettings.getMemeType(), game.getMemeType());
 
         //change game settings
@@ -316,7 +307,7 @@ class GameTest {
         assertEquals(gameSettings2.getMaxSuggestSeconds(), game.getMaxSuggestSeconds());
         assertEquals(gameSettings2.getTotalRounds(), game.getTotalRounds());
         assertEquals(gameSettings2.getName(), game.getName());
-        assertEquals(gameSettings2.getMemeSourceURL(), game.getMemeSourceURL());
+        assertEquals(gameSettings2.getSubreddit(), game.getSubreddit());
         assertEquals(gameSettings2.getMemeType(), game.getMemeType());
     }
 
@@ -338,7 +329,7 @@ class GameTest {
         assertEquals(GameState.INIT, game.getGameState());
 
 
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         // test gamestate after initializing
@@ -361,8 +352,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -370,7 +361,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         // test if lobby is not closed when players are not ready
@@ -406,8 +397,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -415,7 +406,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
 
@@ -441,8 +432,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -450,7 +441,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         User player2 = new User();
@@ -482,8 +473,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -491,7 +482,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         User player2 = new User();
@@ -530,8 +521,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -539,7 +530,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         User player2 = new User();
@@ -578,8 +569,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(5);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -587,7 +578,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         // abort the game
@@ -609,8 +600,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(2);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(2); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -618,7 +609,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         User player2 = new User();
@@ -653,8 +644,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(2);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(2);  TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -662,7 +653,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         String suggestion = "asd";
@@ -711,8 +702,8 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-        gameSettings.setTotalRounds(2);
-        gameSettings.setMemeSourceURL("test");
+//        gameSettings.setTotalRounds(2); TODO
+        gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -720,7 +711,7 @@ class GameTest {
 
         Game game = new Game();
         game.setGameId(1l);
-        game.initialize(gameMaster.getUserId());
+        game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
         String suggestion = "asd";

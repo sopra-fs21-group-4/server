@@ -2,11 +2,11 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +21,11 @@ public class GameSummary implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /* FIELDS */
-
     @Id
+    @GeneratedValue
+    private Long gameSummaryId;
+
+    @Column(nullable = false,unique = true)
     private Long gameId;
 
     @Column(nullable = false)
@@ -42,12 +45,20 @@ public class GameSummary implements Serializable {
     private List<GameRoundSummary> rounds;
 
     @Column
-    private String memeSourceURL;  // subreddit
+    private String subreddit;  // subreddit
 
     @Column
     private MemeType memeType;
 
     /* GETTERS AND SETTERS */
+
+    public Long getGameSummaryId() {
+        return gameSummaryId;
+    }
+
+    public void setGameSummaryId(Long gameSummaryId) {
+        this.gameSummaryId = gameSummaryId;
+    }
 
     public Long getGameId() {
         return gameId;
@@ -73,8 +84,8 @@ public class GameSummary implements Serializable {
         return new ArrayList<>(rounds);
     }
 
-    public String getMemeSourceURL() {
-        return memeSourceURL;
+    public String getSubreddit() {
+        return subreddit;
     }
 
     public MemeType getMemeType() {
@@ -86,11 +97,11 @@ public class GameSummary implements Serializable {
 
         this.gameId = game.getGameId();
         this.name = game.getName();
-        this.scores = game.getScores();
+        this.scores = new HashMap<>(game.getScores());
         this.gameChatId = game.getGameChat().getMessageChannelId();
         this.gameState = game.getGameState();
         this.rounds = game.summarizePastRounds();
-        this.memeSourceURL = game.getMemeSourceURL();
+        this.subreddit = game.getSubreddit();
         this.memeType = game.getMemeType();
 
         return this;
