@@ -5,10 +5,7 @@ import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -606,6 +603,7 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -650,6 +648,7 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -708,11 +707,13 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
         Game game = new Game();
         game.setGameId(1l);
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
+
+
 
         String suggestion = "asd";
 
