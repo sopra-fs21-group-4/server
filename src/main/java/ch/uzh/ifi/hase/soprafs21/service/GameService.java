@@ -105,6 +105,10 @@ public class GameService {
      */
     public Game createGame(User gameMaster, GameSettings gameSettings) {
 
+        Long previousGameId = gameMaster.getCurrentGameId();
+        Game previousGame = previousGameId == null? null : gameRepository.findByGameId(previousGameId);
+        if (previousGame != null) previousGame.dismissPlayer(gameMaster);
+
         Game game = new Game()
                 .adaptSettings(gameSettings)
                 .setGameId(randomGameId())
