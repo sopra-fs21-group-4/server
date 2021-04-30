@@ -355,7 +355,8 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
+        
         Game game = new Game();
         game.setGameId(1l);
         game.initialize(gameMaster);
@@ -400,6 +401,7 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -435,6 +437,8 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
+
 
         Game game = new Game();
         game.setGameId(1l);
@@ -476,6 +480,7 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -524,6 +529,7 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
+        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
