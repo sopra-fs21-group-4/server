@@ -180,6 +180,34 @@ public class GameController {
         gameService.putVote(gameId, user, vote);
     }
 
+
+    /**
+     * ban a player
+     */
+    @PutMapping("/games/{gameId}/ban")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void banPlayer(
+            @PathVariable(value="gameId") Long gameId,
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody String bannedUserName
+    ) {
+        userService.verifyUser(userId, token);
+        Game game = gameService.verifyGameMaster(gameId, userId);
+        User user = userService.getUserByUsername(bannedUserName);
+
+        System.out.println(game.getEnrolledPlayers());
+        game.banPlayer(user);
+        System.out.println(game.getEnrolledPlayers());
+
+    }
+
+
+
+
+
+
     /**
      * get information about all lobbies
      * the information returned is restricted and doesn't contain player-explicit information.

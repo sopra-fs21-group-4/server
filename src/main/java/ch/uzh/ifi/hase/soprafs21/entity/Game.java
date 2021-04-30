@@ -360,6 +360,7 @@ public class Game implements Serializable {
         PlayerState bannedState = (gameState == GameState.LOBBY)?
                 PlayerState.BANNED_FROM_LOBBY : PlayerState.BANNED_FROM_GAME;
         removePlayer(player, bannedState);
+
         return bannedState;
     }
 
