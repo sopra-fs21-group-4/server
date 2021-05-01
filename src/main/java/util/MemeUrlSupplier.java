@@ -15,12 +15,10 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Supplier;
 
 
 /**
- * TODO dead class
  * MemeUrlSuppliers produce urls of memes.
  * this is basically the interface with the reddit API.
  */
@@ -95,14 +93,14 @@ public class MemeUrlSupplier implements Supplier<String> {
     private static class redditURLs extends MemeUrlSupplier{
         private redditURLs(String subreddit, String memeType){
 
-            String url = "https://reddit.com/r/"+subreddit+"/"+memeType+".json?sort?"+memeType+"&limit=100";
+            String url = "https://reddit.com/r/"+subreddit+"/"+memeType+".json?sort="+memeType+"&limit=100";
 
             RestTemplate restTemplate = new RestTemplate();
 
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Arrays.asList(new MediaType[] { MediaType.APPLICATION_JSON }));
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("User-Agent", "Mozilla/5.0:MyownApp (by /u/Yakumani)");
+            headers.set("User-Agent", "Mozilla/5.0:MyownApp (by /u/Yakumani)"); // TODO
 
             HttpEntity<String> entity = new HttpEntity<String>("parameters", headers);
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
@@ -110,6 +108,9 @@ public class MemeUrlSupplier implements Supplier<String> {
 
             JsonParser jsonParser = new JsonParser();
             JsonObject jsonObject = (JsonObject) jsonParser.parse(response.getBody());
+            System.out.println("######################### START");    // TODO
+            System.out.println(response.toString());
+            System.out.println("######################### END!");
             JsonObject data1 = jsonObject.get("data").getAsJsonObject();
             JsonArray children = data1.get("children").getAsJsonArray();
 
@@ -118,7 +119,7 @@ public class MemeUrlSupplier implements Supplier<String> {
             for(JsonElement child : children){
                 JsonObject data2 = child.getAsJsonObject().get("data").getAsJsonObject();
                 String memeUrl = data2.get("url").getAsString();
-                if(memeUrl.contains(".jpg") && memeUrl.contains(".png") && memeUrl.contains(".gif")){
+                if(memeUrl.endsWith(".jpg") || memeUrl.endsWith(".png") || memeUrl.endsWith(".gif")){
                     memeQueue.add(memeUrl);
                 }
 //                if(memeQueue.size()==size){

@@ -493,10 +493,11 @@ public class Game implements Serializable {
 
         gameState = GameState.STARTING;
 
+        MemeUrlSupplier memeFactory = MemeUrlSupplier.create(getSubreddit(), getMemeType().toString().toLowerCase());
         for (int i = 0; i < gameSettings.getTotalRounds(); i++) {
             GameRound round = new GameRound();
             round.setTitle(String.format("Round %d",(i+1)));
-            round.setMemeURL(getMemeURLs().get(i));
+            round.setMemeURL(memeFactory.get());
             this.gameRounds.add(round);
         }
         // initialize scores
@@ -761,6 +762,7 @@ public class Game implements Serializable {
             switch (commandSegment[0]) {
                 case "/start" -> closeLobby(true);
                 case "/a" -> advance();
+                case "/skip" -> skipRound();
                 case "/kill" -> kill();
                 case "/pause" -> pause();
                 case "/resume" -> resume();

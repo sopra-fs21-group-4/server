@@ -46,6 +46,15 @@ public class User implements Serializable {
     @Column
     private Long currentGameId;
 
+    @ManyToMany(targetEntity = User.class)
+    private List<User> friends;
+
+    @ManyToMany(targetEntity = User.class)
+    private List<User> outgoingFriendRequests;
+
+    @ManyToMany(targetEntity = User.class)
+    private List<User> incomingFriendRequests;
+
 
     public Long getCurrentGameId() {
         return currentGameId;
