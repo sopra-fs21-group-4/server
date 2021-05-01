@@ -54,7 +54,6 @@ public interface DTOMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "password", target = "password")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
-    @Mapping(source = "memeURLs", target = "memeURLs")
     @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
     @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
