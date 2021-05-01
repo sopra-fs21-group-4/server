@@ -131,6 +131,7 @@ public class GameController {
 
     /**
      * update game settings
+     * TODO delete? duplicate above
      */
     @PutMapping("/games/{gameId}/updateSettings")
     @ResponseStatus(HttpStatus.OK)

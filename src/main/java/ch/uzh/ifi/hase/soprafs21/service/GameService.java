@@ -287,7 +287,7 @@ public class GameService {
     }
 
     /**
-     * updates the game settings with new values
+     * updates the game settings with new values TODO duplicate? delete?
      * @param gameId
      * @param userId
      * @param gameSettings
