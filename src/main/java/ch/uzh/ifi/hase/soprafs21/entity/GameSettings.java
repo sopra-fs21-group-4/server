@@ -32,14 +32,14 @@ public class GameSettings implements Serializable {
     @Column(nullable = false)
     private Integer maxPlayers;
 
-    @ElementCollection
-    private List<String> memeURLs;
-
     @Column
     private String subreddit;
 
     @Column(nullable = false)
     private MemeType memeType;
+
+    @Column(nullable = false)
+    private Integer totalRounds;
 
     @Column(nullable = false)
     private Integer maxSuggestSeconds;
@@ -84,18 +84,6 @@ public class GameSettings implements Serializable {
         this.maxPlayers = maxPlayers;
     }
 
-    public Integer getTotalRounds() {
-        return memeURLs == null? 0 : memeURLs.size();
-    }
-
-    public List<String> getMemeURLs() {
-        return memeURLs;
-    }
-
-    public void setMemeURLs(List<String> memeURLs) {
-        this.memeURLs = memeURLs;
-    }
-
     public String getSubreddit() {
         return subreddit;
     }
@@ -110,6 +98,14 @@ public class GameSettings implements Serializable {
 
     public void setMemeType(MemeType memeType) {
         this.memeType = memeType;
+    }
+
+    public Integer getTotalRounds() {
+        return totalRounds;
+    }
+
+    public void setTotalRounds(Integer totalRounds) {
+        this.totalRounds = totalRounds;
     }
 
     public Integer getMaxSuggestSeconds() {

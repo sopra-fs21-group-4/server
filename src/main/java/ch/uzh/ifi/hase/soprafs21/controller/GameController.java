@@ -37,7 +37,7 @@ public class GameController {
     @PostMapping("/games/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public GameGetFullDTO createLobby(
+    public GameGetCompleteDTO createLobby(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
             @RequestBody GameSettingsDTO gameSettingsDTO
@@ -54,7 +54,7 @@ public class GameController {
     @PutMapping("/games/{gameId}/update")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetFullDTO updateGameSettings(
+    public GameGetCompleteDTO updateGameSettings(
             @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
@@ -87,7 +87,7 @@ public class GameController {
     @PutMapping("/games/{gameId}/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetFullDTO joinLobby(
+    public GameGetCompleteDTO joinLobby(
             @PathVariable("gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
@@ -211,13 +211,13 @@ public class GameController {
     @GetMapping("/games")
     @ResponseStatus(HttpStatus.PARTIAL_CONTENT)
     @ResponseBody
-    public List<GameGetRestrictedDTO> getAllGames(
+    public List<GameGetLimitedDTO> getAllGames(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {
         userService.verifyUser(userId, token);
         Collection<Game> games = gameService.getRunningGames();
-        List<GameGetRestrictedDTO> gameGetDTOs = new ArrayList<>();
+        List<GameGetLimitedDTO> gameGetDTOs = new ArrayList<>();
 
         for(Game game : games){
             gameGetDTOs.add(DTOMapper.INSTANCE.convertEntityToGameGetRestrictedDTO(game));
@@ -231,7 +231,7 @@ public class GameController {
     @GetMapping("/games/{gameId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetFullDTO getSingleGame(
+    public GameGetCompleteDTO getSingleGame(
             @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token

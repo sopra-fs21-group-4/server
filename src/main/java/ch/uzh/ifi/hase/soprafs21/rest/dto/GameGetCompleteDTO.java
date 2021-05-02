@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GameGetFullDTO {
+public class GameGetCompleteDTO {
 
     // TODO sort attributes, getters and setters
 

@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.*;
-import org.springframework.expression.AccessException;
 import util.MemeUrlSupplier;
 
 import javax.persistence.*;
@@ -151,10 +150,6 @@ public class Game implements Serializable {
 
     public String getSubreddit() {
         return gameSettings.getSubreddit();
-    }
-
-    public List<String> getMemeURLs() {
-        return gameSettings.getMemeURLs();
     }
 
     public Integer getMaxSuggestSeconds() {
@@ -436,12 +431,12 @@ public class Game implements Serializable {
             this.gameSettings.setPassword(settings.getPassword());
         if (settings.getMaxPlayers() != null)
             this.gameSettings.setMaxPlayers(settings.getMaxPlayers());
-        if (settings.getMemeURLs() != null)
-            this.gameSettings.setMemeURLs(settings.getMemeURLs());
         if (settings.getSubreddit() != null)
             this.gameSettings.setSubreddit(settings.getSubreddit());
         if (settings.getMemeType() != null)
             this.gameSettings.setMemeType(settings.getMemeType());
+        if (settings.getTotalRounds() != null)
+            this.gameSettings.setTotalRounds(settings.getTotalRounds());
         if (settings.getMaxSuggestSeconds() != null)
             this.gameSettings.setMaxSuggestSeconds(settings.getMaxSuggestSeconds());
         if (settings.getMaxVoteSeconds() != null)
@@ -460,11 +455,11 @@ public class Game implements Serializable {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
         // init chat bot
-        this.chatBot.setStatus(UserStatus.ONLINE);
-        this.chatBot.setUsername("Botfather#"+Long.toHexString(gameId));
+        this.chatBot.setCurrentGameId(gameId);
+        this.chatBot.setUsername("Botterfly#"+Long.toHexString(gameId));
         this.chatBot.setPassword(UUID.randomUUID().toString());
         this.chatBot.setToken(UUID.randomUUID().toString());
-        this.chatBot.setEmail("imabot@invalid.com");
+        this.chatBot.setEmail("botterfly@invalid.com");
         gameChat.setAssociatedGameId(this.gameId);
         gameChat.addAdmin(chatBot);
         gameChat.setConfidential(true);
@@ -504,7 +499,7 @@ public class Game implements Serializable {
         for (Long player : getEnrolledPlayers()) {
             scores.put(player, 0);
         }
-        // 5 seconds until game starts
+        // 3 seconds until game starts
         setCountdown(3000L);
         return true;
     }
@@ -655,45 +650,61 @@ public class Game implements Serializable {
      * TODO
      */
     private synchronized void distributePoints() {
-        Map<Long, Integer> voteCounter = new HashMap<>();
+        // initialize maps
+        Map<Long, Integer> roundScores = getCurrentScores();    // score achieved in this round
+        Map<Long, Integer> voteCounter = new HashMap<>();       // number of votes each player received
+        for (Long player : getEnrolledPlayers()) {
+            roundScores.put(player, 0);
+            voteCounter.put(player, 0);
+        }
+        // count received votes for each player
         int maxVotes = 0;
         for (Long player : getEnrolledPlayers()) {
+            if (getCurrentSuggestions().get(player) == null) {
+                // no-suggestion penalty
+                roundScores.put(player, roundScores.get(player) -3);
+            }
             Long candidate = getCurrentVotes().get(player);
-            if (candidate == null) continue;
-            Integer currentVoteCount = voteCounter.get(candidate);
-            if (currentVoteCount == null) currentVoteCount = 0;
-            currentVoteCount++;
-            maxVotes = Math.max(maxVotes, currentVoteCount);
-            voteCounter.put(candidate, currentVoteCount);
+            if (candidate == null) {
+                // no-vote penalty
+                roundScores.put(player, roundScores.get(player) -3);
+                continue;
+            }
+            // 5 points to candidate
+            roundScores.put(candidate, roundScores.get(candidate)+5);
+            // update voteCounter
+            voteCounter.put(candidate, voteCounter.get(candidate) +1);
+            // update maxVotes
+            maxVotes = Math.max(maxVotes, voteCounter.get(candidate));
         }
-        if (maxVotes == 0) return; // no votes, no scores
+        if (maxVotes == 0) return; // no votes, no scores (only penalties)
 
-        int[] rankCounter = new int[maxVotes+1];
-        int[] rankBonus = new int[maxVotes+1];
+        int[] rankCounter = new int[maxVotes+1];    // rankCounter[n]: how many players received n votes
+        int[] rankBonus = new int[maxVotes+1];      // rankBonus[n]: how many bonus points a player with n votes gets
+        int currentBonus = 10;                      // current rank gets current bonus (decreasing)
+        int currentRank = maxVotes;                 // current rank going from maxVotes to 0
+        // init rankCounter
         for (Long player : getEnrolledPlayers()) {
-            Integer votesReceived = voteCounter.get(player);
-            if (votesReceived == null) votesReceived = 0;
-            rankCounter[votesReceived]++;
+            rankCounter[voteCounter.get(player)]++;
         }
-        int currentBonus = 10;
-        int currentRank = maxVotes;
+        // distribute bonus points (decreasing) from top to bottom ranks
         while (currentBonus > 0 && currentRank > 0) {
+            // for each player that landed in a rank, give bonus points to that rank
             for (int i = 0; i < rankCounter[currentRank]; i++) {
                 rankBonus[currentRank] += currentBonus;
                 currentBonus -= 2;
             }
             currentRank--;
         }
-        for (int i = 0; i < maxVotes; i++) {
+        // divide rank bonus to players in the same rank
+        for (int i = 1; i <= maxVotes; i++) {
             if (rankCounter[i] > 0) rankBonus[i] /= rankCounter[i];
         }
         for (Long player : getEnrolledPlayers()) {
-            Integer previousScore = scores.get(player);
-            Integer votesReceived = voteCounter.get(player);
-            if (votesReceived == null) votesReceived = 0;
-            Integer currentScore = 5*votesReceived + rankBonus[votesReceived];
-            getCurrentScores().put(player, currentScore);
-            scores.put(player, previousScore + currentScore);
+            // give bonus points
+            roundScores.put(player, roundScores.get(player) + rankBonus[voteCounter.get(player)]);
+            // update total scores
+            scores.put(player, scores.get(player) + roundScores.get(player));
         }
     }
 

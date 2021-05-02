@@ -1,13 +1,11 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.entity.Game;
 
-public class UserGetDTO {
+public class UserGetLimitedDTO {
 
     private Long userId;
     private String username;
-    private String email;
     private UserStatus status;
     private Long currentGameId;
 
@@ -42,8 +40,4 @@ public class UserGetDTO {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
-
-    public String getEmail(){return email;}
-
-    public void setEmail(String email){this.email = email;}
 }

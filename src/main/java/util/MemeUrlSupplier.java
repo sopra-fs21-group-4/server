@@ -108,9 +108,6 @@ public class MemeUrlSupplier implements Supplier<String> {
 
             JsonParser jsonParser = new JsonParser();
             JsonObject jsonObject = (JsonObject) jsonParser.parse(response.getBody());
-            System.out.println("######################### START");    // TODO
-            System.out.println(response.toString());
-            System.out.println("######################### END!");
             JsonObject data1 = jsonObject.get("data").getAsJsonObject();
             JsonArray children = data1.get("children").getAsJsonArray();
 

@@ -107,12 +107,6 @@ public class GameRound implements Serializable {
         return scores;
     }
 
-    public void putScore(Long user, Integer score) {
-        if (this.getPhase() != RoundPhase.AFTERMATH)
-            throw new IllegalStateException();
-        this.scores.put(user, score);
-    }
-
 
 
 }

@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
+import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,7 +24,6 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue
-    @Column
     private Long userId;
 
     @Column(nullable = false)
@@ -31,7 +32,7 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column
     private String email;
 
     @Column(nullable = false, unique = true)
@@ -40,6 +41,9 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
+    @ElementCollection
+    private final List<Long> subscribedMessageChannels = new ArrayList<>();
+
     @ManyToMany(targetEntity = Message.class)
     private final List<Message> inbox = new ArrayList<>();
 
@@ -47,13 +51,16 @@ public class User implements Serializable {
     private Long currentGameId;
 
     @ManyToMany(targetEntity = User.class)
-    private List<User> friends;
+    private final List<User> friends = new ArrayList<>();
 
     @ManyToMany(targetEntity = User.class)
-    private List<User> outgoingFriendRequests;
+    private final List<User> outgoingFriendRequests = new ArrayList<>();
 
     @ManyToMany(targetEntity = User.class)
-    private List<User> incomingFriendRequests;
+    private final List<User> incomingFriendRequests = new ArrayList<>();
+
+    @Column
+    private Long lastRequest = System.currentTimeMillis();
 
 
     public Long getCurrentGameId() {
@@ -62,6 +69,7 @@ public class User implements Serializable {
 
     public void setCurrentGameId(Long gameId) {
         this.currentGameId = gameId;
+        status = gameId == null? UserStatus.IDLE : UserStatus.PLAYING;
     }
 
     public Long getUserId() {
@@ -104,6 +112,10 @@ public class User implements Serializable {
         this.status = status;
     }
 
+    public List<Long> getSubscribedMessageChannels() {
+        return subscribedMessageChannels;
+    }
+
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
@@ -111,6 +123,28 @@ public class User implements Serializable {
     public List<Message> getInbox() {
         return inbox;
     }
+
+    public List<User> getFriends() {
+        return friends;
+    }
+
+    public List<User> getOutgoingFriendRequests() {
+        return outgoingFriendRequests;
+    }
+
+    public List<User> getIncomingFriendRequests() {
+        return incomingFriendRequests;
+    }
+
+    public Long getLastRequest() {
+        return lastRequest;
+    }
+
+    public void setLastRequest(Long lastRequest) {
+        this.lastRequest = lastRequest;
+    }
+
+
 
     public void notifyMessage(Message message) {
         inbox.add(message);

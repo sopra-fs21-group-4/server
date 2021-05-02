@@ -37,7 +37,7 @@ public class GameRepositoryIntegrationTest {
         gameMaster.setStatus(UserStatus.OFFLINE);
         gameMaster.setToken("1");
         gameMaster.setEmail("firstname@lastname");
-        gameMaster.setStatus(UserStatus.ONLINE);
+        gameMaster.setStatus(UserStatus.IDLE);
         gameMaster.setPassword("pw");
         gameMaster.setUsername("name");
 
@@ -45,7 +45,7 @@ public class GameRepositoryIntegrationTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(4); TODO
+        gameSettings.setTotalRounds(4);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);

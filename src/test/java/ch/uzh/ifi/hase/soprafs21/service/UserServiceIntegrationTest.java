@@ -42,9 +42,9 @@ public class UserServiceIntegrationTest {
         User testUser = new User();
         testUser.setPassword("testName");
         testUser.setUsername("testUsername");
-        testUser.setEmail("asdasd");
+        testUser.setEmail("test@doyouevenmeme.com");
         testUser.setToken("token");
-        testUser.setStatus(UserStatus.ONLINE);
+        testUser.setStatus(UserStatus.IDLE);
 
         // when
         User createdUser = userService.createUser(testUser);
@@ -66,9 +66,9 @@ public class UserServiceIntegrationTest {
         User testUser = new User();
         testUser.setPassword("testName");
         testUser.setUsername("testUsername");
-        testUser.setEmail("asdasd");
+        testUser.setEmail("test@doyouevenmeme.com");
         testUser.setToken("token");
-        testUser.setStatus(UserStatus.ONLINE);
+        testUser.setStatus(UserStatus.IDLE);
 
         // when
         User createdUser = userService.createUser(testUser);
@@ -88,13 +88,13 @@ public class UserServiceIntegrationTest {
         User testUser = new User();
         testUser.setPassword("testName");
         testUser.setUsername("testUsername");
-        testUser.setEmail("asdasd");
+        testUser.setEmail("test@doyouevenmeme.com");
         testUser.setToken("token");
-        testUser.setStatus(UserStatus.ONLINE);
+        testUser.setStatus(UserStatus.IDLE);
 
         // when
         User createdUser = userService.createUser(testUser);
-        userService.updateEmail("newpw", testUser);
+        userService.updateEmail("new@doyouevenmeme.com", testUser);
 
         // then
         assertEquals(testUser.getUserId(), createdUser.getUserId());

@@ -37,10 +37,9 @@ public class MessageRepositoryIntegrationTest {
         User user = new User();
 
         user.setUsername("firstname@lastname");
-        user.setStatus(UserStatus.OFFLINE);
         user.setToken("1");
         user.setEmail("firstname@lastname");
-        user.setStatus(UserStatus.ONLINE);
+        user.setStatus(UserStatus.IDLE);
         user.setPassword("pw");
 
         MessageChannel messageChannel = new MessageChannel();
@@ -76,10 +75,9 @@ public class MessageRepositoryIntegrationTest {
         User user = new User();
 
         user.setUsername("firstname@lastname");
-        user.setStatus(UserStatus.OFFLINE);
         user.setToken("1");
         user.setEmail("firstname@lastname");
-        user.setStatus(UserStatus.ONLINE);
+        user.setStatus(UserStatus.IDLE);
         user.setPassword("pw");
 
         MessageChannel messageChannel = new MessageChannel();

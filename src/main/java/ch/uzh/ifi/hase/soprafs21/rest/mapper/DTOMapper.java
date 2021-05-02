@@ -34,13 +34,24 @@ public interface DTOMapper {
     @Mapping(source = "email", target = "email")
     User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
-    // getting users
+    // getting other users
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "status", target = "status")
-    @Mapping(source = "email", target = "email")
     @Mapping(source = "currentGameId", target = "currentGameId")
-    UserGetDTO convertEntityToUserGetDTO(User user);
+    UserGetLimitedDTO convertEntityToUserGetLimitedDTO(User user);
+
+    // getting own user
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "currentGameId", target = "currentGameId")
+    @Mapping(source = "inbox", target = "inbox")
+    @Mapping(source = "friends", target = "friends")
+    @Mapping(source = "outgoingFriendRequests", target = "outgoingFriendRequests")
+    @Mapping(source = "incomingFriendRequests", target = "incomingFriendRequests")
+    UserGetCompleteDTO convertEntityToUserGetCompleteDTO(User user);
 
     // update user profile
     @Mapping(source = "username", target = "username")
@@ -51,11 +62,13 @@ public interface DTOMapper {
 
     // GAMES
 
+    // game settings
     @Mapping(source = "name", target = "name")
     @Mapping(source = "password", target = "password")
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "totalRounds", target = "totalRounds")
     @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
     @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
@@ -74,7 +87,7 @@ public interface DTOMapper {
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "presentPlayers", target = "playerCount")
-    GameGetRestrictedDTO convertEntityToGameGetRestrictedDTO(Game game);
+    GameGetLimitedDTO convertEntityToGameGetRestrictedDTO(Game game);
 
     // getting complete game information
     @Mapping(source = "gameId", target = "gameId")
@@ -100,7 +113,7 @@ public interface DTOMapper {
     @Mapping(source = "presentPlayers", target = "players")
     @Mapping(source = "playerStates", target = "playerStates")
     @Mapping(source = "gameChat", target = "gameChat")
-    GameGetFullDTO convertEntityToGameGetFullDTO(Game game);
+    GameGetCompleteDTO convertEntityToGameGetFullDTO(Game game);
 
 
     // GAME SUMMARIES

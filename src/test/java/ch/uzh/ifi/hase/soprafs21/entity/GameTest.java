@@ -349,13 +349,12 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
         
         Game game = new Game();
         game.setGameId(1l);
@@ -395,13 +394,12 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -431,13 +429,12 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
 
         Game game = new Game();
@@ -474,13 +471,12 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -523,13 +519,12 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -572,7 +567,7 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
@@ -603,13 +598,12 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(2); TODO
+        gameSettings.setTotalRounds(2);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -648,13 +642,12 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(2);  TODO
+        gameSettings.setTotalRounds(2);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
 
         Game game = new Game();
         game.setGameId(1l);
@@ -707,13 +700,13 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(2); TODO
+        gameSettings.setTotalRounds(2);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        gameSettings.setMemeURLs(Arrays.asList("asda","asd"));
+
         Game game = new Game();
         game.setGameId(1l);
         game.initialize(gameMaster);

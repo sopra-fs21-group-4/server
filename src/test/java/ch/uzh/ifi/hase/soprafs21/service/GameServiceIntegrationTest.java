@@ -50,11 +50,11 @@ class GameServiceIntegrationTest {
         player1.setUsername("testUsername2");
 
         gameSettings = new GameSettings();
-        gameSettings.setGameSettingsId(1l);
-        gameSettings.setName("testname");
+        gameSettings.setGameSettingsId(1L);
+        gameSettings.setName("testName");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
-//        gameSettings.setTotalRounds(5); TODO
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
@@ -62,7 +62,7 @@ class GameServiceIntegrationTest {
         gameSettings.setMaxVoteSeconds(5);
 
         game = new Game();
-        game.setGameId(1l);
+        game.setGameId(1L);
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
@@ -93,7 +93,7 @@ class GameServiceIntegrationTest {
     @Test
     void startGame_errorAndSuccess() {
         //workaround because we cannot persist gamerounds
-//        gameSettings.setTotalRounds(0); TODO
+        gameSettings.setTotalRounds(0);
         gameSettings.setSubreddit("cats");
         game.adaptSettings(gameSettings);
         Game game = gameService.createGame(gameMaster, gameSettings);
@@ -110,7 +110,7 @@ class GameServiceIntegrationTest {
     void verifyPlayer_errorAndSuccess() {
 
         Game game = gameService.createGame(gameMaster, gameSettings);
-        // test for error when user is not erolled
+        // test for error when user is not enrolled
         assertThrows(ResponseStatusException.class, () ->gameService.verifyPlayer(game.getGameId(), player1));
         // test when user is enrolled
         assertDoesNotThrow(() ->gameService.verifyPlayer(game.getGameId(), gameMaster));
@@ -120,7 +120,7 @@ class GameServiceIntegrationTest {
     @Test
     void findRunningGame_errorAndSuccess() {
         // test for error when game does not exist
-        assertThrows(ResponseStatusException.class, () -> gameService.findRunningGame(1l));
+        assertThrows(ResponseStatusException.class, () -> gameService.findRunningGame(1L));
         // create game
         Game game = gameService.createGame(gameMaster, gameSettings);
         // test for finding game
