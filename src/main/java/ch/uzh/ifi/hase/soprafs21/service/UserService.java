@@ -242,7 +242,7 @@ public class UserService {
      * @see User
      */
     public void checkEmailConstraints(String email) {
-        if (email == null) return;
+        if (email == null || email.equals("")) return;
         String[] atSplit = email.split("@");
         if (atSplit.length != 2 || !atSplit[1].contains(".") || atSplit[1].endsWith("."))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "invalid email format");

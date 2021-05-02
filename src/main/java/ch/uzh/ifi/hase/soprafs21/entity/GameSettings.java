@@ -1,9 +1,11 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
+import util.MemeUrlSupplier;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,6 +42,9 @@ public class GameSettings implements Serializable {
 
     @Column(nullable = false)
     private Integer totalRounds;
+
+    @ElementCollection
+    private final List<String> memesFound = new ArrayList<>();
 
     @Column(nullable = false)
     private Integer maxSuggestSeconds;
@@ -88,8 +93,9 @@ public class GameSettings implements Serializable {
         return subreddit;
     }
 
-    public void setSubreddit(String memeFetcherURL) {
-        this.subreddit = memeFetcherURL;
+    public void setSubreddit(String subreddit) {
+        this.subreddit = subreddit;
+        this.memesFound.clear();
     }
 
     public MemeType getMemeType() {
@@ -98,6 +104,7 @@ public class GameSettings implements Serializable {
 
     public void setMemeType(MemeType memeType) {
         this.memeType = memeType;
+        this.memesFound.clear();
     }
 
     public Integer getTotalRounds() {
@@ -130,6 +137,13 @@ public class GameSettings implements Serializable {
 
     public void setMaxAftermathSeconds(Integer maxResultsTime) {
         this.maxAftermathSeconds = maxResultsTime;
+    }
+
+    public List<String> getMemesFound() {
+        if (memesFound.isEmpty() && subreddit != null && memeType != null) {
+            memesFound.addAll(MemeUrlSupplier.create(getSubreddit(), getMemeType().toString().toLowerCase()).getMemeList());
+        }
+        return memesFound;
     }
 
     /**

@@ -76,6 +76,7 @@ public class GameService {
         }
 //        messageChannelRepository.flush();
 //        gameRoundRepository.flush();
+//        gameSettingsRepository.flush();
         gameRepository.deleteAll(deleteList);
         gameRepository.flush();
     }

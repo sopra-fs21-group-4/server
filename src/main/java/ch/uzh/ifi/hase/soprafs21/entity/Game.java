@@ -202,6 +202,10 @@ public class Game implements Serializable {
         return playerStates;
     }
 
+    public List<String> getMemesFound() {
+        return gameSettings.getMemesFound();
+    }
+
     // TODO sort getters and setters
 
 
@@ -430,13 +434,13 @@ public class Game implements Serializable {
         if (settings.getPassword() != null)
             this.gameSettings.setPassword(settings.getPassword());
         if (settings.getMaxPlayers() != null)
-            this.gameSettings.setMaxPlayers(settings.getMaxPlayers());
+            this.gameSettings.setMaxPlayers((Math.max(settings.getMaxPlayers(), this.getEnrolledPlayers().size())));
         if (settings.getSubreddit() != null)
             this.gameSettings.setSubreddit(settings.getSubreddit());
         if (settings.getMemeType() != null)
             this.gameSettings.setMemeType(settings.getMemeType());
         if (settings.getTotalRounds() != null)
-            this.gameSettings.setTotalRounds(settings.getTotalRounds());
+            this.gameSettings.setTotalRounds(Math.max(1, settings.getTotalRounds()));
         if (settings.getMaxSuggestSeconds() != null)
             this.gameSettings.setMaxSuggestSeconds(settings.getMaxSuggestSeconds());
         if (settings.getMaxVoteSeconds() != null)
@@ -474,17 +478,17 @@ public class Game implements Serializable {
      * leaves the lobby phase and initializes the game rounds.
      * does nothing and returns false if :
      * 1) the game is not in the lobby state
-     * 2) there are no rounds
-     * 3) less than 3 players are present
-     * 4) not forced and not all players are ready
+     * 2) less than 3 players are present
+     * 3) not forced and not all players are ready
+     * 4) not enough memes have been found
      * @param force set true if the lobby should be closed regardless of whether players are ready or not.
      * @return whether the lobby was closed successfully
      */
     public synchronized boolean closeLobby(boolean force) {
         if (gameState != GameState.LOBBY) return false;
-        if (getTotalRounds() < 1) return false;
-//        if (getPresentPlayers().size() < 3) return false; // TODO uncomment (debugging)
+        if (getPresentPlayers().size() < 3) return false;
         if (!force && (getReadyPlayers().size() < getPresentPlayers().size())) return false;
+        if (getMemesFound().size() < getTotalRounds()) return false;
 
         gameState = GameState.STARTING;
 
