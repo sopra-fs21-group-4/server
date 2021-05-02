@@ -112,7 +112,7 @@ public class GameSettings implements Serializable {
     }
 
     public void setTotalRounds(Integer totalRounds) {
-        this.totalRounds = totalRounds;
+        this.totalRounds = Math.min(totalRounds, 1);
     }
 
     public Integer getMaxSuggestSeconds() {
