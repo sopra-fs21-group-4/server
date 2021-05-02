@@ -120,23 +120,27 @@ public class UserService {
 
     }
 
-    public void updateUser(User user, User updateEntity) {
+    public User updateUser(User user, User updateEntity) {
+
         String newUsername = updateEntity.getUsername();
-        if (newUsername != null && user.getUsername().equals(newUsername)) {
+        if (newUsername != null && !newUsername.equals(user.getUsername())) {
             checkUsernameConstraints(newUsername);
             user.setUsername(newUsername);
         }
+
         String newPassword = updateEntity.getPassword();
-        if (newPassword != null && user.getPassword().equals(newPassword)) {
+        if (newPassword != null && !newPassword.equals(user.getPassword())) {
             checkPasswordConstraints(newPassword);
             user.setPassword(newPassword);
         }
+
         String newEmail = updateEntity.getEmail();
-        if (newEmail != null && user.getEmail().equals(newEmail)) {
+        if (newEmail != null && !newEmail.equals(user.getEmail())) {
             checkEmailConstraints(newEmail);
             user.setEmail(newEmail);
         }
         userRepository.flush();
+        return user;
     }
 
     public void updateUsername(String newUsername, User user) {
