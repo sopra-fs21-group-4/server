@@ -66,6 +66,8 @@ public class GameController {
         return DTOMapper.INSTANCE.convertEntityToGameGetFullDTO(updatedGame);
     }
 
+
+
     /**
      * start the game
      */
