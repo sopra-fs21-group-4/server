@@ -15,6 +15,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Supplier;
 
 
@@ -36,6 +37,10 @@ public class MemeUrlSupplier implements Supplier<String> {
         String next = memeQueue.pop();
         memeQueue.addLast(next);
         return next;
+    }
+
+    public List<String> getMemeList() {
+        return new ArrayList<String>(memeQueue);
     }
 
 
@@ -111,24 +116,16 @@ public class MemeUrlSupplier implements Supplier<String> {
             JsonObject data1 = jsonObject.get("data").getAsJsonObject();
             JsonArray children = data1.get("children").getAsJsonArray();
 
-            ArrayList<String> urls = new ArrayList<>();
-
             for(JsonElement child : children){
                 JsonObject data2 = child.getAsJsonObject().get("data").getAsJsonObject();
                 String memeUrl = data2.get("url").getAsString();
                 if(memeUrl.endsWith(".jpg") || memeUrl.endsWith(".png") || memeUrl.endsWith(".gif")){
                     memeQueue.add(memeUrl);
                 }
-//                if(memeQueue.size()==size){
-//                    break;
-//                }
             }
 
         }
 
-
-
-//        System.out.println(urls);
 
     }
 

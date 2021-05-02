@@ -262,6 +262,7 @@ class GameTest {
         gameSettings.setName("test");
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
+        gameSettings.setTotalRounds(5);
         gameSettings.setSubreddit("test");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
@@ -272,7 +273,7 @@ class GameTest {
         gameSettings2.setName("test2");
         gameSettings2.setPassword("2");
         gameSettings2.setMaxPlayers(10);
-//        gameSettings2.setTotalRounds(10); TODO
+        gameSettings2.setTotalRounds(10);
         gameSettings2.setSubreddit("test2");
         gameSettings2.setMemeType(MemeType.RISING);
         gameSettings2.setMaxSuggestSeconds(10);

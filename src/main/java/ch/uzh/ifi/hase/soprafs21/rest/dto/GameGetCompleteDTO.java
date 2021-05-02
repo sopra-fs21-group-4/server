@@ -20,6 +20,7 @@ public class GameGetCompleteDTO {
     private String name;
     private String subreddit;
     private MemeType memeType;
+    private List<String> memesFound;
     private GameState gameState;
     private String currentRoundTitle;
     private RoundPhase currentRoundPhase;
@@ -74,6 +75,14 @@ public class GameGetCompleteDTO {
 
     public void setMemeType(MemeType memeType) {
         this.memeType = memeType;
+    }
+
+    public List<String> getMemesFound() {
+        return memesFound;
+    }
+
+    public void setMemesFound(List<String> memesFound) {
+        this.memesFound = memesFound;
     }
 
     public GameState getGameState() {

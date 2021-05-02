@@ -94,6 +94,7 @@ public interface DTOMapper {
     @Mapping(source = "name", target = "name")
     @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "memesFound", target = "memesFound")
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "currentRoundTitle", target = "currentRoundTitle")
     @Mapping(source = "currentRoundPhase", target = "currentRoundPhase")
@@ -113,7 +114,7 @@ public interface DTOMapper {
     @Mapping(source = "presentPlayers", target = "players")
     @Mapping(source = "playerStates", target = "playerStates")
     @Mapping(source = "gameChat", target = "gameChat")
-    GameGetCompleteDTO convertEntityToGameGetFullDTO(Game game);
+    GameGetCompleteDTO convertEntityToGameGetCompleteDTO(Game game);
 
 
     // GAME SUMMARIES

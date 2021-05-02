@@ -45,7 +45,7 @@ public class GameController {
         User user = userService.verifyUser(userId, token);
         GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOToEntity(gameSettingsDTO);
         Game createdGame = gameService.createGame(user, gameSettings);
-        return DTOMapper.INSTANCE.convertEntityToGameGetFullDTO(createdGame);
+        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(createdGame);
     }
 
     /**
@@ -63,7 +63,7 @@ public class GameController {
         User user = userService.verifyUser(userId, token);
         GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOToEntity(gameSettingsDTO);
         Game updatedGame = gameService.adaptGameSettings(gameId, user, gameSettings);
-        return DTOMapper.INSTANCE.convertEntityToGameGetFullDTO(updatedGame);
+        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(updatedGame);
     }
 
     /**
@@ -95,7 +95,7 @@ public class GameController {
     ) {
         User user = userService.verifyUser(userId, token);
         Game joinedGame = gameService.joinGame(gameId, user, password.isPresent()? password.get() : null);
-        return DTOMapper.INSTANCE.convertEntityToGameGetFullDTO(joinedGame);
+        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(joinedGame);
     }
 
     /**
@@ -238,7 +238,7 @@ public class GameController {
     ){
         User user = userService.verifyUser(userId, token);
         Game game = gameService.verifyPlayer(gameId, user);
-        return DTOMapper.INSTANCE.convertEntityToGameGetFullDTO(game);
+        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(game);
     }
 
     /**
