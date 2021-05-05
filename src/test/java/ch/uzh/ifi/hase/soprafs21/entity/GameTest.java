@@ -11,11 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GameTest {
 
-
-
-
     /**
-    Unit testing the Game class
+     * Unit testing the Game class
      */
     @Test
     void setPlayerReady() {
@@ -24,10 +21,8 @@ class GameTest {
         User gameMaster = new User();
         gameMaster.setUserId(1l);
 
-
         User player1 = new User();
         player1.setUserId(2l);
-
 
         GameSettings gameSettings = new GameSettings();
         gameSettings.setPassword("");
@@ -39,10 +34,8 @@ class GameTest {
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
-
         // enrolling player and setting ready
         game.enrollPlayer(player1, "");
-
 
         // list of players
         List<Long> playerlist = new ArrayList<>();
@@ -51,7 +44,7 @@ class GameTest {
         assertEquals(playerlist, game.getReadyPlayers());
 
         // testing if player
-        game.setPlayerReady(player1.getUserId(),true);
+        game.setPlayerReady(player1.getUserId(), true);
         playerlist.add(player1.getUserId());
 
         assertEquals(playerlist, game.getReadyPlayers());
@@ -64,10 +57,8 @@ class GameTest {
         User gameMaster = new User();
         gameMaster.setUserId(1l);
 
-
         User player1 = new User();
         player1.setUserId(2l);
-
 
         GameSettings gameSettings = new GameSettings();
         gameSettings.setPassword("");
@@ -79,7 +70,7 @@ class GameTest {
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
-        //join game with new player
+        // join game with new player
         game.enrollPlayer(player1, "");
 
         // testing if gameMaster is actually gameMaster
@@ -89,7 +80,7 @@ class GameTest {
         assertEquals(PlayerState.GAME_MASTER, game.promotePlayer(player1.getUserId()));
 
         // test if new player is gameMaster
-        assertEquals(player1.getUserId(),game.getGameMaster());
+        assertEquals(player1.getUserId(), game.getGameMaster());
 
         // test if old user is not gamemaster anymore
         assertNotEquals(PlayerState.GAME_MASTER, game.getPlayerState(gameMaster.getUserId()));
@@ -101,10 +92,8 @@ class GameTest {
         User gameMaster = new User();
         gameMaster.setUserId(1l);
 
-
         User player1 = new User();
         player1.setUserId(2l);
-
 
         GameSettings gameSettings = new GameSettings();
         gameSettings.setPassword("");
@@ -116,16 +105,12 @@ class GameTest {
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
-
-
         // list of players and adding gamemaster who is already enrolled
         List<Long> playerlist = new ArrayList<>();
         playerlist.add(gameMaster.getUserId());
 
-
         // testing if only gamemaster is enrolled
         assertEquals(playerlist, game.getEnrolledPlayers());
-
 
         // enrolling player
         game.enrollPlayer(player1, "");
@@ -158,14 +143,11 @@ class GameTest {
         List<Long> playerlist = new ArrayList<>();
         playerlist.add(gameMaster.getUserId());
 
-
         // enrolling player (tested in a different test)
         game.enrollPlayer(player1, "");
 
-
         // remove player1
         game.dismissPlayer(player1);
-
 
         // testing if only gamemaster is enrolled
         assertEquals(playerlist, game.getEnrolledPlayers());
@@ -207,9 +189,7 @@ class GameTest {
         // test if banned player cannot join
         assertThrows(SecurityException.class, () -> game.enrollPlayer(player1, ""));
 
-
     }
-
 
     @Test
     void forgivePlayer() {
@@ -295,7 +275,7 @@ class GameTest {
         assertEquals(gameSettings.getSubreddit(), game.getSubreddit());
         assertEquals(gameSettings.getMemeType(), game.getMemeType());
 
-        //change game settings
+        // change game settings
         game.adaptSettings(gameSettings2);
 
         // test changed settings
@@ -326,7 +306,6 @@ class GameTest {
         // test gamestate before initializing
         assertEquals(GameState.INIT, game.getGameState());
 
-
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
@@ -356,7 +335,7 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-        
+
         Game game = new Game();
         game.setGameId(1l);
         game.initialize(gameMaster);
@@ -367,14 +346,14 @@ class GameTest {
         assertEquals(GameState.LOBBY, game.getGameState());
 
         // setting the player to ready
-        game.setPlayerReady(gameMaster.getUserId(),true);
+        game.setPlayerReady(gameMaster.getUserId(), true);
         game.enrollPlayer(player2, "");
-        game.setPlayerReady(player2.getUserId(),true);
+        game.setPlayerReady(player2.getUserId(), true);
         game.enrollPlayer(player3, "");
-        game.setPlayerReady(player3.getUserId(),true);
+        game.setPlayerReady(player3.getUserId(), true);
 
         // closing the lobby to start the game
-        assertEquals(true,game.closeLobby(false));
+        assertEquals(true, game.closeLobby(false));
 
         // test if the game is starting
         assertEquals(GameState.STARTING, game.getGameState());
@@ -407,13 +386,13 @@ class GameTest {
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
-
         // enroll 2 more players
         game.enrollPlayer(player2, "");
         game.enrollPlayer(player3, "");
 
-        // closing the lobby to start the game with force (without the players being ready)
-        assertEquals(true,game.closeLobby(true));
+        // closing the lobby to start the game with force (without the players being
+        // ready)
+        assertEquals(true, game.closeLobby(true));
 
         // test if the game is starting
         assertEquals(GameState.STARTING, game.getGameState());
@@ -436,7 +415,6 @@ class GameTest {
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
         gameSettings.setMaxVoteSeconds(5);
-
 
         Game game = new Game();
         game.setGameId(1l);
@@ -493,20 +471,18 @@ class GameTest {
         game.enrollPlayer(player3, "");
 
         // test for error if game is not running
-        assertThrows(IllegalStateException.class, ()->game.pause());
+        assertThrows(IllegalStateException.class, () -> game.pause());
 
         // closing the lobby to start the game with force
         game.closeLobby(true);
 
         // start the game
         game.start();
-        //pause the game
+        // pause the game
         game.pause();
 
         // test if game is now running
         assertEquals(GameState.PAUSED, game.getGameState());
-
-
 
     }
 
@@ -541,16 +517,16 @@ class GameTest {
         game.enrollPlayer(player3, "");
 
         // test if error if game is not running yet
-        assertThrows(IllegalStateException.class, ()->game.resume());
+        assertThrows(IllegalStateException.class, () -> game.resume());
 
         // closing the lobby to start the game with force
         game.closeLobby(true);
 
         // start the game
         game.start();
-        //pause the game
+        // pause the game
         game.pause();
-        //resume game
+        // resume game
         game.resume();
 
         // test if game is now running
@@ -583,7 +559,7 @@ class GameTest {
         // abort the game
         game.kill();
 
-        //test if game is aborted
+        // test if game is aborted
         assertEquals(GameState.ABORTED, game.getGameState());
 
         // TODO check if players are kicked
@@ -629,7 +605,7 @@ class GameTest {
         game.skipRound();
 
         // test if the next round has begun
-        assertEquals(counter+1, game.getRoundCounter());
+        assertEquals(counter + 1, game.getRoundCounter());
 
     }
 
@@ -665,8 +641,8 @@ class GameTest {
         game.enrollPlayer(player2, "");
         game.enrollPlayer(player3, "");
 
-        //test exception when not in title giving Phase
-        assertThrows(IllegalStateException.class,()->game.putSuggestion(1l,suggestion));
+        // test exception when not in title giving Phase
+        assertThrows(IllegalStateException.class, () -> game.putSuggestion(1l, suggestion));
 
         // closing the lobby to start the game with force
         game.closeLobby(true);
@@ -675,19 +651,18 @@ class GameTest {
         game.getCurrentRound().nextPhase();
         // go to suggest phase
         game.getCurrentRound().nextPhase();
-        //test exceptions
-        assertThrows(SecurityException.class,()->game.putSuggestion(10l,suggestion));
+        // test exceptions
+        assertThrows(SecurityException.class, () -> game.putSuggestion(10l, suggestion));
 
         // creating expected suggestions
         Map<Long, String> expected = new HashMap<>();
         expected.put(gameMaster.getUserId(), suggestion);
 
         // suggesting title
-        game.putSuggestion(gameMaster.getUserId(),suggestion);
+        game.putSuggestion(gameMaster.getUserId(), suggestion);
 
         // test suggestions
         assertEquals(expected, game.getCurrentRound().getSuggestions());
-
 
     }
 
@@ -713,8 +688,6 @@ class GameTest {
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
-
-
         String suggestion = "asd";
 
         User player2 = new User();
@@ -725,9 +698,8 @@ class GameTest {
         game.enrollPlayer(player2, "");
         game.enrollPlayer(player3, "");
 
-        //test exceptions
-        assertThrows(IllegalStateException.class,()->game.putSuggestion(1l,suggestion));
-
+        // test exceptions
+        assertThrows(IllegalStateException.class, () -> game.putSuggestion(1l, suggestion));
 
         // closing the lobby to start the game with force
         game.closeLobby(true);
@@ -737,25 +709,68 @@ class GameTest {
         // go to suggest phase
         game.getCurrentRound().nextPhase();
         // suggest a title
-        game.putSuggestion(gameMaster.getUserId(),suggestion);
+        game.putSuggestion(gameMaster.getUserId(), suggestion);
         // go to vote phase
         game.getCurrentRound().nextPhase();
-        //test exceptions
-        assertThrows(SecurityException.class,()->game.putSuggestion(10l,suggestion));
+        // test exceptions
+        assertThrows(SecurityException.class, () -> game.putSuggestion(10l, suggestion));
 
         // creating expected suggestions
         Map<Long, Long> expected = new HashMap<>();
         expected.put(player2.getUserId(), gameMaster.getUserId());
 
         // voting for the suggestion
-        assertThrows(IllegalArgumentException.class, ()->game.putVote(gameMaster.getUserId(),gameMaster.getUserId()));
+        assertThrows(IllegalArgumentException.class,
+                () -> game.putVote(gameMaster.getUserId(), gameMaster.getUserId()));
 
-        game.putVote(player2.getUserId(),gameMaster.getUserId());
+        game.putVote(player2.getUserId(), gameMaster.getUserId());
 
         // test suggestions
         assertEquals(expected, game.getCurrentRound().getVotes());
 
     }
 
+    /**
+     * This test checks if the max player setting takes affect
+     */
+    @Test
+    void checkMaxPlayerSetting() throws IndexOutOfBoundsException {
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("MaxPlayerTest");
+        gameSettings.setPassword("");
+        // Max Player setting
+        gameSettings.setMaxPlayers(3);
+        gameSettings.setTotalRounds(2);
+        gameSettings.setSubreddit("memes");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+        User player2 = new User();
+        player2.setUserId(2l);
+        User player3 = new User();
+        player3.setUserId(3l);
+        User player4 = new User();
+        player4.setUserId(4l);
+
+        // enrolling the players to the game
+        game.enrollPlayer(player2, "");
+        game.enrollPlayer(player3, "");
+
+        // the lobby should now be full so when we try to enroll a player this should
+        // return an error
+        game.enrollPlayer(player4, "");
+
+    }
 
 }
