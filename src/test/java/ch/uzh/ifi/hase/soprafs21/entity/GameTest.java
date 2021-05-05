@@ -769,7 +769,12 @@ class GameTest {
 
         // the lobby should now be full so when we try to enroll a player this should
         // return an error
-        game.enrollPlayer(player4, "");
+        try {
+            game.enrollPlayer(player4, "");
+            fail("expected exception did not occur");
+        } catch (IndexOutOfBoundsException e) {
+            // nothing to see here we want the exeception
+        }
 
     }
 
