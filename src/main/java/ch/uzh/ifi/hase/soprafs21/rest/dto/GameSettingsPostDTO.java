@@ -9,7 +9,7 @@ import java.util.List;
 public class GameSettingsPostDTO {
 
     private String name;
-    private String password;
+    private String password; // not in DTO
     private Integer maxPlayers;
     private Integer totalRounds;
     private String subreddit;
