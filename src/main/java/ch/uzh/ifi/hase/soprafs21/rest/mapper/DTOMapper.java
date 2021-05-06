@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+//unknownConflict
 /**
  * DTOMapper
  * This class is responsible for generating classes that will automatically transform/map the internal representation
