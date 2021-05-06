@@ -42,28 +42,32 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
-    // @Test  TODO outdated
-    public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+    @Test
+    public void TrytogetFirstTestrunning() throws Exception {
         // given
         User user = new User();
-        user.setPassword("Firstname Lastname");
+        user.setUserId(1L);
         user.setUsername("firstname@lastname");
-        user.setStatus(UserStatus.OFFLINE);
-
-        List<User> allUsers = Collections.singletonList(user);
+        //user.setToken("Token");
 
         // this mocks the UserService -> we define above what the userService should return when getUsers() is called
-        given(userService.getUsers()).willReturn(allUsers);
+        given(userService.createUser(Mockito.any())).willReturn(user);
+
+
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setUsername("testUsername");
+        userPostDTO.setPassword("somePassword");
+        userPostDTO.setEmail("someEmail");
 
         // when
-        MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder postRequest = post("/users/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPostDTO));
 
         // then
-        mockMvc.perform(getRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].name", is(user.getPassword())))
-                .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-                .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+        mockMvc.perform(postRequest).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username", is(user.getUsername())))
+                .andExpect(jsonPath("$.userId", is(user.getUserId().intValue())));
     }
 
 //    @Test

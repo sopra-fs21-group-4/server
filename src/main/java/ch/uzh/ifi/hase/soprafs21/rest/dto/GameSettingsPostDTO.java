@@ -6,10 +6,10 @@ import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import java.util.List;
 
-public class GameSettingsDTO {
+public class GameSettingsPostDTO {
 
     private String name;
-    private String password;
+    private String password; // not in DTO
     private Integer maxPlayers;
     private Integer totalRounds;
     private String subreddit;
@@ -17,6 +17,8 @@ public class GameSettingsDTO {
     private Integer maxSuggestSeconds;
     private Integer maxVoteSeconds;
     private Integer maxAftermathSeconds;
+
+
 
     public String getName() {
         return name;
@@ -89,7 +91,6 @@ public class GameSettingsDTO {
     public void setMaxAftermathSeconds(Integer maxAftermathSeconds) {
         this.maxAftermathSeconds = maxAftermathSeconds;
     }
-
 
 
 }

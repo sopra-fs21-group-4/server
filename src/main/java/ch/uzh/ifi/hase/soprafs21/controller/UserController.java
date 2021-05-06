@@ -65,7 +65,7 @@ public class UserController {
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<UserGetLimitedDTO> getUsers(
+    public List<UserPublicDTO> getUsers(
             @RequestHeader("userIds") Optional<List<Long>> userIds,
             @RequestHeader("usernames") Optional<List<String>> usernames
     ) {
@@ -85,9 +85,9 @@ public class UserController {
         }
 
         // convert each user to the API representation
-        List<UserGetLimitedDTO> userGetDTOs = new ArrayList<>();
+        List<UserPublicDTO> userGetDTOs = new ArrayList<>();
         for (User user : users) {
-            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user));
+            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user));
         }
         return userGetDTOs;
     }
@@ -98,7 +98,7 @@ public class UserController {
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserGetLimitedDTO getUser(
+    public UserPublicDTO getUser(
             @RequestHeader("userId") Optional<Long> userId,
             @RequestHeader("username") Optional<String> username
     ) {
@@ -111,7 +111,7 @@ public class UserController {
                 :
                 userService.getUserByUsername(username.get());
 
-        return DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user);
+        return DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user);
     }
 
     /**
@@ -120,12 +120,12 @@ public class UserController {
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserGetCompleteDTO getOwnUser(
+    public UserPrivateDTO getOwnUser(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {
         User user = userService.verifyUser(userId, token);
-        return DTOMapper.INSTANCE.convertEntityToUserGetCompleteDTO(user);
+        return DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
     }
 
 

@@ -7,7 +7,9 @@ import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Internal User Representation
@@ -42,7 +44,10 @@ public class User implements Serializable {
     private UserStatus status;
 
     @ElementCollection
-    private final List<Long> subscribedMessageChannels = new ArrayList<>();
+    private final Set<Long> subscribedMessageChannels = new HashSet<>();
+
+    @ElementCollection
+    private final Set<Long> subscribedGameSummaries = new HashSet<>();
 
     @ManyToMany(targetEntity = Message.class)
     private final List<Message> inbox = new ArrayList<>();
@@ -50,17 +55,20 @@ public class User implements Serializable {
     @Column
     private Long currentGameId;
 
-    @ManyToMany(targetEntity = User.class)
-    private final List<User> friends = new ArrayList<>();
+    @ElementCollection
+    private final Set<Long> friends = new HashSet<>();
 
-    @ManyToMany(targetEntity = User.class)
-    private final List<User> outgoingFriendRequests = new ArrayList<>();
+    @ElementCollection
+    private final Set<Long> outgoingFriendRequests = new HashSet<>();
 
-    @ManyToMany(targetEntity = User.class)
-    private final List<User> incomingFriendRequests = new ArrayList<>();
+    @ElementCollection
+    private final Set<Long> incomingFriendRequests = new HashSet<>();
 
     @Column
     private Long lastRequest = System.currentTimeMillis();
+
+    @ElementCollection
+    private final Set<Long> subscribedUsers = new HashSet<>();
 
 
     public Long getCurrentGameId() {
@@ -70,6 +78,14 @@ public class User implements Serializable {
     public void setCurrentGameId(Long gameId) {
         this.currentGameId = gameId;
         status = gameId == null? UserStatus.IDLE : UserStatus.PLAYING;
+    }
+
+    public Set<Long> getSubscribedGameSummaries() {
+        return subscribedGameSummaries;
+    }
+
+    public Set<Long> getSubscribedUsers() {
+        return subscribedUsers;
     }
 
     public Long getUserId() {
@@ -112,7 +128,7 @@ public class User implements Serializable {
         this.status = status;
     }
 
-    public List<Long> getSubscribedMessageChannels() {
+    public Set<Long> getSubscribedMessageChannels() {
         return subscribedMessageChannels;
     }
 
@@ -124,15 +140,15 @@ public class User implements Serializable {
         return inbox;
     }
 
-    public List<User> getFriends() {
+    public Set<Long> getFriends() {
         return friends;
     }
 
-    public List<User> getOutgoingFriendRequests() {
+    public Set<Long> getOutgoingFriendRequests() {
         return outgoingFriendRequests;
     }
 
-    public List<User> getIncomingFriendRequests() {
+    public Set<Long> getIncomingFriendRequests() {
         return incomingFriendRequests;
     }
 
