@@ -2,12 +2,10 @@ package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
-import ch.uzh.ifi.hase.soprafs21.entity.GameSummary;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.UpdatePrivateUserDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPrivateDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +20,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Flow;
 
 /**
  * User Service
@@ -95,16 +92,18 @@ public class UserService {
             SseEmitter sseEmitter = subscriberMapping.get(userId);
             //method update User
             //1. create a UpdatePrivateUserDTO
-            UpdatePrivateUserDTO updatePrivateUserDTO = DTOMapper.INSTANCE.convertEntityToUpdatePrivateUserDTO(user);
+            UserPrivateDTO userPrivateDTO = DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
             //2. send the user the UserGetCompleteDTO
             try {
-                sseEmitter.send(updatePrivateUserDTO);
+                sseEmitter.send(userPrivateDTO);
             }catch(IOException e) {
                 log.error("could not update User " + userId);
             }
 
         }
+
     }
+
 
 
     public List<User> getUsers() {

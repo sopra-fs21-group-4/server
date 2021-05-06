@@ -175,7 +175,7 @@ public class Game implements Serializable {
 
     public RoundPhase getCurrentRoundPhase() {
         GameRound currentRound = getCurrentRound();
-        return currentRound == null? null : currentRound.getPhase();
+        return currentRound == null? null : currentRound.getRoundPhase();
     }
 
     public Map<Long, String> getCurrentSuggestions() {
@@ -637,7 +637,7 @@ public class Game implements Serializable {
         assert (gameState == GameState.RUNNING);
         getCurrentRound().nextPhase();
         // set timer for next round phase or go to next round
-        switch (getCurrentRound().getPhase()) {
+        switch (getCurrentRound().getRoundPhase()) {
             case QUEUED ->      throw new AssertionError("current round should not be in phase QUEUED");
             case STARTING ->    setCountdown(3000L);    // 3 seconds for players to prepare for new round
             case SUGGEST ->     setCountdown(gameSettings.getMaxSuggestSeconds() * 1000L);
@@ -730,7 +730,7 @@ public class Game implements Serializable {
         if (gameSettings.getTotalRounds().equals(roundCounter)){
             this.gameState = GameState.AFTERMATH;
         } else {
-            assert(getCurrentRound().getPhase() == RoundPhase.QUEUED);
+            assert(getCurrentRound().getRoundPhase() == RoundPhase.QUEUED);
             // set timer to 0, so game will advance on next update
             currentCountdown = 0L;
         }

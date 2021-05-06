@@ -65,7 +65,7 @@ public class UserController {
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<UserGetLimitedDTO> getUsers(
+    public List<UserPublicDTO> getUsers(
             @RequestHeader("userIds") Optional<List<Long>> userIds,
             @RequestHeader("usernames") Optional<List<String>> usernames
     ) {
@@ -85,7 +85,7 @@ public class UserController {
         }
 
         // convert each user to the API representation
-        List<UserGetLimitedDTO> userGetDTOs = new ArrayList<>();
+        List<UserPublicDTO> userGetDTOs = new ArrayList<>();
         for (User user : users) {
             userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user));
         }
@@ -98,7 +98,7 @@ public class UserController {
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserGetLimitedDTO getUser(
+    public UserPublicDTO getUser(
             @RequestHeader("userId") Optional<Long> userId,
             @RequestHeader("username") Optional<String> username
     ) {

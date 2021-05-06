@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
 
 import javax.persistence.*;
@@ -32,7 +31,7 @@ public class GameRound implements Serializable {
     private String memeURL;
 
     @Column(nullable = false)
-    private RoundPhase phase = RoundPhase.QUEUED;
+    private RoundPhase roundPhase = RoundPhase.QUEUED;
 
     @ElementCollection
     private Map<Long, String> suggestions = new HashMap<>();
@@ -64,20 +63,20 @@ public class GameRound implements Serializable {
         this.memeURL = memeURL;
     }
 
-    public RoundPhase getPhase() {
-        return phase;
+    public RoundPhase getRoundPhase() {
+        return roundPhase;
     }
 
     public void nextPhase() {
-        this.phase = phase.nextPhase();
+        this.roundPhase = roundPhase.nextPhase();
     }
 
     public void close() {
-        this.phase = RoundPhase.CLOSED;
+        this.roundPhase = RoundPhase.CLOSED;
     }
 
     public void putSuggestion(Long user, String suggestion) {
-        if (!this.getPhase().allowsSuggestions())
+        if (!this.getRoundPhase().allowsSuggestions())
             throw new IllegalStateException("current round phase doesn't allow suggestions");
         if (user == null)
             throw new NullPointerException("\"null\" can't suggest");
@@ -89,7 +88,7 @@ public class GameRound implements Serializable {
     }
 
     public void putVote(Long user, Long targetUserId) {
-        if (!this.getPhase().allowsVotes())
+        if (!this.getRoundPhase().allowsVotes())
             throw new IllegalStateException("current round phase doesn't allow votes");
         if (user == null)
             throw new NullPointerException("\"null\" can't vote");

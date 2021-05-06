@@ -37,13 +37,13 @@ public class GameController {
     @PostMapping("/games/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public GameGetCompleteDTO createLobby(
+    public GamePrivateDTO createLobby(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
-            @RequestBody GameSettingsDTO gameSettingsDTO
+            @RequestBody GameSettingsPostDTO gameSettingsPostDTO
     ) {
         User user = userService.verifyUser(userId, token);
-        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOToEntity(gameSettingsDTO);
+        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
         Game createdGame = gameService.createGame(user, gameSettings);
         return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(createdGame);
     }
@@ -54,14 +54,14 @@ public class GameController {
     @PutMapping("/games/{gameId}/update")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetCompleteDTO updateGameSettings(
+    public GamePrivateDTO updateGameSettings(
             @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
-            @RequestBody GameSettingsDTO gameSettingsDTO
+            @RequestBody GameSettingsPostDTO gameSettingsPostDTO
     ) {
         User user = userService.verifyUser(userId, token);
-        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOToEntity(gameSettingsDTO);
+        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
         Game updatedGame = gameService.adaptGameSettings(gameId, user, gameSettings);
         return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(updatedGame);
     }
@@ -87,7 +87,7 @@ public class GameController {
     @PutMapping("/games/{gameId}/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetCompleteDTO joinLobby(
+    public GamePrivateDTO joinLobby(
             @PathVariable("gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
@@ -137,12 +137,12 @@ public class GameController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void updateSettings(
-            @RequestBody GameSettingsDTO gameSettingsDTO,
+            @RequestBody GameSettingsPostDTO gameSettingsPostDTO,
             @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {
-        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsDTOToEntity(gameSettingsDTO);
+        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
         userService.verifyUser(userId, token);
         gameService.updateSettings(gameId, userId, gameSettings);
     }
@@ -211,13 +211,13 @@ public class GameController {
     @GetMapping("/games")
     @ResponseStatus(HttpStatus.PARTIAL_CONTENT)
     @ResponseBody
-    public List<GameGetLimitedDTO> getAllGames(
+    public List<GamePublicDTO> getAllGames(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {
         userService.verifyUser(userId, token);
         Collection<Game> games = gameService.getRunningGames();
-        List<GameGetLimitedDTO> gameGetDTOs = new ArrayList<>();
+        List<GamePublicDTO> gameGetDTOs = new ArrayList<>();
 
         for(Game game : games){
             gameGetDTOs.add(DTOMapper.INSTANCE.convertEntityToGameGetRestrictedDTO(game));
@@ -231,7 +231,7 @@ public class GameController {
     @GetMapping("/games/{gameId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GameGetCompleteDTO getSingleGame(
+    public GamePrivateDTO getSingleGame(
             @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token

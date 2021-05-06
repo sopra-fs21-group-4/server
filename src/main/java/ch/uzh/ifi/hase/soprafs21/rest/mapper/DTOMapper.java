@@ -14,6 +14,7 @@ import org.mapstruct.factory.Mappers;
  * and vice versa.
  * Additional mappers can be defined for new entities.
  * Always created one mapper for getting information (GET) and one mapper for creating information (POST).
+ * convertEntitytoDTO source is Entity converDTOtoEntity source is DTO
  */
 @Mapper
 public interface DTOMapper {
@@ -39,7 +40,7 @@ public interface DTOMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "currentGameId", target = "currentGameId")
-    UserGetLimitedDTO convertEntityToUserGetLimitedDTO(User user);
+    UserPublicDTO convertEntityToUserGetLimitedDTO(User user);
 
     // getting own user
     @Mapping(source = "userId", target = "userId")
@@ -72,7 +73,27 @@ public interface DTOMapper {
     @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
     @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
-    GameSettings convertGameSettingsDTOToEntity(GameSettingsDTO gameSettingsDTO);
+    GameSettings convertGameSettingsPostDTOToEntity(GameSettingsPostDTO gameSettingsPostDTO);
+
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "maxPlayers", target = "maxPlayers")
+    @Mapping(source = "subreddit", target = "subreddit")
+    @Mapping(source = "memeType", target = "memeType")
+    @Mapping(source = "memesFound", target = "memesFound")
+    @Mapping(source = "totalRounds", target = "totalRounds")
+    @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
+    @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
+    @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
+    GameSettingsGetDTO convertEntityToGameSettingsGetDTO(GameSettings gameSettings);
+
+    //get Rounds
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "memeURL", target = "memeURL")
+    @Mapping(source = "roundPhase", target = "roundPhase")
+    @Mapping(source = "suggestions", target = "suggestions")
+    @Mapping(source = "votes", target = "votes")
+    @Mapping(source = "scores", target = "scores")
+    GameRoundDTO convertEntityToGameRoundDTO(GameRound gameRound);
 
     // getting restricted game information
     @Mapping(source = "gameId", target = "gameId")
@@ -87,34 +108,7 @@ public interface DTOMapper {
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "presentPlayers", target = "playerCount")
-    GameGetLimitedDTO convertEntityToGameGetRestrictedDTO(Game game);
-
-    // getting complete game information
-    @Mapping(source = "gameId", target = "gameId")
-    @Mapping(source = "name", target = "name")
-    @Mapping(source = "subreddit", target = "subreddit")
-    @Mapping(source = "memeType", target = "memeType")
-    @Mapping(source = "memesFound", target = "memesFound")
-    @Mapping(source = "gameState", target = "gameState")
-    @Mapping(source = "currentRoundTitle", target = "currentRoundTitle")
-    @Mapping(source = "currentRoundPhase", target = "currentRoundPhase")
-    @Mapping(source = "currentSuggestions", target = "currentSuggestions")
-    @Mapping(source = "currentVotes", target = "currentVotes")
-    @Mapping(source = "currentScores", target = "currentScores")
-    @Mapping(source = "currentMemeURL", target = "currentMemeURL")
-    @Mapping(source = "roundCounter", target = "roundCounter")
-    @Mapping(source = "totalRounds", target = "totalRounds")
-    @Mapping(source = "currentCountdown", target = "currentCountdown")
-    @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
-    @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
-    @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
-    @Mapping(source = "maxPlayers", target = "maxPlayers")
-    @Mapping(source = "scores", target = "scores")
-    @Mapping(source = "gameMaster", target = "gameMaster")
-    @Mapping(source = "presentPlayers", target = "players")
-    @Mapping(source = "playerStates", target = "playerStates")
-    @Mapping(source = "gameChat", target = "gameChat")
-    GameGetCompleteDTO convertEntityToGameGetCompleteDTO(Game game);
+    GamePublicDTO convertEntityToGameGetRestrictedDTO(Game game);
 
 
     // GAME SUMMARIES
@@ -163,15 +157,26 @@ public interface DTOMapper {
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
 
 
-    // getting own user (source Entity; target DTO)
+    //getting the UserPrivateDTO for the Client (which actually changed) (source Entity; target DTO)
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "currentGameId", target = "currentGame")
+    @Mapping(source = "subscribedUsers", target = "subscribedUsers")
+    @Mapping(source = "subscribedGameSummaries", target = "subscribedGameSummaries")
+    @Mapping(source = "subscribedMessageChannels", target = "subscribedMessageChannels")
+    //@Mapping(target = "timestamp", expression = "java(null)")
+    UserPrivateDTO convertEntityToUserPrivateDTO(User user);
+
+
+    // getting other users
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "username", target = "username")
-    @Mapping(source = "email", target = "email")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "currentGameId", target = "currentGameId")
-    @Mapping(source = "inbox", target = "inbox")
     @Mapping(source = "friends", target = "friends")
     @Mapping(source = "outgoingFriendRequests", target = "outgoingFriendRequests")
     @Mapping(source = "incomingFriendRequests", target = "incomingFriendRequests")
-    UpdatePrivateUserDTO convertEntityToUpdatePrivateUserDTO(User user);
+    UserPublicDTO convertEntityToUserPublicDTO(User user);
+
+
+
 }

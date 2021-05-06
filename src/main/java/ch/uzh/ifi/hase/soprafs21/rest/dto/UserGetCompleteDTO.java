@@ -1,15 +1,10 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
-import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs21.service.GameService;
 
-import javax.persistence.ManyToMany;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +15,12 @@ public class UserGetCompleteDTO {
     private String email;
     private UserStatus status;
     private Long currentGameId;
-    private GameGetCompleteDTO currentGame;
+    private GamePrivateDTO currentGame;
     private List<Long> subscribedMessageChannels;
     private List<MessageGetDTO> inbox;
-    private List<UserGetLimitedDTO> friends;
-    private List<UserGetLimitedDTO> outgoingFriendRequests;
-    private List<UserGetLimitedDTO> incomingFriendRequests;
+    private List<UserPublicDTO> friends;
+    private List<UserPublicDTO> outgoingFriendRequests;
+    private List<UserPublicDTO> incomingFriendRequests;
 
 
     public Long getCurrentGame() {
@@ -83,7 +78,7 @@ public class UserGetCompleteDTO {
         }
     }
 
-    public List<UserGetLimitedDTO> getFriends() {
+    public List<UserPublicDTO> getFriends() {
         return friends;
     }
 
@@ -94,7 +89,7 @@ public class UserGetCompleteDTO {
         }
     }
 
-    public List<UserGetLimitedDTO> getOutgoingFriendRequests() {
+    public List<UserPublicDTO> getOutgoingFriendRequests() {
         return outgoingFriendRequests;
     }
 
@@ -105,7 +100,7 @@ public class UserGetCompleteDTO {
         }
     }
 
-    public List<UserGetLimitedDTO> getIncomingFriendRequests() {
+    public List<UserPublicDTO> getIncomingFriendRequests() {
         return incomingFriendRequests;
     }
 

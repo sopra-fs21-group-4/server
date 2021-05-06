@@ -6,7 +6,7 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 
 import java.util.List;
 
-public class GameGetLimitedDTO {
+public class GamePublicDTO {
 
     // TODO sort attributes, getters and setters
 
