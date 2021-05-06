@@ -14,39 +14,56 @@ import java.util.Map;
 
 public class GameGetCompleteDTO {
 
-    // TODO sort attributes, getters and setters
 
+    // basic
     private Long gameId;
+    private GameState gameState;
+    private Integer roundCounter;
+    private Long currentCountdown;
+    private Long gameChatId;
+
+    // players
+    private Long gameMaster;
+    private List<Long> players;
+    private Map<Long, PlayerState> playerStates;
+    private Map<Long, Integer> scores;
+
+    // settings
     private String name;
     private String subreddit;
     private MemeType memeType;
     private List<String> memesFound;
-    private GameState gameState;
+    private Integer totalRounds;
+    private Integer maxPlayers;
+    private Long maxSuggestSeconds;
+    private Long maxVoteSeconds;
+    private Long maxAftermathSeconds;
+
+    // current round
     private String currentRoundTitle;
+    private String currentMemeURL;
     private RoundPhase currentRoundPhase;
     private Map<Long, String> currentSuggestions;
     private Map<Long, Long> currentVotes;
     private Map<Long, Integer> currentScores;
-    private String currentMemeURL;
-    private Integer roundCounter;
-    private Integer totalRounds;
-    private Long currentCountdown;
-    private Long maxSuggestSeconds;
-    private Long maxVoteSeconds;
-    private Long maxAftermathSeconds;
-    private Integer maxPlayers;
-    private Map<Long, PlayerState> playerStates;
-    private Map<Long, Integer> scores;
-    private Long gameMaster;
-    private List<Long> players;
-    private Long gameChatId;
 
+    /* getters and setters */
+
+    // basic
     public Long getGameId() {
         return gameId;
     }
 
     public void setGameId(Long gameId) {
         this.gameId = gameId;
+    }
+
+    public Long getGameChatId() {
+        return gameChatId;
+    }
+    // convert entity to id
+    public void setGameChat(MessageChannel gameChat) {
+        this.gameChatId = gameChat.getMessageChannelId();
     }
 
     public String getName() {
@@ -223,14 +240,6 @@ public class GameGetCompleteDTO {
 
     public void setPlayers(List<Long> players) {
         this.players = players;
-    }
-
-    public Long getGameChatId() {
-        return gameChatId;
-    }
-    // convert entity to id
-    public void setGameChat(MessageChannel gameChat) {
-        this.gameChatId = gameChat.getMessageChannelId();
     }
 
 }
