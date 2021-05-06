@@ -143,4 +143,56 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserLoginDTO(user);
     }
 
+
+    // Friend requests:
+
+    @PutMapping(value = "/friends/send")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void sendFriendRequest(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody String friendName
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.sendFriendRequest(user, friendName);
+
+    }
+
+    @PutMapping(value = "/friends/remove")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void removeFriendRequest(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody String friendName
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.removeFriendRequest(user, friendName);
+    }
+
+    @PutMapping(value = "/friends/accept")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void acceptFriendRequest(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody String friendName
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.acceptFriendRequest(user, friendName);
+    }
+
+    @PutMapping(value = "/friends/reject")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void rejectFriendRequest(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody String friendName
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.rejectFriendRequest(user, friendName);
+    }
+
 }

@@ -154,4 +154,27 @@ public class User implements Serializable {
     public boolean equals(Object o) {
         return  o instanceof User && ((User) o).userId == this.userId;
     }
+
+
+
+    public void addFriend(User user){
+        friends.add(user);
+    }
+
+    public void addOutgoingFriendRequest(User user){
+        outgoingFriendRequests.add(user);
+    }
+
+    public void addIncomingFriendRequest(User user){
+        incomingFriendRequests.add(user);
+    }
+
+    public void removeOutgoingFriendRequest(User user){
+        outgoingFriendRequests.remove(user);
+    }
+
+    public void removeIncomingFriendRequest(User user){
+        incomingFriendRequests.remove(user);
+    }
+
 }

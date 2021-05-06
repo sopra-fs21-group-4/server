@@ -248,4 +248,50 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "invalid email format");
 
     }
+
+    public void sendFriendRequest(User user, String friendName){
+
+        User friend = userRepository.findByUsername(friendName);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        user.addOutgoingFriendRequest(friend);
+        friend.addIncomingFriendRequest(user);
+
+    }
+
+    public void removeFriendRequest(User user, String friendName){
+
+        User friend = userRepository.findByUsername(friendName);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        user.removeOutgoingFriendRequest(friend);
+        friend.removeIncomingFriendRequest(user);
+
+    }
+
+    public void acceptFriendRequest(User user, String friendName){
+
+        User friend = userRepository.findByUsername(friendName);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        friend.removeOutgoingFriendRequest(user);
+        user.removeIncomingFriendRequest(friend);
+        user.addFriend(friend);
+        friend.addFriend(user);
+
+    }
+    public void rejectFriendRequest(User user, String friendName){
+
+        User friend = userRepository.findByUsername(friendName);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        user.removeIncomingFriendRequest(friend);
+        friend.removeOutgoingFriendRequest(user);
+
+    }
+
 }

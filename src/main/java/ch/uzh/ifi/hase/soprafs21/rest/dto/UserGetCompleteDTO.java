@@ -98,7 +98,7 @@ public class UserGetCompleteDTO {
     }
 
     public void setOutgoingFriendRequests(List<User> outgoingFriendRequests) {
-        this.friends = new ArrayList<>();
+        this.outgoingFriendRequests = new ArrayList<>();
         for (User user : outgoingFriendRequests) {
             this.outgoingFriendRequests.add(DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user));
         }
@@ -109,7 +109,7 @@ public class UserGetCompleteDTO {
     }
 
     public void setIncomingFriendRequests(List<User> incomingFriendRequests) {
-        this.friends = new ArrayList<>();
+        this.incomingFriendRequests = new ArrayList<>();
         for (User user : incomingFriendRequests) {
             this.incomingFriendRequests.add(DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user));
         }
