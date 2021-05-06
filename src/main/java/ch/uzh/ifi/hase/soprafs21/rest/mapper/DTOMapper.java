@@ -163,4 +163,15 @@ public interface DTOMapper {
     Message convertMessagePostDTOtoEntity(MessagePostDTO messagePostDTO);
 
 
+    // getting own user (source Entity; target DTO)
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "email", target = "email")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "currentGameId", target = "currentGameId")
+    @Mapping(source = "inbox", target = "inbox")
+    @Mapping(source = "friends", target = "friends")
+    @Mapping(source = "outgoingFriendRequests", target = "outgoingFriendRequests")
+    @Mapping(source = "incomingFriendRequests", target = "incomingFriendRequests")
+    UpdatePrivateUserDTO convertEntityToUpdatePrivateUserDTO(User user);
 }
