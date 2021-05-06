@@ -1,20 +1,14 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
-import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs21.service.GameService;
 
-import javax.persistence.ManyToMany;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserGetCompleteDTO {
-
+public class UpdatePrivateUserDTO {
     private Long userId;
     private String username;
     private String email;
@@ -115,4 +109,5 @@ public class UserGetCompleteDTO {
             this.incomingFriendRequests.add(DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user));
         }
     }
+
 }

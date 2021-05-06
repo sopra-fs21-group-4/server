@@ -7,6 +7,8 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.UpdatePrivateUserDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +18,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.Flow;
 
 /**
  * User Service
@@ -34,6 +37,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+    //map key UI to SseEmitter
+    private final Map<Long , SseEmitter> subscriberMapping = new HashMap<>();
 
     @Autowired
     public UserService(
@@ -47,13 +52,23 @@ public class UserService {
     /**
      * Loop running every 1000ms to update user states
      */
-    @Scheduled(fixedRate=1000)
+    @Scheduled(fixedRate=100)
     public void updateUsers(){
+        //creating a timestamp
         long now = System.currentTimeMillis();
-
+        //list of all users who are in games (State PLAYING)
         for (User user : userRepository.findAllByStatus(UserStatus.PLAYING)) {
+            //check if the User is actually subscribed
+            if (subscriberMapping.get(user.getUserId()) == null){
+                user.setStatus(UserStatus.OFFLINE);
+                continue;
+            }
             // users without a game are set to IDLE
-            if (user.getCurrentGameId() == null) user.setStatus(UserStatus.IDLE);
+            if (user.getCurrentGameId() == null) {
+                user.setStatus(UserStatus.IDLE);
+                continue;
+            }
+
             // the same goes for expired games and non-enrolled games
             Game game = gameRepository.findByGameId(user.getCurrentGameId());
             if (game == null || !game.getPlayerState(user.getUserId()).isEnrolled()) {
@@ -61,16 +76,34 @@ public class UserService {
                 user.setStatus(UserStatus.IDLE);
             }
         }
-
+        //list of all users wo are in State IDLE
         for (User user : userRepository.findAllByStatus(UserStatus.IDLE)) {
+            if (subscriberMapping.get(user.getUserId()) == null){
+                user.setStatus(UserStatus.OFFLINE);
+                continue;
+            }
             // if the user has a game, set status to PLAYING
-            if (user.getCurrentGameId()!= null) user.setStatus(UserStatus.PLAYING);
-            // if no request was received for more than 3 seconds, set status to offline
-            else if (now - user.getLastRequest() > 3000) user.setStatus(UserStatus.OFFLINE);
-            // note that as long as a user will not be set to OFFLINE as long as they are part of a game
+            if (user.getCurrentGameId()!= null){
+                user.setStatus(UserStatus.PLAYING);
+                continue;
+            }
         }
 
-        // offline users are not updated. A user can get out of the offline status by sending any verifying request
+        for (Long userId : subscriberMapping.keySet()) {
+            // find users and corresponding sseEmitter in subscriber Map.
+            User user = userRepository.findByUserId(userId);
+            SseEmitter sseEmitter = subscriberMapping.get(userId);
+            //method update User
+            //1. create a UpdatePrivateUserDTO
+            UpdatePrivateUserDTO updatePrivateUserDTO = DTOMapper.INSTANCE.convertEntityToUpdatePrivateUserDTO(user);
+            //2. send the user the UserGetCompleteDTO
+            try {
+                sseEmitter.send(updatePrivateUserDTO);
+            }catch(IOException e) {
+                log.error("could not update User " + userId);
+            }
+
+        }
     }
 
 
@@ -247,5 +280,16 @@ public class UserService {
         if (atSplit.length != 2 || !atSplit[1].contains(".") || atSplit[1].endsWith("."))
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "invalid email format");
 
+    }
+
+    /**
+     * The subscriber method for our SSEController
+     */
+    public void put_Subscriber(Long UserId, SseEmitter emitter) {
+        subscriberMapping.put(UserId, emitter);
+    }
+
+    public void remove_Subscriber(Long UserId) {
+        subscriberMapping.remove(UserId);
     }
 }
