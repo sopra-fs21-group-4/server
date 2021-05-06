@@ -87,7 +87,7 @@ public class UserController {
         // convert each user to the API representation
         List<UserPublicDTO> userGetDTOs = new ArrayList<>();
         for (User user : users) {
-            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user));
+            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user));
         }
         return userGetDTOs;
     }
@@ -111,7 +111,7 @@ public class UserController {
                 :
                 userService.getUserByUsername(username.get());
 
-        return DTOMapper.INSTANCE.convertEntityToUserGetLimitedDTO(user);
+        return DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user);
     }
 
     /**

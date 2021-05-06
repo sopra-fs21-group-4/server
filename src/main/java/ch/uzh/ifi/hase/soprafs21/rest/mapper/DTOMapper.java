@@ -36,13 +36,6 @@ public interface DTOMapper {
     @Mapping(source = "email", target = "email")
     User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
-    // getting other users
-    @Mapping(source = "userId", target = "userId")
-    @Mapping(source = "username", target = "username")
-    @Mapping(source = "email", target = "email")
-    @Mapping(source = "status", target = "status")
-    @Mapping(source = "currentGameId", target = "currentGameId")
-    UserPublicDTO convertEntityToUserGetLimitedDTO(User user);
 
     // update user profile
     @Mapping(source = "username", target = "username")
