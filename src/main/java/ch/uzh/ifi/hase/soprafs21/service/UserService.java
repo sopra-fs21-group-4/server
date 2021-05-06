@@ -288,42 +288,42 @@ public class UserService {
         if (friend==null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
 
-        user.addOutgoingFriendRequest(friend);
-        friend.addIncomingFriendRequest(user);
+        user.addOutgoingFriendRequest(friend.getUserId());
+        friend.addIncomingFriendRequest(user.getUserId());
 
     }
 
-    public void removeFriendRequest(User user, String friendName){
+    public void removeFriendRequest(User user, Long friendId){
 
-        User friend = userRepository.findByUsername(friendName);
+        User friend = userRepository.findByUserId(friendId);
         if (friend==null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
 
-        user.removeOutgoingFriendRequest(friend);
-        friend.removeIncomingFriendRequest(user);
+        user.removeOutgoingFriendRequest(friendId);
+        friend.removeIncomingFriendRequest(user.getUserId());
 
     }
 
-    public void acceptFriendRequest(User user, String friendName){
+    public void acceptFriendRequest(User user, Long friendId){
 
-        User friend = userRepository.findByUsername(friendName);
+        User friend = userRepository.findByUserId(friendId);
         if (friend==null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
 
-        friend.removeOutgoingFriendRequest(user);
-        user.removeIncomingFriendRequest(friend);
-        user.addFriend(friend);
-        friend.addFriend(user);
+        friend.removeOutgoingFriendRequest(user.getUserId());
+        user.removeIncomingFriendRequest(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(user.getUserId());
 
     }
-    public void rejectFriendRequest(User user, String friendName){
+    public void rejectFriendRequest(User user, Long friendId){
 
-        User friend = userRepository.findByUsername(friendName);
+        User friend = userRepository.findByUserId(friendId);
         if (friend==null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
 
-        user.removeIncomingFriendRequest(friend);
-        friend.removeOutgoingFriendRequest(user);
+        user.removeIncomingFriendRequest(friendId);
+        friend.removeOutgoingFriendRequest(user.getUserId());
 
     }
 

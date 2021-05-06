@@ -173,24 +173,24 @@ public class User implements Serializable {
 
 
 
-    public void addFriend(User user){
-        friends.add(user);
+    public void addFriend(Long userId){
+        friends.add(userId);
     }
 
-    public void addOutgoingFriendRequest(User user){
-        outgoingFriendRequests.add(user);
+    public void addOutgoingFriendRequest(long userId){
+        outgoingFriendRequests.add(userId);
     }
 
-    public void addIncomingFriendRequest(User user){
-        incomingFriendRequests.add(user);
+    public void addIncomingFriendRequest(long userId){
+        incomingFriendRequests.add(userId);
     }
 
-    public void removeOutgoingFriendRequest(User user){
-        outgoingFriendRequests.remove(user);
+    public void removeOutgoingFriendRequest(long userId){
+        outgoingFriendRequests.remove(userId);
     }
 
-    public void removeIncomingFriendRequest(User user){
-        incomingFriendRequests.remove(user);
+    public void removeIncomingFriendRequest(long userId){
+        incomingFriendRequests.remove(userId);
     }
 
 }

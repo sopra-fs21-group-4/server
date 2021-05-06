@@ -165,10 +165,10 @@ public class UserController {
     public void removeFriendRequest(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
-            @RequestBody String friendName
+            @RequestBody Long friendId
     ) {
         User user = userService.verifyUser(userId, token);
-        userService.removeFriendRequest(user, friendName);
+        userService.removeFriendRequest(user, friendId);
     }
 
     @PutMapping(value = "/friends/accept")
@@ -177,10 +177,10 @@ public class UserController {
     public void acceptFriendRequest(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
-            @RequestBody String friendName
+            @RequestBody Long friendId
     ) {
         User user = userService.verifyUser(userId, token);
-        userService.acceptFriendRequest(user, friendName);
+        userService.acceptFriendRequest(user, friendId);
     }
 
     @PutMapping(value = "/friends/reject")
@@ -189,10 +189,10 @@ public class UserController {
     public void rejectFriendRequest(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
-            @RequestBody String friendName
+            @RequestBody Long friendId
     ) {
         User user = userService.verifyUser(userId, token);
-        userService.rejectFriendRequest(user, friendName);
+        userService.rejectFriendRequest(user, friendId);
     }
 
 }
