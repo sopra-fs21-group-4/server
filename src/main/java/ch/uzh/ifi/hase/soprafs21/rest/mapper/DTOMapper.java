@@ -37,6 +37,7 @@ public interface DTOMapper {
     // getting other users
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "username", target = "username")
+    @Mapping(source = "email", target = "email")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "currentGameId", target = "currentGameId")
     UserGetLimitedDTO convertEntityToUserGetLimitedDTO(User user);

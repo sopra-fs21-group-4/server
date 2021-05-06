@@ -8,6 +8,7 @@ public class UserGetLimitedDTO {
     private String username;
     private UserStatus status;
     private Long currentGameId;
+    private String email;
 
     public Long getCurrentGameId() {
         return currentGameId;
@@ -40,4 +41,8 @@ public class UserGetLimitedDTO {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
+
+    public String getEmail(){ return email;}
+
+    public void setEmail(String email) { this.email = email;}
 }
