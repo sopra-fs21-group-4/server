@@ -50,8 +50,6 @@ public class UserControllerTest {
         user.setUsername("firstname@lastname");
         //user.setToken("Token");
 
-
-
         // this mocks the UserService -> we define above what the userService should return when getUsers() is called
         given(userService.createUser(Mockito.any())).willReturn(user);
 
@@ -69,7 +67,7 @@ public class UserControllerTest {
         // then
         mockMvc.perform(postRequest).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.username", is(user.getUsername())))
-                .andExpect(jsonPath("$.userId", is(user.getUserId())));
+                .andExpect(jsonPath("$.userId", is(user.getUserId().intValue())));
     }
 
 //    @Test
