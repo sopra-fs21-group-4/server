@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.entity.GameRound;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
+import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
 import java.util.List;
@@ -69,8 +70,8 @@ public class GamePrivateDTO {
         return gameChatId;
     }
 
-    public void setGameChatId(Long gameChatId) {
-        this.gameChatId = gameChatId;
+    public void setGameChatId(MessageChannel gameChat) {
+        this.gameChatId = gameChat.getMessageChannelId();
     }
 
     public Long getGameMaster() {

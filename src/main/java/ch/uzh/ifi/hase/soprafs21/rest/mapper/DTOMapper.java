@@ -42,18 +42,6 @@ public interface DTOMapper {
     @Mapping(source = "currentGameId", target = "currentGameId")
     UserPublicDTO convertEntityToUserGetLimitedDTO(User user);
 
-    // getting own user
-    @Mapping(source = "userId", target = "userId")
-    @Mapping(source = "username", target = "username")
-    @Mapping(source = "email", target = "email")
-    @Mapping(source = "status", target = "status")
-    @Mapping(source = "currentGameId", target = "currentGameId")
-    @Mapping(source = "inbox", target = "inbox")
-    @Mapping(source = "friends", target = "friends")
-    @Mapping(source = "outgoingFriendRequests", target = "outgoingFriendRequests")
-    @Mapping(source = "incomingFriendRequests", target = "incomingFriendRequests")
-    UserGetCompleteDTO convertEntityToUserGetCompleteDTO(User user);
-
     // update user profile
     @Mapping(source = "username", target = "username")
     @Mapping(source = "password", target = "password")
@@ -108,7 +96,21 @@ public interface DTOMapper {
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "presentPlayers", target = "playerCount")
-    GamePublicDTO convertEntityToGameGetRestrictedDTO(Game game);
+    GamePublicDTO convertEntityToGamePublicDTO(Game game);
+
+    // getting restricted game information
+    @Mapping(source = "gameId", target = "gameId")
+    @Mapping(source = "gameState", target = "gameState")
+    @Mapping(source = "roundCounter", target = "roundCounter")
+    @Mapping(source = "currentCountdown", target = "currentCountdown")
+    @Mapping(source = "gameChat", target = "gameChatId")
+    @Mapping(source = "gameMaster", target = "gameMaster")
+    @Mapping(source = "presentPlayers", target = "players")
+    @Mapping(source = "playerStates", target = "playerStates")
+    @Mapping(source = "scores", target = "scores")
+    @Mapping(source = "gameSettings", target = "gameSettings")
+    @Mapping(source = "currentRound", target = "currentRound")
+    GamePrivateDTO convertEntityToGamePrivateDTO(Game game);
 
 
     // GAME SUMMARIES
@@ -176,7 +178,5 @@ public interface DTOMapper {
     @Mapping(source = "outgoingFriendRequests", target = "outgoingFriendRequests")
     @Mapping(source = "incomingFriendRequests", target = "incomingFriendRequests")
     UserPublicDTO convertEntityToUserPublicDTO(User user);
-
-
 
 }

@@ -120,12 +120,12 @@ public class UserController {
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserGetCompleteDTO getOwnUser(
+    public UserPrivateDTO getOwnUser(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {
         User user = userService.verifyUser(userId, token);
-        return DTOMapper.INSTANCE.convertEntityToUserGetCompleteDTO(user);
+        return DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
     }
 
 

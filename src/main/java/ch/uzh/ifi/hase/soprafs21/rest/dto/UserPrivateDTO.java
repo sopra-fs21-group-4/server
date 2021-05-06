@@ -47,7 +47,7 @@ public class UserPrivateDTO {
     public void setCurrentGame(Long gameId) {
         GameRepository gameRepository = SpringContext.getBean(GameRepository.class);
         Game ourGame = gameRepository.findByGameId(gameId);
-        this.currentGame = DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(ourGame);
+        this.currentGame = DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(ourGame);
     }
 
     public Map<Long, UserPublicDTO> getSubscribedUsers() {

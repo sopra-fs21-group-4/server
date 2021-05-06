@@ -45,7 +45,7 @@ public class GameController {
         User user = userService.verifyUser(userId, token);
         GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
         Game createdGame = gameService.createGame(user, gameSettings);
-        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(createdGame);
+        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(createdGame);
     }
 
     /**
@@ -63,7 +63,7 @@ public class GameController {
         User user = userService.verifyUser(userId, token);
         GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
         Game updatedGame = gameService.adaptGameSettings(gameId, user, gameSettings);
-        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(updatedGame);
+        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(updatedGame);
     }
 
     /**
@@ -95,7 +95,7 @@ public class GameController {
     ) {
         User user = userService.verifyUser(userId, token);
         Game joinedGame = gameService.joinGame(gameId, user, password.isPresent()? password.get() : null);
-        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(joinedGame);
+        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(joinedGame);
     }
 
     /**
@@ -220,7 +220,7 @@ public class GameController {
         List<GamePublicDTO> gameGetDTOs = new ArrayList<>();
 
         for(Game game : games){
-            gameGetDTOs.add(DTOMapper.INSTANCE.convertEntityToGameGetRestrictedDTO(game));
+            gameGetDTOs.add(DTOMapper.INSTANCE.convertEntityToGamePublicDTO(game));
         }
         return gameGetDTOs;
     }
@@ -238,7 +238,7 @@ public class GameController {
     ){
         User user = userService.verifyUser(userId, token);
         Game game = gameService.verifyPlayer(gameId, user);
-        return DTOMapper.INSTANCE.convertEntityToGameGetCompleteDTO(game);
+        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(game);
     }
 
     /**
