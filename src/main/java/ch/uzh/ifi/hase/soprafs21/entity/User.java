@@ -177,6 +177,10 @@ public class User implements Serializable {
         friends.add(userId);
     }
 
+    public void removeFriend(Long userId){
+        friends.remove(userId);
+    }
+
     public void addOutgoingFriendRequest(long userId){
         outgoingFriendRequests.add(userId);
     }

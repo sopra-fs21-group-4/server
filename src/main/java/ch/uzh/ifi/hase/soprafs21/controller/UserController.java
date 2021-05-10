@@ -145,8 +145,10 @@ public class UserController {
 
 
     // Friend requests:
-
-    @PutMapping(value = "/friends/send")
+    /**
+     * sending a new friend request
+     */
+    @PutMapping(value = "/friends/sendRequest")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void sendFriendRequest(
@@ -159,7 +161,10 @@ public class UserController {
 
     }
 
-    @PutMapping(value = "/friends/remove")
+    /**
+     * remove an existing friend request
+     */
+    @PutMapping(value = "/friends/removeRequest")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void removeFriendRequest(
@@ -171,7 +176,25 @@ public class UserController {
         userService.removeFriendRequest(user, friendId);
     }
 
-    @PutMapping(value = "/friends/accept")
+    /**
+     * remove an existing friend
+     */
+    @PutMapping(value = "/friends/removeFriend")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void removeFriend(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody Long friendId
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.removeFriend(user, friendId);
+    }
+
+    /**
+     * accepting a friend request
+     */
+    @PutMapping(value = "/friends/acceptRequest")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void acceptFriendRequest(
@@ -183,7 +206,10 @@ public class UserController {
         userService.acceptFriendRequest(user, friendId);
     }
 
-    @PutMapping(value = "/friends/reject")
+    /**
+     * rejecting a friend request
+     */
+    @PutMapping(value = "/friends/rejectRequest")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void rejectFriendRequest(
