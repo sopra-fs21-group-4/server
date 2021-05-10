@@ -37,6 +37,8 @@ public class UserService {
     //map key UI to SseEmitter
     private final Map<Long , SseEmitter> subscriberMapping = new HashMap<>();
 
+    private Long lastUpdated = 0L;
+
     @Autowired
     public UserService(
             @Qualifier("userRepository") UserRepository userRepository,
@@ -51,9 +53,9 @@ public class UserService {
      */
     @Scheduled(fixedRate=100)
     public void updateUsers(){
-        //creating a timestamp
-        long now = System.currentTimeMillis();
         //list of all users who are in games (State PLAYING)
+        long now = System.currentTimeMillis();
+
         for (User user : userRepository.findAllByStatus(UserStatus.PLAYING)) {
             //check if the User is actually subscribed
             if (subscriberMapping.get(user.getUserId()) == null){
@@ -94,14 +96,15 @@ public class UserService {
             //1. create a UpdatePrivateUserDTO
             UserPrivateDTO userPrivateDTO = DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
             //2. send the user the UserGetCompleteDTO
+            //Compare lastUpdated of UserService with lastModified of userPrivateDTO
+            if(userPrivateDTO.keepModified(now) < now){continue;}
             try {
                 sseEmitter.send(userPrivateDTO);
             }catch(IOException e) {
                 log.error("could not update User " + userId);
             }
-
         }
-
+        this.lastUpdated = now;
     }
 
 

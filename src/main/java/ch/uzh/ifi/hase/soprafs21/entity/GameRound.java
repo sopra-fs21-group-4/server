@@ -42,6 +42,9 @@ public class GameRound implements Serializable {
     @ElementCollection
     private Map<Long, Integer> scores = new HashMap<>();
 
+    @Column
+    private Long lastModified;
+
 
     public Long getRoundId() {
         return roundId;
@@ -53,6 +56,7 @@ public class GameRound implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public String getMemeURL() {
@@ -61,6 +65,7 @@ public class GameRound implements Serializable {
 
     public void setMemeURL(String memeURL) {
         this.memeURL = memeURL;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public RoundPhase getRoundPhase() {
@@ -69,10 +74,12 @@ public class GameRound implements Serializable {
 
     public void nextPhase() {
         this.roundPhase = roundPhase.nextPhase();
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void close() {
         this.roundPhase = RoundPhase.CLOSED;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void putSuggestion(Long user, String suggestion) {
@@ -81,6 +88,7 @@ public class GameRound implements Serializable {
         if (user == null)
             throw new NullPointerException("\"null\" can't suggest");
         this.suggestions.put(user, suggestion);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Map<Long, String> getSuggestions() {
@@ -94,7 +102,7 @@ public class GameRound implements Serializable {
             throw new NullPointerException("\"null\" can't vote");
         if (user.equals(targetUserId))
             throw new IllegalArgumentException("can't vote for yourself");
-
+        lastModified = System.currentTimeMillis();
         this.votes.put(user, targetUserId);
     }
 
@@ -106,6 +114,8 @@ public class GameRound implements Serializable {
         return scores;
     }
 
-
+    public Long getLastModified() {
+        return lastModified;
+    }
 
 }
