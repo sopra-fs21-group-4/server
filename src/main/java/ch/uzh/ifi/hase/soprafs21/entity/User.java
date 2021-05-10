@@ -185,7 +185,32 @@ public class User implements Serializable {
         return  o instanceof User && ((User) o).userId == this.userId;
     }
 
+
     public Long getLastModified() {
         return lastModified;
     }
+
+
+
+    public void addFriend(Long userId){
+        friends.add(userId);
+    }
+
+    public void addOutgoingFriendRequest(long userId){
+        outgoingFriendRequests.add(userId);
+    }
+
+    public void addIncomingFriendRequest(long userId){
+        incomingFriendRequests.add(userId);
+    }
+
+    public void removeOutgoingFriendRequest(long userId){
+        outgoingFriendRequests.remove(userId);
+    }
+
+    public void removeIncomingFriendRequest(long userId){
+        incomingFriendRequests.remove(userId);
+    }
+
+
 }

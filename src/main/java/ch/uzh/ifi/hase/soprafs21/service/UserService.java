@@ -284,6 +284,53 @@ public class UserService {
 
     }
 
+
+    public void sendFriendRequest(User user, String friendName){
+
+        User friend = userRepository.findByUsername(friendName);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        user.addOutgoingFriendRequest(friend.getUserId());
+        friend.addIncomingFriendRequest(user.getUserId());
+
+    }
+
+    public void removeFriendRequest(User user, Long friendId){
+
+        User friend = userRepository.findByUserId(friendId);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        user.removeOutgoingFriendRequest(friendId);
+        friend.removeIncomingFriendRequest(user.getUserId());
+
+    }
+
+    public void acceptFriendRequest(User user, Long friendId){
+
+        User friend = userRepository.findByUserId(friendId);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        friend.removeOutgoingFriendRequest(user.getUserId());
+        user.removeIncomingFriendRequest(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(user.getUserId());
+
+    }
+    public void rejectFriendRequest(User user, Long friendId){
+
+        User friend = userRepository.findByUserId(friendId);
+        if (friend==null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+
+        user.removeIncomingFriendRequest(friendId);
+        friend.removeOutgoingFriendRequest(user.getUserId());
+
+    }
+
+
     /**
      * The subscriber method for our SSEController
      */
@@ -294,4 +341,5 @@ public class UserService {
     public void remove_Subscriber(Long UserId) {
         subscriberMapping.remove(UserId);
     }
+
 }

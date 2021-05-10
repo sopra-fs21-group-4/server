@@ -11,7 +11,7 @@ public class GameSettingsGetDTO {
     private Integer totalRounds;
     private String subreddit;
     private MemeType memeType;
-    private List<String> memesFound;
+    private Integer memesFound;
     private Integer maxSuggestSeconds;
     private Integer maxVoteSeconds;
     private Integer maxAftermathSeconds;
@@ -58,12 +58,12 @@ public class GameSettingsGetDTO {
         this.memeType = memeType;
     }
 
-    public List<String> getMemesFound() {
+    public Integer getMemesFound() {
         return memesFound;
     }
 
     public void setMemesFound(List<String> memesFound) {
-        this.memesFound = memesFound;
+        this.memesFound = memesFound.size();
     }
 
     public Integer getMaxSuggestSeconds() {
