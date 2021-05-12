@@ -17,7 +17,7 @@ public class GamePrivateDTO {
     private Long gameId;
     private GameState gameState;
     private Integer roundCounter;
-    private Long currentCountdown;
+    private Long advanceTargetTime;
     private Long gameChatId;
 
     // players
@@ -58,12 +58,12 @@ public class GamePrivateDTO {
         this.roundCounter = roundCounter;
     }
 
-    public Long getCurrentCountdown() {
-        return currentCountdown;
+    public Long getAdvanceTargetTime() {
+        return advanceTargetTime;
     }
 
-    public void setCurrentCountdown(Long currentCountdown) {
-        this.currentCountdown = currentCountdown;
+    public void setAdvanceTargetTime(Long advanceTargetTime) {
+        this.advanceTargetTime = advanceTargetTime;
     }
 
     public Long getGameChatId() {

@@ -97,7 +97,7 @@ public interface DTOMapper {
     @Mapping(source = "gameId", target = "gameId")
     @Mapping(source = "gameState", target = "gameState")
     @Mapping(source = "roundCounter", target = "roundCounter")
-    @Mapping(source = "currentCountdown", target = "currentCountdown")
+    @Mapping(source = "advanceTargetTime", target = "advanceTargetTime")
     @Mapping(source = "gameChat", target = "gameChatId")
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "presentPlayers", target = "players")
