@@ -66,10 +66,10 @@ public class Game implements Serializable {
     private Integer roundCounter = -1; // get, skipRound
 
     @Column
-    private Long currentCountdown; // get only
+    private Long advanceTargetTime; // get only
 
     @Column
-    private Long lastUpdateTime; // internal use only
+    private Long remainingCountdown; // internal use only
 
     @OneToOne(targetEntity = GameSummary.class)
     private GameSummary gameSummary;
@@ -117,8 +117,12 @@ public class Game implements Serializable {
         return gameState;
     }
 
-    public Long getCurrentCountdown() {
-        return currentCountdown;
+    private Long getCurrentCountdown() {
+        return advanceTargetTime - System.currentTimeMillis();
+    }
+
+    public Long getAdvanceTargetTime() {
+        return advanceTargetTime;
     }
 
     public Integer getRoundCounter() {
@@ -477,7 +481,6 @@ public class Game implements Serializable {
         this.chatBot.setUsername("Botterfly#"+Long.toHexString(gameId));
         this.chatBot.setPassword(UUID.randomUUID().toString());
         this.chatBot.setToken(UUID.randomUUID().toString());
-        this.chatBot.setEmail("botterfly@invalid.com");
         gameChat.setAssociatedGameId(this.gameId);
         gameChat.addAdmin(chatBot);
         gameChat.setConfidential(true);
@@ -501,7 +504,7 @@ public class Game implements Serializable {
      */
     public synchronized boolean closeLobby(boolean force) {
         if (gameState != GameState.LOBBY) return false;
-        if (getPresentPlayers().size() < 3) return false;
+        if (!force && getPresentPlayers().size() < 3) return false;
         if (!force && (getReadyPlayers().size() < getPresentPlayers().size())) return false;
         if (getMemesFound().size() < getTotalRounds()) return false;
 
@@ -540,9 +543,8 @@ public class Game implements Serializable {
         this.roundCounter = 0;
         // go to running state
         this.gameState = GameState.RUNNING;
-        // set countdown to 0, so game will advance on next update
-        currentCountdown = 0L;
-        this.lastModified = System.currentTimeMillis();
+        // this will cause the game to advance on next update
+        advanceTargetTime = 0L;
     }
 
     /**
@@ -553,9 +555,9 @@ public class Game implements Serializable {
         if (!gameState.isActive())
             throw new IllegalStateException("cannot pause game in phase "+ gameState.toString());
 
-        // need to update the countdown before going to sleep
+        // need to remember the remaining countdown
         // time measure will be lost while paused
-        updateCountdown();
+        remainingCountdown = getCurrentCountdown();
         this.gameState = GameState.PAUSED;
         this.lastModified = System.currentTimeMillis();
     }
@@ -571,8 +573,7 @@ public class Game implements Serializable {
         if (gameState == GameState.RUNNING) return;
         gameState = GameState.RUNNING;
         // start measuring time again
-        setCountdown(currentCountdown);
-        this.lastModified = System.currentTimeMillis();
+        setCountdown(remainingCountdown);
     }
 
     /**
@@ -610,11 +611,11 @@ public class Game implements Serializable {
                             return GameUpdateResponse.MODIFIED;
 
             case STARTING:  // update countdown. If it ran out, start.
-                            if (updateCountdown() < 0) start();
+                            if (getCurrentCountdown() < 0) start();
                             return GameUpdateResponse.MODIFIED;
 
             case RUNNING:   // update countdown. If it ran out, advance.
-                            if (updateCountdown() < 0) advance();
+                            if (getCurrentCountdown() < 0) advance();
                             return GameUpdateResponse.MODIFIED;
 
             case AFTERMATH: return GameUpdateResponse.COMPLETE;
@@ -632,24 +633,7 @@ public class Game implements Serializable {
      * @param millis milliseconds to set the countdown to
      */
     private synchronized void setCountdown(long millis) {
-        currentCountdown = millis;
-        lastUpdateTime = System.currentTimeMillis();
-        //TODO replace countdown by targettime
-        this.lastModified = System.currentTimeMillis();
-    }
-
-    /**
-     * subtracts all the measured time passed since the last countdown update.
-     * @return the new timer value (milliseconds until game should advance)
-     */
-    private synchronized long updateCountdown() {
-        long currentTime = System.currentTimeMillis();
-        long timeElapsed = currentTime - this.lastUpdateTime;
-        this.currentCountdown -= timeElapsed;
-        this.lastUpdateTime = currentTime;
-        //TODO replace countdown by targettime
-        this.lastModified = System.currentTimeMillis();
-        return currentCountdown;
+        advanceTargetTime = System.currentTimeMillis() +millis;
     }
 
     /**
@@ -757,8 +741,8 @@ public class Game implements Serializable {
             this.gameState = GameState.AFTERMATH;
         } else {
             assert(getCurrentRound().getRoundPhase() == RoundPhase.QUEUED);
-            // set timer to 0, so game will advance on next update
-            currentCountdown = 0L;
+            // this will cause the game to advance on next update
+            advanceTargetTime = 0L;
         }
         this.lastModified = System.currentTimeMillis();
     }
