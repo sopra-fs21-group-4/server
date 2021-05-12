@@ -67,6 +67,7 @@ public interface DTOMapper {
     @Mapping(source = "maxSuggestSeconds", target = "maxSuggestSeconds")
     @Mapping(source = "maxVoteSeconds", target = "maxVoteSeconds")
     @Mapping(source = "maxAftermathSeconds", target = "maxAftermathSeconds")
+    @Mapping(source = "lastModified", target = "lastModified")
     GameSettingsGetDTO convertEntityToGameSettingsGetDTO(GameSettings gameSettings);
 
     //get Rounds
@@ -76,6 +77,7 @@ public interface DTOMapper {
     @Mapping(source = "suggestions", target = "suggestions")
     @Mapping(source = "votes", target = "votes")
     @Mapping(source = "scores", target = "scores")
+    @Mapping(source = "lastModified", target = "lastModified")
     GameRoundDTO convertEntityToGameRoundDTO(GameRound gameRound);
 
     // getting restricted game information
@@ -105,6 +107,7 @@ public interface DTOMapper {
     @Mapping(source = "scores", target = "scores")
     @Mapping(source = "gameSettings", target = "gameSettings")
     @Mapping(source = "currentRound", target = "currentRound")
+    @Mapping(source = "lastModified", target = "lastModified")
     GamePrivateDTO convertEntityToGamePrivateDTO(Game game);
 
 
@@ -133,6 +136,7 @@ public interface DTOMapper {
 
     // getting chats
     @Mapping(source = "messageChannelId", target = "messageChannelId")
+    @Mapping(source = "lastModified", target = "lastModified")
     MessageChannelGetDTO convertEntityToMessageChannelGetDTO(MessageChannel chat);
 
 
@@ -160,7 +164,7 @@ public interface DTOMapper {
     @Mapping(source = "subscribedUsers", target = "subscribedUsers")
     @Mapping(source = "subscribedGameSummaries", target = "subscribedGameSummaries")
     @Mapping(source = "subscribedMessageChannels", target = "subscribedMessageChannels")
-    //@Mapping(target = "timestamp", expression = "java(null)")
+    @Mapping(source = "lastModified", target = "lastModified")
     UserPrivateDTO convertEntityToUserPrivateDTO(User user);
 
 
@@ -172,6 +176,7 @@ public interface DTOMapper {
     @Mapping(source = "friends", target = "friends")
     @Mapping(source = "outgoingFriendRequests", target = "outgoingFriendRequests")
     @Mapping(source = "incomingFriendRequests", target = "incomingFriendRequests")
+    @Mapping(source = "lastModified", target = "lastModified")
     UserPublicDTO convertEntityToUserPublicDTO(User user);
 
 }

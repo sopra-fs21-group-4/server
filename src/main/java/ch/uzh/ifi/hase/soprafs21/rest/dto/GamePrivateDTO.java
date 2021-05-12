@@ -32,6 +32,9 @@ public class GamePrivateDTO {
     // current round
     private GameRoundDTO currentRound;
 
+    //compare different TimeEvents
+    private Long lastModified;
+
 
 
     public Long getGameId() {
@@ -120,5 +123,21 @@ public class GamePrivateDTO {
 
     public void setCurrentRound(GameRound currentRound) {
         this.currentRound = DTOMapper.INSTANCE.convertEntityToGameRoundDTO(currentRound);
+    }
+
+    public Long keepModified(Long lastUpdated){
+        this.lastModified = Math.max(this.lastModified, gameSettings.getLastModified());
+        this.lastModified = Math.max(this.lastModified, currentRound.getLastModified());
+        if(gameSettings.getLastModified() < lastUpdated) this.gameSettings = null;
+        if (currentRound.getLastModified() < lastUpdated) this.currentRound = null;
+        return this.lastModified;
+    }
+
+    public Long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
     }
 }

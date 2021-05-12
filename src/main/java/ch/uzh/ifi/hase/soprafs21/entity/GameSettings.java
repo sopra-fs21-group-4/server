@@ -55,6 +55,9 @@ public class GameSettings implements Serializable {
     @Column(nullable = false)
     private Integer maxAftermathSeconds;
 
+    @Column
+    private Long lastModified;
+
     /* GETTERS AND SETTERS */
 
     public Long getGameSettingsId() {
@@ -63,6 +66,7 @@ public class GameSettings implements Serializable {
 
     public void setGameSettingsId(Long gameSettingsId) {
         this.gameSettingsId = gameSettingsId;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public String getName() {
@@ -71,6 +75,7 @@ public class GameSettings implements Serializable {
 
     public synchronized void setName(String name) {
         this.name = name;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public String getPassword() {
@@ -79,6 +84,7 @@ public class GameSettings implements Serializable {
 
     public void setPassword(String password) {
         this.password = (password == null? "NO_PASSWORD" : password);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Integer getMaxPlayers() {
@@ -87,6 +93,7 @@ public class GameSettings implements Serializable {
 
     public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public String getSubreddit() {
@@ -96,6 +103,7 @@ public class GameSettings implements Serializable {
     public void setSubreddit(String subreddit) {
         this.subreddit = subreddit;
         this.memesFound.clear();
+        this.lastModified = System.currentTimeMillis();
     }
 
     public MemeType getMemeType() {
@@ -105,6 +113,7 @@ public class GameSettings implements Serializable {
     public void setMemeType(MemeType memeType) {
         this.memeType = memeType;
         this.memesFound.clear();
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Integer getTotalRounds() {
@@ -113,6 +122,7 @@ public class GameSettings implements Serializable {
 
     public void setTotalRounds(Integer totalRounds) {
         this.totalRounds = totalRounds;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Integer getMaxSuggestSeconds() {
@@ -121,6 +131,7 @@ public class GameSettings implements Serializable {
 
     public void setMaxSuggestSeconds(Integer maxNamingTime) {
         this.maxSuggestSeconds = maxNamingTime;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Integer getMaxVoteSeconds() {
@@ -129,6 +140,7 @@ public class GameSettings implements Serializable {
 
     public void setMaxVoteSeconds(Integer maxVotingTime) {
         this.maxVoteSeconds = maxVotingTime;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Integer getMaxAftermathSeconds() {
@@ -137,13 +149,19 @@ public class GameSettings implements Serializable {
 
     public void setMaxAftermathSeconds(Integer maxResultsTime) {
         this.maxAftermathSeconds = maxResultsTime;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public List<String> getMemesFound() {
         if (memesFound.isEmpty() && subreddit != null && memeType != null) {
             memesFound.addAll(MemeUrlSupplier.create(getSubreddit(), getMemeType().toString().toLowerCase()).getMemeList());
+            this.lastModified = System.currentTimeMillis();
         }
         return memesFound;
+    }
+
+    public Long getLastModified() {
+        return lastModified;
     }
 
     /**
