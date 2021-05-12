@@ -22,6 +22,27 @@ public class UserPrivateDTO {
         return subscribedGameSummaries;
     }
 
+    //root timestamp
+    private Long lastModified;
+
+
+    public Long keepModified(Long lastUpdated){
+        //GamePrivateDTO-subtree
+        this.lastModified = Math.max(this.lastModified, currentGame.getLastModified());
+        if(currentGame.keepModified(lastUpdated) < lastUpdated) this.currentGame = null;
+        //UserPublicDTO
+        for(UserPublicDTO user : subscribedUsers.values()){
+            this.lastModified = Math.max(this.lastModified, user.getLastModified());
+            if(user.getLastModified() < lastUpdated) subscribedUsers.remove(user.getUserId());
+        }
+        //MessageChannelGetDTO
+        for(MessageChannelGetDTO messageChannel : subscribedMessageChannels.values()){
+            this.lastModified = Math.max(this.lastModified, messageChannel.getLastModified());
+            if(messageChannel.getLastModified() < lastUpdated) subscribedMessageChannels.remove(messageChannel.getMessageChannelId());
+        }
+        return lastModified;
+    }
+
     public void setSubscribedGameSummaries(Set<Long> subscribedGameSummaries) {
         GameSummaryRepository gameSummaryRepository = SpringContext.getBean(GameSummaryRepository.class);
         this.subscribedGameSummaries = new HashMap<>();
@@ -76,5 +97,11 @@ public class UserPrivateDTO {
         return subscribedMessageChannels;
     }
 
+    public Long getLastModified() {
+        return lastModified;
+    }
 
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
+    }
 }

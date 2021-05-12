@@ -15,7 +15,7 @@ public class GameSettingsGetDTO {
     private Integer maxSuggestSeconds;
     private Integer maxVoteSeconds;
     private Integer maxAftermathSeconds;
-
+    private Long lastModified;
 
 
     public String getName() {
@@ -90,5 +90,11 @@ public class GameSettingsGetDTO {
         this.maxAftermathSeconds = maxAftermathSeconds;
     }
 
+    public Long getLastModified() {
+        return lastModified;
+    }
 
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
+    }
 }

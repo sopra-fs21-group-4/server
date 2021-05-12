@@ -70,6 +70,9 @@ public class User implements Serializable {
     @ElementCollection
     private final Set<Long> subscribedUsers = new HashSet<>();
 
+    @Column
+    private Long lastModified;
+
 
     public Long getCurrentGameId() {
         return currentGameId;
@@ -78,6 +81,7 @@ public class User implements Serializable {
     public void setCurrentGameId(Long gameId) {
         this.currentGameId = gameId;
         status = gameId == null? UserStatus.IDLE : UserStatus.PLAYING;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Set<Long> getSubscribedGameSummaries() {
@@ -94,6 +98,7 @@ public class User implements Serializable {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public String getPassword() {
@@ -102,6 +107,7 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public String getUsername() {
@@ -110,6 +116,7 @@ public class User implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public String getToken() {
@@ -118,6 +125,7 @@ public class User implements Serializable {
 
     public void setToken(String token) {
         this.token = token;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public UserStatus getStatus() {
@@ -126,6 +134,7 @@ public class User implements Serializable {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Set<Long> getSubscribedMessageChannels() {
@@ -134,7 +143,10 @@ public class User implements Serializable {
 
     public String getEmail() {return email;}
 
-    public void setEmail(String email) {this.email = email;}
+    public void setEmail(String email) {
+        this.email = email;
+        this.lastModified = System.currentTimeMillis();
+    }
 
     public List<Message> getInbox() {
         return inbox;
@@ -142,15 +154,15 @@ public class User implements Serializable {
 
     public Set<Long> getFriends() {
         return friends;
-    }
+    } //TODO when datastructure is returned update lastModified
 
     public Set<Long> getOutgoingFriendRequests() {
         return outgoingFriendRequests;
-    }
+    } //TODO when datastructure is returned update lastModified
 
     public Set<Long> getIncomingFriendRequests() {
         return incomingFriendRequests;
-    }
+    } //TODO when datastructure is returned update lastModified
 
     public Long getLastRequest() {
         return lastRequest;
@@ -158,17 +170,24 @@ public class User implements Serializable {
 
     public void setLastRequest(Long lastRequest) {
         this.lastRequest = lastRequest;
+        this.lastModified = System.currentTimeMillis();
     }
 
 
 
     public void notifyMessage(Message message) {
         inbox.add(message);
+        this.lastModified = System.currentTimeMillis();
     }
 
     @Override
     public boolean equals(Object o) {
         return  o instanceof User && ((User) o).userId == this.userId;
+    }
+
+
+    public Long getLastModified() {
+        return lastModified;
     }
 
 
@@ -196,5 +215,6 @@ public class User implements Serializable {
     public void removeIncomingFriendRequest(long userId){
         incomingFriendRequests.remove(userId);
     }
+
 
 }

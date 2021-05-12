@@ -17,6 +17,7 @@ public class UserPublicDTO {
     private Set<Long> friends;
     private Set<Long> outgoingFriendRequests;
     private Set<Long> incomingFriendRequests;
+    private Long lastModified;
 
     public Long getCurrentGameId() {
         return currentGameId;
@@ -72,5 +73,13 @@ public class UserPublicDTO {
 
     public void setIncomingFriendRequests(Set<Long> incomingFriendRequests) {
         this.incomingFriendRequests = incomingFriendRequests;
+    }
+
+    public Long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
     }
 }

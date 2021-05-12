@@ -74,6 +74,9 @@ public class Game implements Serializable {
     @OneToOne(targetEntity = GameSummary.class)
     private GameSummary gameSummary;
 
+    @Column
+    private Long lastModified;
+
     /* CONSTRUCTOR */
 
     public Game() {
@@ -90,6 +93,7 @@ public class Game implements Serializable {
     public Game setGameId(Long gameId) {
         if (this.gameId != null) throw new IllegalStateException();
         this.gameId = gameId;
+        this.lastModified = System.currentTimeMillis();
         return this;
     }
 
@@ -208,6 +212,10 @@ public class Game implements Serializable {
 
     // TODO sort getters and setters
 
+    public Long getLastModified() {
+        return lastModified;
+    }
+
 
     /* SPECIAL METHODS */
 
@@ -278,6 +286,7 @@ public class Game implements Serializable {
      */
     public synchronized PlayerState setPlayerReady(Long player, boolean ready) {
         playerStates.put(player, getPlayerState(player).readyState(ready));
+        this.lastModified = System.currentTimeMillis();
         return getPlayerState(player);
     }
 
@@ -292,6 +301,7 @@ public class Game implements Serializable {
         if (currentGameMaster != null)
             playerStates.put(currentGameMaster, getPlayerState(currentGameMaster).promotedState(false));
         playerStates.put(player, getPlayerState(player).promotedState(true));
+        this.lastModified = System.currentTimeMillis();
         // TODO undo if didn't work
         return getPlayerState(player);
     }
@@ -376,6 +386,7 @@ public class Game implements Serializable {
         PlayerState currentPlayerState = getPlayerState(player);
         if (!currentPlayerState.isBanned()) return currentPlayerState;
         playerStates.put(player, PlayerState.VANISHED);
+        this.lastModified = System.currentTimeMillis();
         return PlayerState.VANISHED;
     }
 
@@ -390,6 +401,7 @@ public class Game implements Serializable {
         // TODO check max players
         playerStates.put(player.getUserId(), playerState);
         this.gameChat.addParticipant(player);
+        this.lastModified = System.currentTimeMillis();
         checkPlayerList(); // TODO
     }
 
@@ -404,6 +416,7 @@ public class Game implements Serializable {
         playerStates.put(player.getUserId(), playerState);
         gameChat.removeParticipant(player);
         checkPlayerList();
+        this.lastModified = System.currentTimeMillis();
         return playerState;
     }
 
@@ -447,6 +460,7 @@ public class Game implements Serializable {
             this.gameSettings.setMaxVoteSeconds(settings.getMaxVoteSeconds());
         if (settings.getMaxAftermathSeconds() != null)
             this.gameSettings.setMaxAftermathSeconds(settings.getMaxAftermathSeconds());
+        this.lastModified = System.currentTimeMillis();
         return this;
     }
 
@@ -471,6 +485,7 @@ public class Game implements Serializable {
         addPlayer(gameMaster, PlayerState.GAME_MASTER);
         // set next game state
         gameState = GameState.LOBBY;
+        this.lastModified = System.currentTimeMillis();
         return this;
     }
 
@@ -505,6 +520,7 @@ public class Game implements Serializable {
         }
         // 3 seconds until game starts
         setCountdown(3000L);
+        this.lastModified = System.currentTimeMillis();
         return true;
     }
 
@@ -526,6 +542,7 @@ public class Game implements Serializable {
         this.gameState = GameState.RUNNING;
         // set countdown to 0, so game will advance on next update
         currentCountdown = 0L;
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
@@ -540,6 +557,7 @@ public class Game implements Serializable {
         // time measure will be lost while paused
         updateCountdown();
         this.gameState = GameState.PAUSED;
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
@@ -554,6 +572,7 @@ public class Game implements Serializable {
         gameState = GameState.RUNNING;
         // start measuring time again
         setCountdown(currentCountdown);
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
@@ -564,6 +583,7 @@ public class Game implements Serializable {
         for (Long player : getPresentPlayers()) playerStates.put(player, PlayerState.LEFT);
         gameChat.removeParticipant(chatBot);
         gameChat.close();
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
@@ -614,6 +634,8 @@ public class Game implements Serializable {
     private synchronized void setCountdown(long millis) {
         currentCountdown = millis;
         lastUpdateTime = System.currentTimeMillis();
+        //TODO replace countdown by targettime
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
@@ -625,6 +647,8 @@ public class Game implements Serializable {
         long timeElapsed = currentTime - this.lastUpdateTime;
         this.currentCountdown -= timeElapsed;
         this.lastUpdateTime = currentTime;
+        //TODO replace countdown by targettime
+        this.lastModified = System.currentTimeMillis();
         return currentCountdown;
     }
 
@@ -648,6 +672,7 @@ public class Game implements Serializable {
                                 }
             case CLOSED ->      skipRound();
         }
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
@@ -710,6 +735,7 @@ public class Game implements Serializable {
             // update total scores
             scores.put(player, scores.get(player) + roundScores.get(player));
         }
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
@@ -734,6 +760,7 @@ public class Game implements Serializable {
             // set timer to 0, so game will advance on next update
             currentCountdown = 0L;
         }
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**

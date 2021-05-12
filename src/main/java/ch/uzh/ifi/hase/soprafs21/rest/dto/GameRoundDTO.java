@@ -17,6 +17,7 @@ public class GameRoundDTO {
     private Map<Long, String> suggestions;
     private Map<Long, Long> votes;
     private Map<Long, Integer> scores;
+    private Long LastModified;
 
 
     public String getTitle() {
@@ -66,4 +67,13 @@ public class GameRoundDTO {
     public void setScores(Map<Long, Integer> scores) {
         this.scores = scores;
     }
+
+    public Long getLastModified() {
+        return LastModified;
+    }
+
+    public void setLastModified(Long lastModified) {
+        LastModified = lastModified;
+    }
+
 }
