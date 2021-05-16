@@ -406,6 +406,7 @@ public class Game implements Serializable {
         playerStates.put(player.getUserId(), playerState);
         this.gameChat.addParticipant(player);
         this.lastModified = System.currentTimeMillis();
+        player.setCurrentGameId(this.getGameId());
         checkPlayerList(); // TODO
     }
 
@@ -419,6 +420,7 @@ public class Game implements Serializable {
         assert(!playerState.isPresent());
         playerStates.put(player.getUserId(), playerState);
         gameChat.removeParticipant(player);
+        player.setCurrentGameId(null);
         checkPlayerList();
         this.lastModified = System.currentTimeMillis();
         return playerState;
@@ -486,6 +488,8 @@ public class Game implements Serializable {
         gameChat.setConfidential(true);
         // init game master
         addPlayer(gameMaster, PlayerState.GAME_MASTER);
+        // set game master current game
+        gameMaster.setCurrentGameId(this.gameId);
         // set next game state
         gameState = GameState.LOBBY;
         this.lastModified = System.currentTimeMillis();
