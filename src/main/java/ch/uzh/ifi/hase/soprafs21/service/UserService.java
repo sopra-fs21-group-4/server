@@ -142,10 +142,10 @@ public class UserService {
 
         // check authorization
         if (userByUsername == null )  {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Invalid user credentials"));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid user credentials");
         }
         else if (!user.getPassword().equals(usertologin.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Invalid user credentials"));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid user credentials");
         }
 
         // setting new token and returning it
@@ -202,9 +202,9 @@ public class UserService {
     public User verifyUser(Long id, String token){
         User user = userRepository.findByUserId(id);
         if (user==null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("invalid userId"));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "invalid userId");
         if (!user.getToken().equals(token))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("Access denied"));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access denied");
         if (user.getStatus() == UserStatus.OFFLINE)
             user.setStatus(UserStatus.IDLE);
 
@@ -294,7 +294,7 @@ public class UserService {
 
         User friend = userRepository.findByUsername(friendName);
         if (friend==null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found");
 
         friendChange(user, friend.getUserId(), CHANGE.ADD, LIST.OUTGOING);
         friendChange(friend, user.getUserId(), CHANGE.ADD, LIST.INCOMING);
@@ -361,13 +361,13 @@ public class UserService {
 
     /**
      * helper method to get friend or throw error if he does not exist
-     * @param friendId
+     * @param friendId id of the friend you want to get
      * @return friend user object
      */
     private User getFriend(long friendId){
         User friend = userRepository.findByUserId(friendId);
         if (friend==null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("user not found"));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found");
         return friend;
     }
 
@@ -377,29 +377,24 @@ public class UserService {
     private enum CHANGE{ADD,REMOVE}
     private enum LIST{FRIENDS,INCOMING,OUTGOING}
     private void friendChange(User toChangeUser, Long friendId, CHANGE change, LIST list){
-        if(toChangeUser.getUserId() == friendId){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("You cannot add yourself"));
+        if(toChangeUser.getUserId().equals(friendId)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot add yourself");
         }
         switch (change){
             case ADD:
+                if(toChangeUser.getFriends().contains(friendId)){
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user is already a friend");
+                }
                 switch (list){
                     case FRIENDS:
-                        if(!toChangeUser.getFriends().contains(friendId)){
-                            toChangeUser.addFriend(friendId);
-                        }
-                        else{
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("friend already exists"));
-                        }
+                        toChangeUser.addFriend(friendId);
                         break;
                     case INCOMING:
                         if(toChangeUser.getIncomingFriendRequests().contains(friendId)){
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("incoming request already exists"));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "incoming request already exists");
                         }
                         else if(toChangeUser.getOutgoingFriendRequests().contains(friendId)){
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("user already has an outgoing request"));
-                        }
-                        else if(toChangeUser.getFriends().contains(friendId)){
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("user is already a friend"));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user already has an outgoing request");
                         }
                         else{
                             toChangeUser.addIncomingFriendRequest(friendId);
@@ -407,13 +402,10 @@ public class UserService {
                         break;
                     case OUTGOING:
                         if(toChangeUser.getOutgoingFriendRequests().contains(friendId)){
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("outgoing request already exists"));
-                        }
-                        else if(toChangeUser.getFriends().contains(friendId)){
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("user is already a friend"));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "outgoing request already exists");
                         }
                         else if(toChangeUser.getIncomingFriendRequests().contains(friendId)){
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("user already has an incoming request"));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user already has an incoming request");
                         }
                         else{
                             toChangeUser.addOutgoingFriendRequest(friendId);
@@ -428,7 +420,7 @@ public class UserService {
                             toChangeUser.removeFriend(friendId);
                         }
                         else{
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("friend does not exists"));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "friend does not exists");
                         }
                         break;
                     case INCOMING:
@@ -436,7 +428,7 @@ public class UserService {
                             toChangeUser.removeIncomingFriendRequest(friendId);
                         }
                         else{
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("incoming request does not exists"));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "incoming request does not exists");
                         }
                         break;
                     case OUTGOING:
@@ -444,7 +436,7 @@ public class UserService {
                             toChangeUser.removeOutgoingFriendRequest(friendId);
                         }
                         else{
-                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("outgoing request does not exists"));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "outgoing request does not exists");
                         }
                         break;
                 }
