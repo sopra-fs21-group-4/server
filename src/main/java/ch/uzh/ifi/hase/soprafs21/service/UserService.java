@@ -1,10 +1,12 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
+import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.SseUpdateDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPrivateDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import org.slf4j.Logger;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,13 +97,16 @@ public class UserService {
             SseEmitter sseEmitter = subscriberMapping.get(userId);
             //method update User
             //1. create a UpdatePrivateUserDTO
-            UserPrivateDTO userPrivateDTO = DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
+//            UserPrivateDTO userPrivateDTO = DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
+            SseUpdateDTO sseUpdateDTO = DTOMapper.INSTANCE.convertEntityToSseUpdateDTO(user);
+            sseUpdateDTO.init();
+//            sseUpdateDTO.filter(now);
             //2. send the user the UserGetCompleteDTO
             //Compare lastUpdated of UserService with lastModified of userPrivateDTO
-            if(userPrivateDTO.keepModified(now) < now){continue;}
+//            if(userPrivateDTO.keepModified(now) < now) continue; TODO
             try {
-                sseEmitter.send(userPrivateDTO);
-            }catch(IOException e) {
+                sseEmitter.send(SseEmitter.event().name("Update").data(sseUpdateDTO, MediaType.APPLICATION_JSON));
+            } catch(IOException e) {
                 log.error("could not update User " + userId);
             }
         }
@@ -194,6 +200,16 @@ public class UserService {
 
     }
 
+    public void observeEntity(User user, Long entityId, EntityType entityType) {
+        user.observeEntity(entityId, entityType);
+        userRepository.flush();
+    }
+
+    public void disregardEntity(User user, Long entityId) {
+        user.disregardEntity(entityId);
+        userRepository.flush();
+    }
+
     /**
      * check if user id and token are correct (if user is logged in).
      * also sets the user's lastRequest timestamp to now if successful.
@@ -208,7 +224,6 @@ public class UserService {
         if (user.getStatus() == UserStatus.OFFLINE)
             user.setStatus(UserStatus.IDLE);
 
-        user.setLastRequest(System.currentTimeMillis());
         return user;
     }
 
@@ -449,11 +464,11 @@ public class UserService {
     /**
      * The subscriber method for our SSEController
      */
-    public void put_Subscriber(Long UserId, SseEmitter emitter) {
+    public void putSubscriber(Long UserId, SseEmitter emitter) {
         subscriberMapping.put(UserId, emitter);
     }
 
-    public void remove_Subscriber(Long UserId) {
+    public void removeSubscriber(Long UserId) {
         subscriberMapping.remove(UserId);
     }
 

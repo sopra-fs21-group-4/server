@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
-public class MessageChannelGetDTO {
+import ch.uzh.ifi.hase.soprafs21.entity.ObservableEntity;
+
+public class MessageChannelGetDTO implements ObservableEntity {
 
     private Long messageChannelId;
     // TODO more fields!
@@ -14,7 +16,17 @@ public class MessageChannelGetDTO {
         this.messageChannelId = messageChannelId;
     }
 
-    public Long getLastModified() {
+    @Override
+    public long getId() {
+        return messageChannelId;
+    }
+
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    @Override
+    public long filter(long lastUpdate) {
         return lastModified;
     }
 

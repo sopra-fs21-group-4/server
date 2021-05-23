@@ -5,12 +5,13 @@ import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.entity.GameRound;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
+import ch.uzh.ifi.hase.soprafs21.entity.ObservableEntity;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
 import java.util.List;
 import java.util.Map;
 
-public class GamePrivateDTO {
+public class GamePrivateDTO implements ObservableEntity {
 
 
     // basic
@@ -122,19 +123,42 @@ public class GamePrivateDTO {
     }
 
     public void setCurrentRound(GameRound currentRound) {
+        if (currentRound == null) {
+            this.currentRound = null;
+            return;
+        }
         this.currentRound = DTOMapper.INSTANCE.convertEntityToGameRoundDTO(currentRound);
     }
 
+    // TODO duplicate delete
     public Long keepModified(Long lastUpdated){
         this.lastModified = Math.max(this.lastModified, gameSettings.getLastModified());
-        this.lastModified = Math.max(this.lastModified, currentRound.getLastModified());
         if(gameSettings.getLastModified() < lastUpdated) this.gameSettings = null;
-        if (currentRound.getLastModified() < lastUpdated) this.currentRound = null;
+        if (this.currentRound != null) {
+            this.lastModified = Math.max(this.lastModified, currentRound.getLastModified());
+            if (currentRound.getLastModified() < lastUpdated) this.currentRound = null;
+        }
         return this.lastModified;
     }
 
-    public Long getLastModified() {
+    @Override
+    public long getId() {
+        return gameId;
+    }
+
+    public long getLastModified() {
         return lastModified;
+    }
+
+    @Override
+    public long filter(long lastUpdate) {
+        this.lastModified = Math.max(this.lastModified, gameSettings.getLastModified());
+        if(gameSettings.getLastModified() < lastUpdate) this.gameSettings = null;
+        if (this.currentRound != null) {
+            this.lastModified = Math.max(this.lastModified, currentRound.getLastModified());
+            if (currentRound.getLastModified() < lastUpdate) this.currentRound = null;
+        }
+        return this.lastModified;
     }
 
     public void setLastModified(Long lastModified) {

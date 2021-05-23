@@ -93,6 +93,7 @@ public interface DTOMapper {
     @Mapping(source = "maxPlayers", target = "maxPlayers")
     @Mapping(source = "gameMaster", target = "gameMaster")
     @Mapping(source = "presentPlayers", target = "playerCount")
+    @Mapping(source = "lastModified", target = "lastModified")
     GamePublicDTO convertEntityToGamePublicDTO(Game game);
 
     // getting restricted game information
@@ -159,13 +160,17 @@ public interface DTOMapper {
 
 
     //getting the UserPrivateDTO for the Client (which actually changed) (source Entity; target DTO)
-    @Mapping(source = "userId", target = "userId")
     @Mapping(source = "currentGameId", target = "currentGame")
-    @Mapping(source = "subscribedUsers", target = "subscribedUsers")
-    @Mapping(source = "subscribedGameSummaries", target = "subscribedGameSummaries")
-    @Mapping(source = "subscribedMessageChannels", target = "subscribedMessageChannels")
+    @Mapping(source = "observedEntities", target = "subscribedUsers")
+    @Mapping(source = "observedEntities", target = "subscribedGameSummaries")
+    @Mapping(source = "observedEntities", target = "subscribedMessageChannels")
     @Mapping(source = "lastModified", target = "lastModified")
     UserPrivateDTO convertEntityToUserPrivateDTO(User user);
+
+
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "observedEntities", target = "observedEntities")
+    SseUpdateDTO convertEntityToSseUpdateDTO(User user);
 
 
     // getting other users

@@ -2,11 +2,12 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
+import ch.uzh.ifi.hase.soprafs21.entity.ObservableEntity;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 
 import java.util.List;
 
-public class GamePublicDTO {
+public class GamePublicDTO implements ObservableEntity {
 
     // TODO sort attributes, getters and setters
 
@@ -22,6 +23,7 @@ public class GamePublicDTO {
     private Integer maxPlayers;
     private Long gameMaster;
     private Integer playerCount;
+    private Long lastModified;
 
     public Long getGameId() {
         return gameId;
@@ -119,4 +121,23 @@ public class GamePublicDTO {
         this.playerCount = players.size();
     }
 
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    @Override
+    public long getId() {
+        return gameId;
+    }
+
+    @Override
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    @Override
+    public long filter(long lastUpdate) {
+        // TODO filter stuff
+        return lastModified;
+    }
 }

@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
+import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
@@ -219,6 +220,31 @@ public class UserController {
     ) {
         User user = userService.verifyUser(userId, token);
         userService.rejectFriendRequest(user, friendId);
+    }
+
+    @PutMapping(value = "/observeEntity")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void observeEntity(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestHeader("entityId") Long entityId,
+            @RequestHeader("entityType") EntityType entityType
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.observeEntity(user, entityId, entityType);
+    }
+
+    @PutMapping(value = "/disregardEntity")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void disregardEntity(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestHeader("entityId") Long entityId
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.disregardEntity(user, entityId);
     }
 
 }

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs21.entity.ObservableEntity;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class UserPublicDTO {
+public class UserPublicDTO implements ObservableEntity {
 
     private Long userId;
     private String username;
@@ -75,7 +76,17 @@ public class UserPublicDTO {
         this.incomingFriendRequests = incomingFriendRequests;
     }
 
-    public Long getLastModified() {
+    @Override
+    public long getId() {
+        return userId;
+    }
+
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    @Override
+    public long filter(long lastUpdate) {
         return lastModified;
     }
 

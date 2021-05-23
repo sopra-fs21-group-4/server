@@ -1,15 +1,13 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
+import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Internal User Representation
@@ -43,12 +41,6 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @ElementCollection
-    private final Set<Long> subscribedMessageChannels = new HashSet<>();
-
-    @ElementCollection
-    private final Set<Long> subscribedGameSummaries = new HashSet<>();
-
     @ManyToMany(targetEntity = Message.class)
     private final List<Message> inbox = new ArrayList<>();
 
@@ -64,11 +56,8 @@ public class User implements Serializable {
     @ElementCollection
     private final Set<Long> incomingFriendRequests = new HashSet<>();
 
-    @Column
-    private Long lastRequest = System.currentTimeMillis();
-
     @ElementCollection
-    private final Set<Long> subscribedUsers = new HashSet<>();
+    private final Map<Long, EntityType> observedEntities = new HashMap<>();
 
     @Column
     private Long lastModified;
@@ -82,14 +71,6 @@ public class User implements Serializable {
         this.currentGameId = gameId;
         status = gameId == null? UserStatus.IDLE : UserStatus.PLAYING;
         this.lastModified = System.currentTimeMillis();
-    }
-
-    public Set<Long> getSubscribedGameSummaries() {
-        return subscribedGameSummaries;
-    }
-
-    public Set<Long> getSubscribedUsers() {
-        return subscribedUsers;
     }
 
     public Long getUserId() {
@@ -137,10 +118,6 @@ public class User implements Serializable {
         this.lastModified = System.currentTimeMillis();
     }
 
-    public Set<Long> getSubscribedMessageChannels() {
-        return subscribedMessageChannels;
-    }
-
     public String getEmail() {return email;}
 
     public void setEmail(String email) {
@@ -164,33 +141,14 @@ public class User implements Serializable {
         return incomingFriendRequests;
     } //TODO when datastructure is returned update lastModified
 
-    public Long getLastRequest() {
-        return lastRequest;
-    }
-
-    public void setLastRequest(Long lastRequest) {
-        this.lastRequest = lastRequest;
-        this.lastModified = System.currentTimeMillis();
-    }
-
-
-
     public void notifyMessage(Message message) {
         inbox.add(message);
         this.lastModified = System.currentTimeMillis();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return  o instanceof User && ((User) o).userId == this.userId;
-    }
-
-
     public Long getLastModified() {
         return lastModified;
     }
-
-
 
     public void addFriend(Long userId){
         friends.add(userId);
@@ -214,6 +172,25 @@ public class User implements Serializable {
 
     public void removeIncomingFriendRequest(long userId){
         incomingFriendRequests.remove(userId);
+    }
+
+    public Map<Long, EntityType> getObservedEntities() {
+        return observedEntities;
+    }
+
+    public void observeEntity(long entityId, EntityType entityType) {
+        this.observedEntities.put(entityId, entityType);
+        this.lastModified = System.currentTimeMillis();
+    }
+
+    public void disregardEntity(long entityId) {
+        this.observedEntities.remove(entityId);
+//        this.lastModified = System.currentTimeMillis(); // no need to push this to the client
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return  o instanceof User && ((User) o).userId == this.userId;
     }
 
 

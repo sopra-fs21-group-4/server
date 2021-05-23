@@ -6,13 +6,14 @@ import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
 import ch.uzh.ifi.hase.soprafs21.entity.GameRoundSummary;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
+import ch.uzh.ifi.hase.soprafs21.entity.ObservableEntity;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class GameSummaryDTO {
+public class GameSummaryDTO implements ObservableEntity {
 
     private Long gameId;
     private String name;
@@ -88,4 +89,18 @@ public class GameSummaryDTO {
         this.memeType = memeType;
     }
 
+    @Override
+    public long getId() {
+        return gameId;
+    }
+
+    @Override
+    public long getLastModified() {
+        return 0;   // TODO return termination time
+    }
+
+    @Override
+    public long filter(long lastUpdate) {
+        return 0;
+    }
 }
