@@ -74,6 +74,11 @@ public class MessageChannel implements Serializable {
         this.lastModified = System.currentTimeMillis();
     }
 
+    public void setMessageChannelId(Long messageChannelId){
+        this.messageChannelId = messageChannelId;
+        this.lastModified = System.currentTimeMillis();
+    }
+
     public void close() {
         this.closed = true;
         this.lastModified = System.currentTimeMillis();

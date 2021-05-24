@@ -49,9 +49,11 @@ public class ChatControllerTest {
 
         MessageChannel newMessageChannel = new MessageChannel();
         newMessageChannel.setAssociatedGameId(1L);
+        newMessageChannel.setMessageChannelId(5L);
 
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
         given(messageChannelService.createMessageChannel(Mockito.any())).willReturn(newMessageChannel);
+
 
         MockHttpServletRequestBuilder postRequest = post("/chat/create")
                 .header("userId", user.getUserId())
@@ -60,9 +62,6 @@ public class ChatControllerTest {
 
         mockMvc.perform(postRequest).andExpect(status().isCreated());
     }
-
-
-
 
 
 
