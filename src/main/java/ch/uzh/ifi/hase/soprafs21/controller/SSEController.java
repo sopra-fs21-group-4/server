@@ -90,8 +90,8 @@ public class SSEController {
                 LOGGER.info(String.format("SseEmitter #%d ready", userId));
 
                 scheduledExecutorService.schedule(() -> {
-                    unclaimedEmitters.remove(emitterKey, MediaType.APPLICATION_JSON);
-                    sseEmitter.completeWithError(new ConnectException("activation timeout"));
+                    if (unclaimedEmitters.remove(emitterKey) != null)
+                        sseEmitter.completeWithError(new ConnectException("activation timeout"));
                 }, 10, TimeUnit.SECONDS);
 
                 scheduledExecutorService.scheduleAtFixedRate(() -> {
@@ -122,7 +122,8 @@ public class SSEController {
 
     ) {
         userService.verifyUser(userId, token);
-        SseEmitter sseEmitter = unclaimedEmitters.get(String.format("%d | %s", userId, emitterToken));
+        String key = String.format("%d | %s", userId, emitterToken);
+        SseEmitter sseEmitter = unclaimedEmitters.remove(key);
         if (sseEmitter == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "emitterToken invalid or timed out");
         userService.putSubscriber(userId, sseEmitter);

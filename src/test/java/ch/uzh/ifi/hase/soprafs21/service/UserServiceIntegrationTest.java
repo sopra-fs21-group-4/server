@@ -46,9 +46,12 @@ public class UserServiceIntegrationTest {
         testUser.setToken("token");
         testUser.setStatus(UserStatus.IDLE);
 
+        User updateEntity = new User();
+        updateEntity.setUsername("newname");
+
         // when
         User createdUser = userService.createUser(testUser);
-        userService.updateUsername("newname", testUser);
+        userService.updateUser(testUser, updateEntity);
 
         // then
         assertEquals(testUser.getUserId(), createdUser.getUserId());
@@ -70,9 +73,12 @@ public class UserServiceIntegrationTest {
         testUser.setToken("token");
         testUser.setStatus(UserStatus.IDLE);
 
+        User updateEntity = new User();
+        updateEntity.setPassword("newpw");
+
         // when
         User createdUser = userService.createUser(testUser);
-        userService.updatePassword("newpw", testUser);
+        userService.updateUser(testUser, updateEntity);
 
         // then
         assertEquals(testUser.getUserId(), createdUser.getUserId());
@@ -92,9 +98,12 @@ public class UserServiceIntegrationTest {
         testUser.setToken("token");
         testUser.setStatus(UserStatus.IDLE);
 
+        User updateEntity = new User();
+        updateEntity.setEmail("new@doyouevenmeme.com");
+
         // when
         User createdUser = userService.createUser(testUser);
-        userService.updateEmail("new@doyouevenmeme.com", testUser);
+        userService.updateUser(testUser, updateEntity);
 
         // then
         assertEquals(testUser.getUserId(), createdUser.getUserId());

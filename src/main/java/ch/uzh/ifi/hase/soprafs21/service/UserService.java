@@ -7,7 +7,6 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.SseUpdateDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPrivateDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +60,7 @@ public class UserService {
 
         for (User user : userRepository.findAllByStatus(UserStatus.PLAYING)) {
             //check if the User is actually subscribed
-            if (subscriberMapping.get(user.getUserId()) == null){
+            if (!subscriberMapping.containsKey(user.getUserId())){
                 user.setStatus(UserStatus.OFFLINE);
                 continue;
             }
@@ -80,7 +79,7 @@ public class UserService {
         }
         //list of all users wo are in State IDLE
         for (User user : userRepository.findAllByStatus(UserStatus.IDLE)) {
-            if (subscriberMapping.get(user.getUserId()) == null){
+            if (!subscriberMapping.containsKey(user.getUserId())){
                 user.setStatus(UserStatus.OFFLINE);
                 continue;
             }
@@ -95,15 +94,9 @@ public class UserService {
             // find users and corresponding sseEmitter in subscriber Map.
             User user = userRepository.findByUserId(userId);
             SseEmitter sseEmitter = subscriberMapping.get(userId);
-            //method update User
-            //1. create a UpdatePrivateUserDTO
-//            UserPrivateDTO userPrivateDTO = DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
             SseUpdateDTO sseUpdateDTO = DTOMapper.INSTANCE.convertEntityToSseUpdateDTO(user);
             sseUpdateDTO.init();
-//            sseUpdateDTO.filter(now);
-            //2. send the user the UserGetCompleteDTO
-            //Compare lastUpdated of UserService with lastModified of userPrivateDTO
-//            if(userPrivateDTO.keepModified(now) < now) continue; TODO
+            if (sseUpdateDTO.filter(lastUpdated) < lastUpdated) continue;
             try {
                 sseEmitter.send(SseEmitter.event().name("Update").data(sseUpdateDTO, MediaType.APPLICATION_JSON));
             } catch(IOException e) {
@@ -182,22 +175,6 @@ public class UserService {
         }
         userRepository.flush();
         return user;
-    }
-
-    public void updateUsername(String newUsername, User user) {
-        checkUsernameConstraints(newUsername);
-        user.setUsername(newUsername);
-        userRepository.flush();
-    }
-    public void updatePassword(String newPassword, User user) {
-        user.setPassword(newPassword);
-        userRepository.flush();
-
-    }
-    public void updateEmail(String newEmail, User user) {
-        user.setEmail(newEmail);
-        userRepository.flush();
-
     }
 
     public void observeEntity(User user, Long entityId, EntityType entityType) {
@@ -464,12 +441,13 @@ public class UserService {
     /**
      * The subscriber method for our SSEController
      */
-    public void putSubscriber(Long UserId, SseEmitter emitter) {
-        subscriberMapping.put(UserId, emitter);
+    public void putSubscriber(Long userId, SseEmitter emitter) {
+        subscriberMapping.put(userId, emitter);
+        userRepository.findByUserId(userId).setStatus(UserStatus.IDLE);
     }
 
-    public void removeSubscriber(Long UserId) {
-        subscriberMapping.remove(UserId);
+    public void removeSubscriber(Long userId) {
+        subscriberMapping.remove(userId);
     }
 
 
