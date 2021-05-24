@@ -3,13 +3,21 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
+import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
+import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.MessageRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameTest {
+
 
     /**
      * Unit testing the Game class
@@ -1028,8 +1036,167 @@ class GameTest {
 
     }
 
-//    @Test
-    void updateGameTest() {
-        // TODO test update() advance() distributePoints()
+    @Test
+    void skipRoundError() {
+
+        // creating given objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("test");
+        gameSettings.setPassword("");
+        gameSettings.setMaxPlayers(5);
+        gameSettings.setTotalRounds(2);
+        gameSettings.setSubreddit("test");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+        assertThrows(IllegalStateException.class, () -> game.skipRound());
+    }
+
+    @Test
+    void commandsAndAdvancingGameTest() {
+
+        // creating given objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("test");
+        gameSettings.setPassword("");
+        gameSettings.setMaxPlayers(5);
+        gameSettings.setTotalRounds(3);
+        gameSettings.setSubreddit("test");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+
+        User player2 = new User();
+        player2.setUserId(2l);
+        player2.setUsername("name");
+        User player3 = new User();
+        player3.setUserId(3l);
+        // enroll 2 more players so the game can start
+        game.enrollPlayer(player2, "");
+        game.enrollPlayer(player3, "");
+
+
+//        System.out.println(game.getGameState());
+
+        // initializing message to test chat commands
+        Message message = new Message();
+        message.setSender(gameMaster);
+
+        // testing ready
+        message.setText("/r");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(PlayerState.GM_READY, game.getPlayerState(gameMaster.getUserId()));
+
+
+        // testing ban
+        message.setText("/ban @name");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        // testing forgiving
+        message.setText("/forgive @name");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+
+
+        // initializing the game
+        message.setText("/start");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(GameState.STARTING, game.getGameState());
+
+        // starting the game
+        game.start();
+        assertEquals(GameState.RUNNING, game.getGameState());
+
+
+
+
+        // advancing round phase to starting
+        message.setText("/a");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(RoundPhase.STARTING, game.getCurrentRoundPhase());
+
+        message.setText("/a");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(RoundPhase.SUGGEST, game.getCurrentRoundPhase());
+
+        // testing setting a suggestion
+        message.setText("/s suggestion");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals("suggestion", game.getCurrentSuggestions().get(gameMaster.getUserId()));
+
+
+
+        // testing pause and resume
+        message.setText("/pause");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(GameState.PAUSED, game.getGameState());
+
+        message.setText("/resume");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(GameState.RUNNING, game.getGameState());
+
+
+        // further advancing the game
+        message.setText("/a");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(RoundPhase.VOTE, game.getCurrentRoundPhase());
+
+        // testing setting a suggestion
+        message.setText("/v suggestion");
+        message.setSender(player2);
+        game.getChatBot().notifyMessage(message);
+        game.update();
+
+
+        message.setText("/a");
+        message.setSender(gameMaster);
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(RoundPhase.AFTERMATH, game.getCurrentRoundPhase());
+
+
+        // skipping a round
+        message.setText("/skip");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(RoundPhase.STARTING, game.getCurrentRoundPhase());
+
+
+        // killing the game
+        message.setText("/kill");
+        game.getChatBot().notifyMessage(message);
+        game.update();
+        assertEquals(GameState.ABORTED, game.getGameState());
+
+
+
     }
 }
