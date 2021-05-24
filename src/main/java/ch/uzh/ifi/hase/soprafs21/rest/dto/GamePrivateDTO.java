@@ -13,7 +13,6 @@ import java.util.Map;
 
 public class GamePrivateDTO implements ObservableEntity {
 
-
     // basic
     private Long gameId;
     private GameState gameState;
