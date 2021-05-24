@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs21.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,7 +71,6 @@ class GameServiceIntegrationTest {
     }
 
 
-
     @Test
     void createGame_success() {
         assertDoesNotThrow(()-> gameService.createGame(gameMaster, gameSettings));
@@ -128,9 +128,21 @@ class GameServiceIntegrationTest {
         assertEquals(game.getName(), gameService.findRunningGame(game.getGameId()).getName());
     }
 
+    @Test
+    void adaptGameSettingsSuccess() {
+
+        Mockito.when(game.adaptSettings(Mockito.any())).thenReturn(game);
+
+        assertDoesNotThrow(()-> gameService.adaptGameSettings(game.getGameId(), gameMaster, gameSettings));
+    }
+
+    @Test
+    void adaptGameSettingsError() {
 
 
-
+        Mockito.when(game.adaptSettings(Mockito.any())).thenThrow(IllegalStateException.class);
+        assertThrows(ResponseStatusException.class, ()-> gameService.adaptGameSettings(game.getGameId(), gameMaster, gameSettings));
+    }
 
 //    @Test
 //    void joinGame() {

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 
-public class UserServiceFriendsIntegrationTest {
+public class UserServiceFriendsTest {
 
 
 
