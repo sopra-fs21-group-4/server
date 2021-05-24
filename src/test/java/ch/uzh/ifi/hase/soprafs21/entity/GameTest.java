@@ -121,6 +121,63 @@ class GameTest {
     }
 
     @Test
+    void enrollPlayerErrors() {
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        User player1 = new User();
+        player1.setUserId(2l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("test");
+        gameSettings.setPassword("");
+        gameSettings.setMaxPlayers(5);
+        gameSettings.setTotalRounds(5);
+        gameSettings.setSubreddit("test");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+
+
+
+        User player2 = new User();
+        player2.setUserId(2l);
+        User player3 = new User();
+        player3.setUserId(3l);
+
+        User player4 = new User();
+        player4.setUserId(4l);
+
+
+        // enrolling the players to the game
+        game.enrollPlayer(player2, "");
+        game.enrollPlayer(player3, "");
+
+        assertEquals(game.getPlayerState(3l), game.enrollPlayer(player3, ""));
+
+        assertThrows(IllegalArgumentException.class, () -> game.enrollPlayer(player4, "wrongPW"));
+
+        // closing the lobby to start the game with force
+        game.closeLobby(true);
+        game.start();
+
+
+        // enrolling player
+        assertThrows(IllegalStateException.class, () -> game.enrollPlayer(player4, ""));
+
+
+
+    }
+
+    @Test
     void dismissPlayer() {
         // creating objects
         User gameMaster = new User();
@@ -130,27 +187,69 @@ class GameTest {
         player1.setUserId(2l);
 
         GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("test");
         gameSettings.setPassword("");
-        gameSettings.setGameSettingsId(1l);
         gameSettings.setMaxPlayers(5);
+        gameSettings.setTotalRounds(1);
+        gameSettings.setSubreddit("test");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
 
         Game game = new Game();
         game.setGameId(1l);
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
 
+        User player2 = new User();
+        player2.setUserId(2l);
+        User player3 = new User();
+        player3.setUserId(3l);
+        User player4 = new User();
+        player4.setUserId(4l);
+
         // list of players and adding gamemaster who is already enrolled
         List<Long> playerlist = new ArrayList<>();
         playerlist.add(gameMaster.getUserId());
 
-        // enrolling player (tested in a different test)
-        game.enrollPlayer(player1, "");
+        // enroll 2 more players so the game can start
+        game.enrollPlayer(player2, "");
+        game.enrollPlayer(player3, "");
 
-        // remove player1
-        game.dismissPlayer(player1);
+        playerlist.add(player2.getUserId());
+        playerlist.add(player3.getUserId());
 
-        // testing if only gamemaster is enrolled
+
+        assertEquals(PlayerState.STRANGER, game.getPlayerState(player4.getUserId()));
+
+        game.enrollPlayer(player4, "");
+        playerlist.add(player4.getUserId());
+
+
+        // testing new game master if game master leaves
+        game.dismissPlayer(gameMaster);
+        playerlist.remove(gameMaster.getUserId());
+
+        assertEquals(player2.getUserId(), game.getGameMaster());
+
+        // closing the lobby to start the game with force
+        game.closeLobby(true);
+
+        // start the game
+        game.start();
+
+
+        // testing enrolled players
         assertEquals(playerlist, game.getEnrolledPlayers());
+
+
+        // remove player2
+        assertEquals(PlayerState.ABORTED, game.dismissPlayer(player2));
+
+
+
+
 
     }
 
@@ -189,6 +288,9 @@ class GameTest {
         // test if banned player cannot join
         assertThrows(SecurityException.class, () -> game.enrollPlayer(player1, ""));
 
+        //test if you can not ban the gameMaster
+        assertThrows(IllegalArgumentException.class, () -> game.banPlayer(gameMaster));
+
     }
 
     @Test
@@ -201,9 +303,15 @@ class GameTest {
         player1.setUserId(2l);
 
         GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("test");
         gameSettings.setPassword("");
-        gameSettings.setGameSettingsId(1l);
-        gameSettings.setMaxPlayers(5);
+        gameSettings.setMaxPlayers(7);
+        gameSettings.setTotalRounds(5);
+        gameSettings.setSubreddit("test");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
 
         Game game = new Game();
         game.setGameId(1l);
@@ -230,6 +338,31 @@ class GameTest {
         playerlist.add(player1.getUserId());
         assertEquals(playerlist, game.getEnrolledPlayers());
 
+        // test if player is not banned
+        assertEquals(PlayerState.ENROLLED, game.getPlayerState(player1.getUserId()));
+
+        User player3 = new User();
+        player3.setUserId(3l);
+        User player4 = new User();
+        player4.setUserId(4l);
+        User player5 = new User();
+        player5.setUserId(5l);
+
+        game.enrollPlayer(player3, "");
+        game.enrollPlayer(player4, "");
+        game.enrollPlayer(player5, "");
+
+        game.banPlayer(player3);
+
+        // closing the lobby to start the game with force
+        game.closeLobby(true);
+
+        // start the game
+        game.start();
+
+        // testing if you cannot forgive later
+        assertThrows(IllegalStateException.class, () -> game.forgivePlayer(player3.getUserId()));
+
     }
 
     @Test
@@ -243,7 +376,7 @@ class GameTest {
         gameSettings.setPassword("");
         gameSettings.setMaxPlayers(5);
         gameSettings.setTotalRounds(5);
-        gameSettings.setSubreddit("test");
+        gameSettings.setSubreddit("memes");
         gameSettings.setMemeType(MemeType.HOT);
         gameSettings.setMaxSuggestSeconds(5);
         gameSettings.setMaxAftermathSeconds(5);
@@ -254,7 +387,7 @@ class GameTest {
         gameSettings2.setPassword("2");
         gameSettings2.setMaxPlayers(10);
         gameSettings2.setTotalRounds(10);
-        gameSettings2.setSubreddit("test2");
+        gameSettings2.setSubreddit("cats");
         gameSettings2.setMemeType(MemeType.RISING);
         gameSettings2.setMaxSuggestSeconds(10);
         gameSettings2.setMaxAftermathSeconds(10);
@@ -287,6 +420,29 @@ class GameTest {
         assertEquals(gameSettings2.getName(), game.getName());
         assertEquals(gameSettings2.getSubreddit(), game.getSubreddit());
         assertEquals(gameSettings2.getMemeType(), game.getMemeType());
+
+
+        User player2 = new User();
+        player2.setUserId(2l);
+        User player3 = new User();
+        player3.setUserId(3l);
+        // enroll 2 more players so the game can start
+        game.enrollPlayer(player2, gameSettings2.getPassword());
+        game.enrollPlayer(player3, gameSettings2.getPassword());
+
+        // test for error if game is not running
+        assertThrows(IllegalStateException.class, () -> game.pause());
+
+        // closing the lobby to start the game with force
+        game.closeLobby(true);
+
+        // start the game
+        game.start();
+
+        // test for error when game has started
+        assertThrows(IllegalStateException.class, () -> game.adaptSettings(gameSettings));
+
+
     }
 
     @Test
@@ -428,6 +584,9 @@ class GameTest {
         // enroll 2 more players so the game can start
         game.enrollPlayer(player2, "");
         game.enrollPlayer(player3, "");
+
+        // test for error when lobby isn't closed
+        assertThrows(IllegalStateException.class, () -> game.start());
 
         // closing the lobby to start the game with force
         game.closeLobby(true);
@@ -778,4 +937,99 @@ class GameTest {
 
     }
 
+
+    @Test
+    void getRoundCounterTest() {
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("MaxPlayerTest");
+        gameSettings.setPassword("");
+        // Max Player setting
+        gameSettings.setMaxPlayers(3);
+        gameSettings.setTotalRounds(2);
+        gameSettings.setSubreddit("memes");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+        // testing virgin state
+        assertEquals(0, game.getRoundCounter());
+
+        User player2 = new User();
+        player2.setUserId(2l);
+        User player3 = new User();
+        player3.setUserId(3l);
+        User player4 = new User();
+        player4.setUserId(4l);
+
+        // enrolling the players to the game
+        game.enrollPlayer(player2, "");
+        game.enrollPlayer(player3, "");
+
+        // closing the lobby to start the game with force
+        game.closeLobby(true);
+        game.start();
+
+        assertEquals(1, game.getRoundCounter());
+
+    }
+
+    @Test
+    void getCurrentRoundTest() {
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setName("MaxPlayerTest");
+        gameSettings.setPassword("");
+        // Max Player setting
+        gameSettings.setMaxPlayers(3);
+        gameSettings.setTotalRounds(2);
+        gameSettings.setSubreddit("memes");
+        gameSettings.setMemeType(MemeType.HOT);
+        gameSettings.setMaxSuggestSeconds(5);
+        gameSettings.setMaxAftermathSeconds(5);
+        gameSettings.setMaxVoteSeconds(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+        // testing virgin state
+        assertEquals(null, game.getCurrentRound());
+
+        User player2 = new User();
+        player2.setUserId(2l);
+        User player3 = new User();
+        player3.setUserId(3l);
+        User player4 = new User();
+        player4.setUserId(4l);
+
+        // enrolling the players to the game
+        game.enrollPlayer(player2, "");
+        game.enrollPlayer(player3, "");
+
+        // closing the lobby to start the game with force
+        game.closeLobby(true);
+        game.start();
+
+        assertEquals(game.getGameRounds().get(0), game.getCurrentRound());
+
+    }
+
+//    @Test
+    void updateGameTest() {
+        // TODO test update() advance() distributePoints()
+    }
 }
