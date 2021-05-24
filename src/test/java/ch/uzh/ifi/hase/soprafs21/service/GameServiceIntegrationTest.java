@@ -128,45 +128,7 @@ class GameServiceIntegrationTest {
         assertEquals(game.getName(), gameService.findRunningGame(game.getGameId()).getName());
     }
 
-    @Test
-    void adaptGameSettingsSuccess() {
 
-        Mockito.when(game.adaptSettings(Mockito.any())).thenReturn(game);
-
-        assertDoesNotThrow(()-> gameService.adaptGameSettings(game.getGameId(), gameMaster, gameSettings));
-    }
-
-    @Test
-    void adaptGameSettingsError() {
-
-
-        Mockito.when(game.adaptSettings(Mockito.any())).thenThrow(IllegalStateException.class);
-        assertThrows(ResponseStatusException.class, ()-> gameService.adaptGameSettings(game.getGameId(), gameMaster, gameSettings));
-    }
-
-//    @Test
-//    void joinGame() {
-//        Game game = gameService.createGame(gameMaster, gameSettings);
-//
-//        Game game2 = gameService.joinGame(game.getGameId(),player1,"");
-//
-//        assertEquals(game,game2);
-//    }
-//
-//    @Test
-//    void leaveGame() {
-//    }
-//
-//    @Test
-//    void putSuggestion() {
-//        Game game = gameService.createGame(gameMaster, gameSettings);
-//        gameService.startGame(game.getGameId(),gameMaster.getUserId(),true);
-//        gameService.putSuggestion(game.getGameId(),gameMaster,"suggestion");
-//    }
-//
-//    @Test
-//    void putVote() {
-//    }
 
 
 }

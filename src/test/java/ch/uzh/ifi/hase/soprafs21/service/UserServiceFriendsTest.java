@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -142,6 +143,7 @@ public class UserServiceFriendsTest {
 
     @Test
     public void errorCannotAddNonexistent(){
+
         assertThrows(ResponseStatusException.class, ()->userService.sendFriendRequest(user2, "nonexistantname"));
         assertThrows(ResponseStatusException.class, ()->userService.acceptFriendRequest(user2, 3L));
         assertThrows(ResponseStatusException.class, ()->userService.rejectFriendRequest(user2, 3L));
