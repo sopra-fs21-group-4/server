@@ -83,6 +83,8 @@ public class Message implements Serializable, Comparable<Message> {
         return referenced;
     }
 
+    public void setMessageId(Long messageId) {this.messageId = messageId;}
+
     @Override
     public int compareTo(Message o) {
         return (int) (this.timestamp - o.timestamp);

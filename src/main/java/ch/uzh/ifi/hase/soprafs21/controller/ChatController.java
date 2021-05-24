@@ -60,13 +60,13 @@ public class ChatController {
     public List<MessageGetDTO> getMessages(
             @PathVariable("chatId") Long chatId,
             @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token,
-            @RequestParam Optional<String> sender,
+            @RequestHeader("token") String token
+            /*@RequestParam Optional<String> sender,
             @RequestParam Optional<String> content,
             @RequestParam Optional<Long> since,
             @RequestParam Optional<Long> before,
             @RequestParam Optional<Integer> first,
-            @RequestParam Optional<Integer> latest
+            @RequestParam Optional<Integer> latest*/
     ) {
         // authenticate
         User user = userService.verifyUser(userId, token);
@@ -74,7 +74,7 @@ public class ChatController {
         // fetch all messages in the internal representation
         List<Message> messages = messageService.getMessages(messageChannel);
         // filter
-        if (sender.isPresent())
+        /*if (sender.isPresent())
             messages.removeIf(m -> !m.getSender().getUsername().equals(sender.get()));
         if (content.isPresent())
             messages.removeIf(m -> !m.getText().contains(content.get()));
@@ -87,7 +87,7 @@ public class ChatController {
         if (first.isPresent())
             messages = messages.subList(0, Math.min(first.get(), messages.size()));
         if (latest.isPresent())
-            messages = messages.subList(Math.max(messages.size() - latest.get(), 0), messages.size());
+            messages = messages.subList(Math.max(messages.size() - latest.get(), 0), messages.size());*/
 
         return convertMessageListToDTOList(messages);
     }
