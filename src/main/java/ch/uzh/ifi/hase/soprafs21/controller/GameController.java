@@ -200,10 +200,6 @@ public class GameController {
     }
 
 
-
-
-
-
     /**
      * get information about all lobbies
      * the information returned is restricted and doesn't contain player-explicit information.
@@ -257,6 +253,21 @@ public class GameController {
         return DTOMapper.INSTANCE.convertEntityToGameSummaryDTO(gameSummary);
     }
 
+    /**
+     * get all past game ids
+     * @param userId
+     * @param token
+     * @return
+     */
+    @GetMapping("/archive")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserLoginDTO getPastGames(
+        @RequestHeader("userId") Long userId,
+        @RequestHeader("token") String token){
+        User user = userService.verifyUser(userId, token);
+        return DTOMapper.INSTANCE.convertEntityToUserLoginDTO(user);
+    }
 
 
 }

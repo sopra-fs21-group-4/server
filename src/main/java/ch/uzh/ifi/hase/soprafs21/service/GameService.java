@@ -197,6 +197,7 @@ public class GameService {
     public void leaveGame(Long gameId, User user) {
         Game game = findRunningGame(gameId);
         game.dismissPlayer(user);
+        user.setPastGames(gameId);
         user.setCurrentGameId(null);
     }
 

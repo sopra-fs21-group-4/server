@@ -28,6 +28,7 @@ public interface DTOMapper {
     @Mapping(source = "token", target = "token")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "pastGames", target = "pastGames")
     UserLoginDTO convertEntityToUserLoginDTO(User user);
 
     // user creation

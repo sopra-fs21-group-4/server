@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
+import java.util.*;
+
 public class UserLoginDTO {
 
 
@@ -7,6 +9,7 @@ public class UserLoginDTO {
     private long userId;
     private String username;
     private String token;
+    private Set<Long> pastGames; 
 
     public long getUserId() {
         return userId;
@@ -32,6 +35,12 @@ public class UserLoginDTO {
         this.token = token;
     }
 
+    public Set<Long> getPastGames(){
+        return pastGames;
+    }
 
+    public void setPastGames(Set<Long> pastGames){
+        this.pastGames = pastGames;
+    }
 
 }

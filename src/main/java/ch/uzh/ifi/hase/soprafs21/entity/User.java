@@ -48,6 +48,9 @@ public class User implements Serializable {
     private Long currentGameId;
 
     @ElementCollection
+    private final Set<Long> pastGames = new HashSet<>();
+
+    @ElementCollection
     private final Set<Long> friends = new HashSet<>();
 
     @ElementCollection
@@ -148,6 +151,14 @@ public class User implements Serializable {
 
     public Long getLastModified() {
         return lastModified;
+    }
+
+    public void setPastGames(Long gameId){
+        pastGames.add(gameId);
+    }
+
+    public Set<Long> getPastGames(){
+        return pastGames;
     }
 
     public void addFriend(Long userId){
