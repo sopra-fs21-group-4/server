@@ -170,7 +170,7 @@ public class GameService {
     public Game joinGame(Long gameId, User user, String password) {
         try {
             Game gameToJoin = findRunningGame(gameId);
-            if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()|| game.getGameState()!=GameState.FINISHED || game.getGameState()!=GameState.AFTERMATH) return gameToJoin;
+            if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()|| gameToJoin.getGameState()!=GameState.FINISHED || gameToJoin.getGameState()!=GameState.AFTERMATH) return gameToJoin;
             Long previousGameId = user.getCurrentGameId();
             Game previousGame = previousGameId == null? null : gameRepository.findByGameId(previousGameId);
             if (previousGame != null) previousGame.dismissPlayer(user);
