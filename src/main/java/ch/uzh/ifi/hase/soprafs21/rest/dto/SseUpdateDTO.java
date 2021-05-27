@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
+import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
@@ -8,16 +8,15 @@ import ch.uzh.ifi.hase.soprafs21.repository.GameSummaryRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageChannelRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs21.service.GameService;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SseUpdateDTO {
 
     private Long userId;
-    private Map<Long, ObservableEntity> observedEntities;
-    private Map<Long, EntityType> entityTypes;
+    private List<Long> lobbies = new ArrayList<>();
+    private final Map<Long, EntityDTO> observedEntities = new HashMap<>();
 
 
 
@@ -30,61 +29,66 @@ public class SseUpdateDTO {
         return userId;
     }
 
-    public void setObservedEntities(Map<Long, EntityType> entityTypes) {
-        this.entityTypes = entityTypes;
-        this.observedEntities = new HashMap<>();
+    /**
+     * WARNING!! we mis-use the attribute 'lobbies' as our initial id pool.
+     * This can be considered bad style, but we need to store the id pool in a field that
+     * should not be sent to the client. Luckily the lobby list will only be initialized
+     * later and has a different meaning to the client, so we can borrow that field to use
+     * it for the DTOMapper's destination of the id pool.
+     * @param idPool ids of observed entities
+     */
+    public void setObservedEntities(Set<Long> idPool) {
+        this.lobbies.addAll(idPool);
     }
 
-    public Map<Long, ObservableEntity> getObservedEntities() {
+    public Map<Long, EntityDTO> getObservedEntities() {
         return observedEntities;
     }
 
-    public Map<Long, EntityType> getEntityTypes() {
-        return entityTypes;
-    }
-
-    public void init() {
-
-        UserRepository userRepository = SpringContext.getBean(UserRepository.class);
-        MessageChannelRepository messageChannelRepository = SpringContext.getBean(MessageChannelRepository.class);
-        GameRepository gameRepository = SpringContext.getBean(GameRepository.class);
-        GameSummaryRepository gameSummaryRepository = SpringContext.getBean(GameSummaryRepository.class);
-
-        for (Long entityId : entityTypes.keySet()) {
-            switch(entityTypes.get(entityId)) {
-                case USER:      User user = userRepository.findByUserId(entityId);
-                    observedEntities.put(entityId, DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user));
-                    break;
-                case CHANNEL:   MessageChannel mc = messageChannelRepository.findByMessageChannelId(entityId);
-                    observedEntities.put(entityId, DTOMapper.INSTANCE.convertEntityToMessageChannelGetDTO(mc));
-                    break;
-                case GAME:      GameSummary summary = gameSummaryRepository.findByGameId(entityId);
-                    if (summary != null) {
-                        observedEntities.put(entityId, DTOMapper.INSTANCE.convertEntityToGameSummaryDTO(summary));
-                        break;
-                    }
-                    Game game = gameRepository.findByGameId(entityId);
-                    if (game == null) break;
-                    if (game.getPlayerState(userId).isEnrolled()) {
-                        observedEntities.put(entityId, DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(game));
-                    } else {
-                        observedEntities.put(entityId, DTOMapper.INSTANCE.convertEntityToGamePublicDTO(game));
-                    }
-                    break;
-
+    private void collectRecursive(Long id, Set<Long> pool) {
+        if (id == null || !pool.add(id)) return;
+        EntityDTO dto = EntityDTO.find(id);
+        if (dto != null) {
+            dto.crop(userId, null);
+            observedEntities.put(id, dto);
+            for (Long childId : dto.getChildren()) {
+                collectRecursive(childId, pool);
             }
         }
     }
 
-    public Long filter(Long lastUpdated){
-
-        long maxLastModified = 0;
-
-        for (ObservableEntity e : observedEntities.values()) {
-            long lastModified = e.filter(lastUpdated);
-            maxLastModified = Math.max(maxLastModified, lastModified);
-            if (lastModified < lastUpdated) observedEntities.remove(e.getId());
+    public void init() {
+        Collection<Game> runningGames = SpringContext.getBean(GameService.class).getRunningGames();
+        List<Long> currentLobbies = new ArrayList<>();
+        for (Game game : runningGames) {
+            if (game.getGameState() == GameState.LOBBY) currentLobbies.add(game.getGameId());
         }
-        return maxLastModified;
+
+        // WARNING!! we mis-use the lobby list as our initial id pool.
+        lobbies.add(userId);
+        lobbies.addAll(currentLobbies); // automatically observe lobbies
+        Set<Long> recursivePool = new HashSet<>();
+        for (Long id : lobbies) {
+            collectRecursive(id, recursivePool);
+        }
+
+        lobbies = currentLobbies;
+    }
+
+    public boolean filter(Map<Long, Long> clientVersion, Long now) {
+        assert(clientVersion != null);
+        boolean updateFlag = false;
+
+        for (Long id : observedEntities.keySet()) {
+            Long lastReceived = clientVersion.get(id);
+            Long lastModified = observedEntities.get(id).getLastModified();
+            if (lastReceived == null || lastReceived < lastModified) {
+                clientVersion.put(id, now);
+                updateFlag = true;
+            } else {
+                observedEntities.remove(id);
+            }
+        }
+        return updateFlag;
     }
 }

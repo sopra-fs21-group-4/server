@@ -1,8 +1,5 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
-import ch.uzh.ifi.hase.soprafs21.service.UserService;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,11 +21,8 @@ public class Message implements Serializable, Comparable<Message> {
     @GeneratedValue
     private Long messageId;
 
-    @ManyToOne
-    private MessageChannel messageChannel;
-
-    @ManyToOne
-    private User sender;
+    @Column
+    private Long senderId;
 
     @Column(nullable = false)
     private Long timestamp;
@@ -36,31 +30,17 @@ public class Message implements Serializable, Comparable<Message> {
     @Column(nullable = false)
     private String text;
 
-    @ManyToMany(targetEntity = User.class)
-    private final List<User> referenced = new ArrayList<>();
-
-    public Message() {
-    }
-
 
     public Long getMessageId() {
         return messageId;
     }
 
-    public MessageChannel getMessageChannel() {
-        return messageChannel;
+    public Long getSenderId() {
+        return senderId;
     }
 
-    public void setMessageChannel(MessageChannel messageChannel) {
-        this.messageChannel = messageChannel;
-    }
-
-    public User getSender() {
-        return sender;
-    }
-
-    public void setSender(User sender) {
-        this.sender = sender;
+    public void setSenderId(Long senderId) {
+        this.senderId = senderId;
     }
 
     public Long getTimestamp() {
@@ -79,14 +59,34 @@ public class Message implements Serializable, Comparable<Message> {
         this.text = text;
     }
 
-    public List<User> getReferenced() {
-        return referenced;
-    }
-
     public void setMessageId(Long messageId) {this.messageId = messageId;}
+
+    public Long getLastModified() {
+        return timestamp;
+    }
 
     @Override
     public int compareTo(Message o) {
         return (int) (this.timestamp - o.timestamp);
     }
+
+    public List<String> getReferences() {
+        List<String> references = new ArrayList<>();
+        for (String word : text.split(" ")) if (word.startsWith("@")) references.add(word);
+        return references;
+    }
+
+    public String getCommand() {
+        for (String word : text.split(" ")) if (word.startsWith("/")) return word;
+        return null;
+    }
+
+    public String getArgument(int argNo) {
+        int cmdIdx;
+        String[] words = text.split(" ");
+        for (cmdIdx = 0; cmdIdx < words.length; cmdIdx++) if (words[cmdIdx].startsWith("/")) break;
+        if (cmdIdx == words.length || cmdIdx+argNo >= words.length) return null;
+        return words[cmdIdx + argNo];
+    }
+
 }

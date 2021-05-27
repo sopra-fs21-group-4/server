@@ -62,72 +62,74 @@ public class UserController {
 
 
 
-    // getting users
-    @GetMapping("/users")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public List<UserPublicDTO> getUsers(
-            @RequestHeader("userIds") Optional<List<Long>> userIds,
-            @RequestHeader("usernames") Optional<List<String>> usernames
-    ) {
-        if (userIds.isPresent() && usernames.isPresent())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't specify both usernames and userIds!");
+//    // getting users TODO deprecated
+//    @GetMapping("/users")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public List<UserDTO> getUsers(
+//            @RequestHeader("userIds") Optional<List<Long>> userIds,
+//            @RequestHeader("usernames") Optional<List<String>> usernames
+//    ) {
+//        if (userIds.isPresent() && usernames.isPresent())
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't specify both usernames and userIds!");
+//
+//        List<User> users = new ArrayList<>();
+//        if (userIds.isPresent()) {
+//            // fetch users by userIds
+//            for (Long userId : userIds.get()) users.add(userService.getUserByUserId(userId));
+//        } else if (usernames.isPresent()) {
+//            // fetch users by usernames
+//            for (String username : usernames.get()) users.add(userService.getUserByUsername(username));
+//        } else {
+//            // fetch all users in the internal representation
+//            users = userService.getUsers();
+//        }
+//
+//        // convert each user to the API representation
+//        List<UserDTO> userGetDTOs = new ArrayList<>();
+//        for (User user : users) {
+//            UserDTO dto = DTOMapper.INSTANCE.convertEntityToUserDTO(user);
+//            dto.crop(0L, null);
+//            userGetDTOs.add(dto);
+//        }
+//        return userGetDTOs;
+//    }
 
-        List<User> users = new ArrayList<>();
-        if (userIds.isPresent()) {
-            // fetch users by userIds
-            for (Long userId : userIds.get()) users.add(userService.getUserByUserId(userId));
-        } else if (usernames.isPresent()) {
-            // fetch users by usernames
-            for (String username : usernames.get()) users.add(userService.getUserByUsername(username));
-        } else {
-            // fetch all users in the internal representation
-            users = userService.getUsers();
-        }
+//    /** // TODO deprecated
+//     * get a single user
+//     */
+//    @GetMapping("/user")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public UserPublicDTO getUser(
+//            @RequestHeader("userId") Optional<Long> userId,
+//            @RequestHeader("username") Optional<String> username
+//    ) {
+//        if (userId.isPresent() == username.isPresent())
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify either username or userId!");
+//
+//        // fetch user from internal representation
+//        User user = userId.isPresent()?
+//                userService.getUserByUserId(userId.get())
+//                :
+//                userService.getUserByUsername(username.get());
+//
+//        return DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user);
+//    }
 
-        // convert each user to the API representation
-        List<UserPublicDTO> userGetDTOs = new ArrayList<>();
-        for (User user : users) {
-            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user));
-        }
-        return userGetDTOs;
-    }
-
-    /**
-     * get a single user
-     */
-    @GetMapping("/user")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public UserPublicDTO getUser(
-            @RequestHeader("userId") Optional<Long> userId,
-            @RequestHeader("username") Optional<String> username
-    ) {
-        if (userId.isPresent() == username.isPresent())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please specify either username or userId!");
-
-        // fetch user from internal representation
-        User user = userId.isPresent()?
-                userService.getUserByUserId(userId.get())
-                :
-                userService.getUserByUsername(username.get());
-
-        return DTOMapper.INSTANCE.convertEntityToUserPublicDTO(user);
-    }
-
-    /**
-     * get own user
-     */
-    @GetMapping("/me")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public UserPrivateDTO getOwnUser(
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token
-    ) {
-        User user = userService.verifyUser(userId, token);
-        return DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
-    }
+//    /** // TODO deprecated
+//     * get own user
+//     */
+//    @GetMapping("/me")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public UserPrivateDTO getOwnUser(
+//            @RequestHeader("userId") Long userId,
+//            @RequestHeader("token") String token
+//    ) {
+//        User user = userService.verifyUser(userId, token);
+//        return DTOMapper.INSTANCE.convertEntityToUserPrivateDTO(user);
+//    }
 
 
     @PutMapping(value = "/user")
@@ -228,11 +230,10 @@ public class UserController {
     public void observeEntity(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
-            @RequestHeader("entityId") Long entityId,
-            @RequestHeader("entityType") EntityType entityType
+            @RequestBody Long entityId
     ) {
         User user = userService.verifyUser(userId, token);
-        userService.observeEntity(user, entityId, entityType);
+        userService.observeEntity(user, entityId);
     }
 
     @PutMapping(value = "/disregardEntity")

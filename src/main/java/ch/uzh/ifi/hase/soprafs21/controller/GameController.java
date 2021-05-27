@@ -37,7 +37,7 @@ public class GameController {
     @PostMapping("/games/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public GamePrivateDTO createLobby(
+    public GameDTO createLobby(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
             @RequestBody GameSettingsPostDTO gameSettingsPostDTO
@@ -45,7 +45,9 @@ public class GameController {
         User user = userService.verifyUser(userId, token);
         GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
         Game createdGame = gameService.createGame(user, gameSettings);
-        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(createdGame);
+        GameDTO dto = DTOMapper.INSTANCE.convertEntityToGameDTO(createdGame);
+        dto.crop(userId, null);
+        return dto;
     }
 
     /**
@@ -54,7 +56,7 @@ public class GameController {
     @PutMapping("/games/{gameId}/update")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GamePrivateDTO updateGameSettings(
+    public GameDTO updateGameSettings(
             @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
@@ -62,8 +64,10 @@ public class GameController {
     ) {
         User user = userService.verifyUser(userId, token);
         GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
-        Game updatedGame = gameService.adaptGameSettings(gameId, user, gameSettings);
-        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(updatedGame);
+        Game game = gameService.adaptGameSettings(gameId, user, gameSettings);
+        GameDTO dto = DTOMapper.INSTANCE.convertEntityToGameDTO(game);
+        dto.crop(userId, null);
+        return dto;
     }
 
     /**
@@ -87,7 +91,7 @@ public class GameController {
     @PutMapping("/games/{gameId}/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public GamePrivateDTO joinLobby(
+    public GameDTO joinLobby(
             @PathVariable("gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
@@ -95,7 +99,9 @@ public class GameController {
     ) {
         User user = userService.verifyUser(userId, token);
         Game joinedGame = gameService.joinGame(gameId, user, password.isPresent()? password.get() : null);
-        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(joinedGame);
+        GameDTO dto = DTOMapper.INSTANCE.convertEntityToGameDTO(joinedGame);
+        dto.crop(userId, null);
+        return dto;
     }
 
     /**
@@ -200,58 +206,62 @@ public class GameController {
     }
 
 
-    /**
-     * get information about all lobbies
-     * the information returned is restricted and doesn't contain player-explicit information.
-     */
-    @GetMapping("/games")
-    @ResponseStatus(HttpStatus.PARTIAL_CONTENT)
-    @ResponseBody
-    public List<GamePublicDTO> getAllGames(
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token
-    ) {
-        userService.verifyUser(userId, token);
-        Collection<Game> games = gameService.getRunningGames();
-        List<GamePublicDTO> gameGetDTOs = new ArrayList<>();
+//    /** // deprecated
+//     * get information about all lobbies
+//     * the information returned is restricted and doesn't contain player-explicit information.
+//     */
+//    @GetMapping("/games")
+//    @ResponseStatus(HttpStatus.PARTIAL_CONTENT)
+//    @ResponseBody
+//    public List<GameDTO> getMultipleGames(
+//            @RequestHeader("userId") Long userId,
+//            @RequestHeader("token") String token
+//    ) {
+//        userService.verifyUser(userId, token);
+//        Collection<Game> games = gameService.getRunningGames();
+//        List<GameDTO> gameDTOS = new ArrayList<>();
+//
+//        for(Game game : games){
+//            GameDTO dto = DTOMapper.INSTANCE.convertEntityToGameDTO(game);
+//            dto.crop(userId, null);
+//            gameDTOS.add(dto);
+//        }
+//        return gameDTOS;
+//    }
 
-        for(Game game : games){
-            gameGetDTOs.add(DTOMapper.INSTANCE.convertEntityToGamePublicDTO(game));
-        }
-        return gameGetDTOs;
-    }
+//    /** // deprecated
+//    * get specific game
+//    */
+//    @GetMapping("/games/{gameId}")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public GameDTO getSingleGame(
+//            @PathVariable(value="gameId") Long gameId,
+//            @RequestHeader("userId") Long userId,
+//            @RequestHeader("token") String token
+//    ){
+//        userService.verifyUser(userId, token);
+//        Game game = gameService.findRunningGame(gameId);
+//        GameDTO dto = DTOMapper.INSTANCE.convertEntityToGameDTO(game);
+//        dto.crop(userId, null);
+//        return dto;
+//    }
 
-    /**
-    * get specific game
-    */
-    @GetMapping("/games/{gameId}")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public GamePrivateDTO getSingleGame(
-            @PathVariable(value="gameId") Long gameId,
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token
-    ){
-        User user = userService.verifyUser(userId, token);
-        Game game = gameService.verifyPlayer(gameId, user);
-        return DTOMapper.INSTANCE.convertEntityToGamePrivateDTO(game);
-    }
-
-    /**
-     * get specific game summary
-     */
-    @GetMapping("/archive/games/{gameId}")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public GameSummaryDTO getGameSummary(
-            @PathVariable(value="gameId") Long gameId,
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token
-    ){
-        User user = userService.verifyUser(userId, token);
-        GameSummary gameSummary = gameService.verifyReviewer(gameId, user);
-        return DTOMapper.INSTANCE.convertEntityToGameSummaryDTO(gameSummary);
-    }
+//    /** // deprecated
+//     * get specific game summary
+//     */
+//    @GetMapping("/archive/games/{gameId}")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public GameSummaryDTO getGameSummary(
+//            @PathVariable(value="gameId") Long gameId,
+//            @RequestHeader("userId") Long userId,
+//            @RequestHeader("token") String token
+//    ){
+//        User user = userService.verifyUser(userId, token);
+//        GameSummary gameSummary = gameService.verifyReviewer(gameId, user);
+//        return DTOMapper.INSTANCE.convertEntityToGameSummaryDTO(gameSummary);
+//    }
 
     /**
      * get all past game ids

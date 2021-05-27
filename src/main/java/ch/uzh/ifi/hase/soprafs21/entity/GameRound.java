@@ -22,7 +22,7 @@ public class GameRound implements Serializable {
 
     @Id
     @GeneratedValue
-    private Long roundId;
+    private Long gameRoundId;
 
     @Column(nullable = false)
     private String title;
@@ -46,8 +46,8 @@ public class GameRound implements Serializable {
     private Long lastModified;
 
 
-    public Long getRoundId() {
-        return roundId;
+    public Long getGameRoundId() {
+        return gameRoundId;
     }
 
     public String getTitle() {

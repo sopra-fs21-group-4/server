@@ -25,9 +25,6 @@ public class GameSummary implements Serializable {
     @GeneratedValue
     private Long gameSummaryId;
 
-    @Column(nullable = false,unique = true)
-    private Long gameId;
-
     @Column(nullable = false)
     private String name;
 
@@ -50,18 +47,13 @@ public class GameSummary implements Serializable {
     @Column
     private MemeType memeType;
 
+    @Column
+    private Long lastModified;
+
     /* GETTERS AND SETTERS */
 
     public Long getGameSummaryId() {
         return gameSummaryId;
-    }
-
-    public void setGameSummaryId(Long gameSummaryId) {
-        this.gameSummaryId = gameSummaryId;
-    }
-
-    public Long getGameId() {
-        return gameId;
     }
 
     public String getName() {
@@ -92,10 +84,13 @@ public class GameSummary implements Serializable {
         return memeType;
     }
 
-    public GameSummary adapt(Game game) {
-        if (this.gameId != null) throw new IllegalStateException("GameSummaries are immutable!");
+    public Long getLastModified() {
+        return lastModified;
+    }
 
-        this.gameId = game.getGameId();
+    public GameSummary adapt(Game game) {
+        if (this.name != null) throw new IllegalStateException("GameSummaries are immutable!");
+
         this.name = game.getName();
         this.scores = new HashMap<>(game.getScores());
         this.gameChatId = game.getGameChat().getMessageChannelId();
@@ -103,6 +98,7 @@ public class GameSummary implements Serializable {
         this.rounds = game.summarizePastRounds();
         this.subreddit = game.getSubreddit();
         this.memeType = game.getMemeType();
+        this.lastModified = System.currentTimeMillis();
 
         return this;
     }

@@ -118,10 +118,10 @@ public class GameService {
 
         gameMaster.setCurrentGameId(game.getGameId());
 
-        // put chat bot to repo
-        User chatBot = game.getChatBot();
-        userRepository.save(chatBot);
-        userRepository.flush();
+        // put chat bot to repo // unused feature
+//        User chatBot = game.getChatBot();
+//        userRepository.save(chatBot);
+//        userRepository.flush();
         // put game chat to repo
         MessageChannel gameChat = game.getGameChat();
         messageChannelRepository.save(gameChat);
@@ -327,16 +327,13 @@ public class GameService {
         Random r = new Random();
         long randomId;
         do {
-            randomId = r.nextLong() & 0xFFFFFFFFFFL;
-        } while (gameRepository.existsById(randomId) || gameSummaryRepository.existsById(randomId));
+            randomId = r.nextLong() & 0xFFFFFFFFFEL;
+        } while (
+                gameRepository.existsById(randomId) ||
+                        gameSummaryRepository.existsById(randomId) ||
+                        gameRepository.existsById(randomId+1) ||
+                        gameSummaryRepository.existsById(randomId+1)
+        );
         return randomId;
-    }
-
-    public GameSummary verifyReviewer(Long gameId, User user) {
-        // TODO possibility to make summaries private
-        GameSummary gameSummary = gameSummaryRepository.findByGameId(gameId);
-        if (gameSummary == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "game not found");
-        return gameSummary;
     }
 }

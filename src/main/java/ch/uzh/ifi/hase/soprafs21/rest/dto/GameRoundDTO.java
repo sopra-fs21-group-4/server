@@ -1,24 +1,33 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs21.constant.GameState;
-import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
-import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
+import ch.uzh.ifi.hase.soprafs21.constant.*;
 
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public class GameRoundDTO {
+public class GameRoundDTO implements EntityDTO {
 
-
+    private Long id;
     private String title;
     private String memeURL;
     private RoundPhase roundPhase;
     private Map<Long, String> suggestions;
     private Map<Long, Long> votes;
     private Map<Long, Integer> scores;
+
+    private EntityType type = EntityType.GAME_ROUND;
     private Long LastModified;
 
+
+    @Override
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;
@@ -68,8 +77,29 @@ public class GameRoundDTO {
         this.scores = scores;
     }
 
+    @Override
     public Long getLastModified() {
         return LastModified;
+    }
+
+    @Override
+    public EntityType getType() {
+        return type;
+    }
+
+    @Override
+    public Set<Long> getChildren() {
+        return scores == null? new HashSet<>() : scores.keySet();
+    }
+
+    @Override
+    public void crop(Long receiverId, String cropHint) {
+        if (!scores.containsKey(receiverId)) {
+            memeURL = null;
+            scores = null;
+            votes = null;
+            suggestions = null;
+        }
     }
 
     public void setLastModified(Long lastModified) {

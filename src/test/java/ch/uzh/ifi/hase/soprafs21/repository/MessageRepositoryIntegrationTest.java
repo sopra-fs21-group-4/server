@@ -46,14 +46,14 @@ public class MessageRepositoryIntegrationTest {
 
         Message message = new Message();
 
-        message.setMessageChannel(messageChannel);
         message.setText("test");
         message.setTimestamp(2l);
-        message.setSender(user);
+        message.setSenderId(user.getUserId());
+        messageChannel.addMessage(message);
 
         entityManager.persist(user);
-        entityManager.persist(messageChannel);
         entityManager.persist(message);
+        entityManager.persist(messageChannel);
         entityManager.flush();
 
         // when
@@ -61,15 +61,14 @@ public class MessageRepositoryIntegrationTest {
 
         // then
         assertNotNull(found.getMessageId());
-        assertEquals(found.getMessageChannel(), message.getMessageChannel());
         assertEquals(found.getText(), message.getText());
         assertEquals(found.getTimestamp(), message.getTimestamp());
-        assertEquals(found.getSender(), message.getSender());
+        assertEquals(found.getSenderId(), message.getSenderId());
 
     }
     
 
-    @Test
+//    @Test
     public void findAllByMessageChannelId_success() {
         // given
         User user = new User();
@@ -84,24 +83,24 @@ public class MessageRepositoryIntegrationTest {
 
         Message message = new Message();
 
-        message.setMessageChannel(messageChannel);
         message.setText("test");
         message.setTimestamp(2l);
-        message.setSender(user);
+        message.setSenderId(user.getUserId());
+        messageChannel.addMessage(message);
 
         Message message2 = new Message();
 
-        message2.setMessageChannel(messageChannel);
         message2.setText("test");
         message2.setTimestamp(2l);
-        message.setSender(user);
+        message.setSenderId(user.getUserId());
+        messageChannel.addMessage(message2);
 
         Message message3 = new Message();
 
-        message3.setMessageChannel(messageChannel);
         message3.setText("test");
         message3.setTimestamp(2l);
-        message.setSender(user);
+        message.setSenderId(user.getUserId());
+        messageChannel.addMessage(message3);
 
         entityManager.persist(user);
         entityManager.persist(messageChannel);
@@ -115,12 +114,14 @@ public class MessageRepositoryIntegrationTest {
         expected.add(message2);
         expected.add(message3);
 
-        // when
-        List<Message> found = messageRepository.findAllByMessageChannel(message.getMessageChannel());
 
-        // then
-        assertNotNull(found);
-        assertEquals(found, expected);
+        // TODO messages don't know their messageChannel anymore => move this test to MessageChannelRepositoryIntegrationTest
+//        // when
+//        List<Message> found = messageRepository.findAllByMessageChannel(messageChannel);
+//
+//        // then
+//        assertNotNull(found);
+//        assertEquals(found, expected);
 
     }
 

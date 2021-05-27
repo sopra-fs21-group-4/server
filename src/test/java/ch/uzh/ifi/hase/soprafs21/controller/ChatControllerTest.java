@@ -1,20 +1,15 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
-import antlr.debug.MessageAdapter;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.MessageGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.MessagePostDTO;
-import ch.uzh.ifi.hase.soprafs21.service.GameService;
-import ch.uzh.ifi.hase.soprafs21.service.MessageChannelService;
-import ch.uzh.ifi.hase.soprafs21.service.MessageService;
+import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,7 +26,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,10 +39,7 @@ public class ChatControllerTest {
     private UserService userService;
 
     @MockBean
-    private MessageChannelService messageChannelService;
-
-    @MockBean
-    private MessageService messageService;
+    private ChatService messageChannelService;
 
     @Test
     public void TestMessageChannelCreation() throws Exception{
@@ -111,18 +102,18 @@ public class ChatControllerTest {
         newMessageChannel.setMessageChannelId(5L);
 
         Message Message1 = new Message();
-        Message1.setMessageChannel(newMessageChannel);
         Message1.setText("Test Message 1");
-        Message1.setSender(sender1);
+        Message1.setSenderId(sender1.getUserId());
         Message1.setTimestamp(20L);
         Message1.setMessageId(11L);
+        newMessageChannel.addMessage(Message1);
 
         Message Message2 = new Message();
-        Message2.setMessageChannel(newMessageChannel);
         Message2.setText("Test Message 2");
-        Message2.setSender(sender2);
+        Message2.setSenderId(sender2.getUserId());
         Message2.setTimestamp(25L);
         Message2.setMessageId(10L);
+        newMessageChannel.addMessage(Message2);
 
         List<Message> messageList = new ArrayList<>();
         messageList.add(Message1);
@@ -130,7 +121,7 @@ public class ChatControllerTest {
 
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
         given(messageChannelService.verifyReader(Mockito.any(), Mockito.any())).willReturn(newMessageChannel);
-        given(messageService.getMessages(Mockito.any())).willReturn(messageList);
+        given(messageChannelService.getMessageChannel(Mockito.any())).willReturn(newMessageChannel);
 
         MockHttpServletRequestBuilder getRequest = get("/chat/" + newMessageChannel.getMessageChannelId())
                 .header("userId", user.getUserId())
@@ -138,11 +129,10 @@ public class ChatControllerTest {
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(getRequest).andExpect(status().isOk())
-                                    .andExpect(jsonPath("$[0].messageId", is(Message1.getMessageId().intValue())))
-                                    .andExpect(jsonPath("$[0].username", is(sender1.getUsername())))
-                                    .andExpect(jsonPath("$[1].messageId", is(Message2.getMessageId().intValue())))
-                                    .andExpect(jsonPath("$[1].username", is(sender2.getUsername())))
-                                    .andExpect(jsonPath("$[0].messageChannelId", is(newMessageChannel.getMessageChannelId().intValue())));
+                                    .andExpect(jsonPath("$[0].id", is(Message1.getMessageId().intValue())))
+                                    .andExpect(jsonPath("$[0].senderId", is(sender1.getUserId().intValue())))
+                                    .andExpect(jsonPath("$[1].id", is(Message2.getMessageId().intValue())))
+                                    .andExpect(jsonPath("$[1].senderId", is(sender2.getUserId().intValue())));
     }
 
     @Test
@@ -161,15 +151,15 @@ public class ChatControllerTest {
         newMessageChannel.setMessageChannelId(5L);
 
         Message newMessage = new Message();
-        newMessage.setMessageChannel(newMessageChannel);
         newMessage.setText("Test Message 1");
-        newMessage.setSender(user);
+        newMessage.setSenderId(user.getUserId());
         newMessage.setTimestamp(20L);
         newMessage.setMessageId(11L);
+        newMessageChannel.addMessage(newMessage);
 
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
         given(messageChannelService.verifySender(Mockito.any(),Mockito.any())).willReturn(newMessageChannel);
-        given(messageService.postMessage(Mockito.any(),Mockito.any(), Mockito.any())).willReturn(newMessage);
+        given(messageChannelService.postMessage(Mockito.any(),Mockito.any(), Mockito.any())).willReturn(newMessage);
 
         MessagePostDTO messagePostDTO = new MessagePostDTO();
         messagePostDTO.setText("Test for messagePostDTO");
@@ -181,7 +171,7 @@ public class ChatControllerTest {
                 .content(asJsonString(messagePostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.messageId", is(newMessage.getMessageId().intValue())))
+                .andExpect(jsonPath("$.id", is(newMessage.getMessageId().intValue())))
                 .andExpect(jsonPath("$.timestamp", is(newMessage.getTimestamp().intValue())))
                 .andExpect(jsonPath("$.text", is(newMessage.getText())));
     }

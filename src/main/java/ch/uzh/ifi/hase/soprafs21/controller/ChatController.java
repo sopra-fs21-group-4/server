@@ -5,16 +5,13 @@ import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs21.service.MessageChannelService;
-import ch.uzh.ifi.hase.soprafs21.service.MessageService;
+import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Chat Controller
@@ -24,13 +21,11 @@ import java.util.Optional;
 @RestController
 public class ChatController {
 
-    private final MessageChannelService messageChannelService;
-    private final MessageService messageService;
+    private final ChatService chatService;
     private final UserService userService;
 
-    ChatController(MessageChannelService messageChannelService, MessageService messageService, UserService userService) {
-        this.messageChannelService = messageChannelService;
-        this.messageService = messageService;
+    ChatController(ChatService messageChannelService, UserService userService) {
+        this.chatService = messageChannelService;
         this.userService = userService;
     }
 
@@ -40,15 +35,15 @@ public class ChatController {
     @PostMapping("/chat/create")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public MessageChannelGetDTO createMessageChannel(
+    public MessageChannelDTO createMessageChannel(
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
     ) {
         // authenticate
         User user = userService.verifyUser(userId, token);
         // create
-        MessageChannel newMessageChannel = messageChannelService.createMessageChannel(user);
-        return DTOMapper.INSTANCE.convertEntityToMessageChannelGetDTO(newMessageChannel);
+        MessageChannel newMessageChannel = chatService.createMessageChannel(userId);
+        return DTOMapper.INSTANCE.convertEntityToMessageChannelDTO(newMessageChannel);
     }
 
     /**
@@ -57,7 +52,7 @@ public class ChatController {
     @GetMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<MessageGetDTO> getMessages(
+    public List<MessageDTO> getMessages(
             @PathVariable("chatId") Long chatId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token
@@ -69,10 +64,10 @@ public class ChatController {
             @RequestParam Optional<Integer> latest*/
     ) {
         // authenticate
-        User user = userService.verifyUser(userId, token);
-        MessageChannel messageChannel = messageChannelService.verifyReader(chatId, user);
+        userService.verifyUser(userId, token);
+        MessageChannel messageChannel = chatService.verifyReader(chatId, userId);
         // fetch all messages in the internal representation
-        List<Message> messages = messageService.getMessages(messageChannel);
+        List<Message> messages = messageChannel.getMessages();
         // filter
         /*if (sender.isPresent())
             messages.removeIf(m -> !m.getSender().getUsername().equals(sender.get()));
@@ -92,12 +87,12 @@ public class ChatController {
         return convertMessageListToDTOList(messages);
     }
 
-    private List<MessageGetDTO> convertMessageListToDTOList(List<Message> messages) {
-        List<MessageGetDTO> messageGetDTOs = new ArrayList<>();
+    private List<MessageDTO> convertMessageListToDTOList(List<Message> messages) {
+        List<MessageDTO> messageGetDTOs = new ArrayList<>();
 
         // convert each message to the API representation
         for (Message m : messages) {
-            messageGetDTOs.add(DTOMapper.INSTANCE.convertEntityToMessageGetDTO(m));
+            messageGetDTOs.add(DTOMapper.INSTANCE.convertEntityToMessageDTO(m));
         }
         return messageGetDTOs;
     }
@@ -108,7 +103,7 @@ public class ChatController {
     @PostMapping("/chat/{chatId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public MessageGetDTO postMessage(
+    public MessageDTO postMessage(
             @PathVariable("chatId") Long chatId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
@@ -116,11 +111,11 @@ public class ChatController {
     ) {
         // authenticate
         User sender = userService.verifyUser(userId, token);
-        MessageChannel messageChannel = messageChannelService.verifySender(chatId, sender);
+        MessageChannel messageChannel = chatService.verifySender(chatId, userId);
         // post
         Message messageToPost = DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO);
-        Message posted = messageService.postMessage(messageToPost, sender, messageChannel);
-        return DTOMapper.INSTANCE.convertEntityToMessageGetDTO(posted);
+        Message posted = chatService.postMessage(messageToPost, sender, messageChannel);
+        return DTOMapper.INSTANCE.convertEntityToMessageDTO(posted);
     }
 
 }

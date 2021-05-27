@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
-import javax.annotation.processing.Generated;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -20,7 +19,7 @@ public class GameRoundSummary implements Serializable {
 
     @Id
     @GeneratedValue
-    private Long gameRoundId;
+    private Long gameRoundSummaryId;
 
     @Column(nullable = false)
     private String title;
@@ -37,8 +36,11 @@ public class GameRoundSummary implements Serializable {
     @ElementCollection
     private Map<Long, Integer> scores;
 
-    public Long getGameRoundId() {
-        return gameRoundId;
+    @Column
+    private Long lastModified;
+
+    public Long getGameRoundSummaryId() {
+        return gameRoundSummaryId;
     }
 
     public String getTitle() {
@@ -61,14 +63,19 @@ public class GameRoundSummary implements Serializable {
         return scores;
     }
 
+    public Long getLastModified() {
+        return lastModified;
+    }
+
     public void adapt(GameRound gameRound) {
-        if (this.gameRoundId != null) throw new IllegalStateException("GameRoundSummaries are immutable!");
+        if (this.title != null) throw new IllegalStateException("GameRoundSummaries are immutable!");
 
         this.title = gameRound.getTitle();
         this.memeURL = gameRound.getMemeURL();
         this.suggestions = new HashMap(gameRound.getSuggestions());
         this.votes = new HashMap<>(gameRound.getVotes());
         this.scores = new HashMap(gameRound.getScores());
+        this.lastModified = System.currentTimeMillis();
     }
 
 }

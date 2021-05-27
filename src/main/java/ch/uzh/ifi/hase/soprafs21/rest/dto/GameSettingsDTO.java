@@ -1,11 +1,15 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class GameSettingsGetDTO {
+public class GameSettingsDTO implements EntityDTO {
 
+    private Long id;
     private String name;
     private Integer maxPlayers;
     private Integer totalRounds;
@@ -15,8 +19,18 @@ public class GameSettingsGetDTO {
     private Integer maxSuggestSeconds;
     private Integer maxVoteSeconds;
     private Integer maxAftermathSeconds;
+
+    private EntityType type = EntityType.GAME_SETTINGS;
     private Long lastModified;
 
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -90,11 +104,28 @@ public class GameSettingsGetDTO {
         this.maxAftermathSeconds = maxAftermathSeconds;
     }
 
+    @Override
     public Long getLastModified() {
         return lastModified;
     }
 
     public void setLastModified(Long lastModified) {
         this.lastModified = lastModified;
+    }
+
+    @Override
+    public EntityType getType() {
+        return type;
+    }
+
+    @Override
+    public Set<Long> getChildren() {
+        // no children
+        return new HashSet<>();
+    }
+
+    @Override
+    public void crop(Long receiverId, String cropHint) {
+        // it's all public
     }
 }

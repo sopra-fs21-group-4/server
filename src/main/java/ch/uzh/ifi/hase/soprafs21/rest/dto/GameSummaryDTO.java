@@ -1,36 +1,35 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
-import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
 import ch.uzh.ifi.hase.soprafs21.entity.GameRoundSummary;
-import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
-import ch.uzh.ifi.hase.soprafs21.entity.ObservableEntity;
-import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class GameSummaryDTO implements ObservableEntity {
+public class GameSummaryDTO implements EntityDTO {
 
-    private Long gameId;
+    private Long id;
     private String name;
-    private Map<Long, Integer> scores;
     private Long gameChatId;
+    private Map<Long, Integer> scores;
     private GameState gameState;
-    private List<GameRoundSummaryDTO> rounds;
+    private List<Long> rounds;
     private String subreddit;
     private MemeType memeType;
 
-    public Long getGameId() {
-        return gameId;
+    private EntityType type = EntityType.GAME_SUMMARY;
+    private Long lastModified;
+
+    @Override
+    public Long getId() {
+        return id;
     }
 
-    public void setGameId(Long gameId) {
-        this.gameId = gameId;
+    public void setId(Long id) {
+        this.id = id;
     }
+
 
     public String getName() {
         return name;
@@ -64,13 +63,13 @@ public class GameSummaryDTO implements ObservableEntity {
         this.gameChatId = gameChatId;
     }
 
-    public List<GameRoundSummaryDTO> getRounds() {
+    public List<Long> getRounds() {
         return rounds;
     }
     // convert entities to DTOs
     public void setRounds(List<GameRoundSummary> rounds) {
         this.rounds = new ArrayList<>();
-        for (GameRoundSummary round : rounds) this.rounds.add(DTOMapper.INSTANCE.convertEntityToGameRoundSummaryDTO(round));
+        for (GameRoundSummary round : rounds) this.rounds.add(round.getGameRoundSummaryId());
     }
 
     public String getSubreddit() {
@@ -90,17 +89,34 @@ public class GameSummaryDTO implements ObservableEntity {
     }
 
     @Override
-    public long getId() {
-        return gameId;
+    public Long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
     }
 
     @Override
-    public long getLastModified() {
-        return 0;   // TODO return termination time
+    public EntityType getType() {
+        return type;
     }
 
     @Override
-    public long filter(long lastUpdate) {
-        return 0;
+    public Set<Long> getChildren() {
+        Set<Long> children = new HashSet<>();
+        if (gameChatId != null) children.add(gameChatId);
+        if (scores != null) children.addAll(scores.keySet());
+        if (rounds != null) children.addAll(rounds);
+        return children;
+    }
+
+    @Override
+    public void crop(Long receiverId, String cropHint) {
+        if (!scores.containsKey(receiverId)) {
+            gameChatId = null;
+            scores = null;
+            rounds = null;
+        }
     }
 }

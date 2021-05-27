@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.*;
+import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
+import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import util.MemeUrlSupplier;
 
 import javax.persistence.*;
@@ -50,8 +52,8 @@ public class Game implements Serializable {
     @OneToOne(targetEntity = MessageChannel.class, cascade = CascadeType.PERSIST)
     private final MessageChannel gameChat = new MessageChannel(); // get only
 
-    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)    // TODO cascade delete
-    private final User chatBot = new User();
+//    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)    // TODO cascade delete
+//    private final User chatBot = new User(); // unused feature
 
     @OneToOne(targetEntity = GameSettings.class)
     private final GameSettings gameSettings = new GameSettings(); // get, adapt
@@ -79,10 +81,6 @@ public class Game implements Serializable {
 
     /* CONSTRUCTOR */
 
-    public Game() {
-        super();
-    }
-
     /* GETTERS AND SETTERS */
     /* scroll down for special methods */
 
@@ -105,9 +103,9 @@ public class Game implements Serializable {
         return gameChat;
     }
 
-    public User getChatBot() {
-        return chatBot;
-    }
+//    public User getChatBot() {
+//        return chatBot;
+//    } // unused feature
 
     public GameSettings getGameSettings() {
         return gameSettings;
@@ -402,9 +400,8 @@ public class Game implements Serializable {
      */
     private synchronized void addPlayer(User player, PlayerState playerState) {
         assert(playerState.isEnrolled());
-        // TODO check max players
         playerStates.put(player.getUserId(), playerState);
-        this.gameChat.addParticipant(player);
+        this.gameChat.addRole(player.getUserId(), "@all");
         this.lastModified = System.currentTimeMillis();
         player.setCurrentGameId(this.getGameId());
         checkPlayerList(); // TODO
@@ -419,7 +416,7 @@ public class Game implements Serializable {
     private synchronized PlayerState removePlayer(User player, PlayerState playerState) {
         assert(!playerState.isPresent());
         playerStates.put(player.getUserId(), playerState);
-        gameChat.removeParticipant(player);
+        gameChat.removeRole(player.getUserId(), "@all");
         player.setCurrentGameId(null);
         checkPlayerList();
         this.lastModified = System.currentTimeMillis();
@@ -478,14 +475,15 @@ public class Game implements Serializable {
     public synchronized Game initialize(User gameMaster) {
         if (gameState != GameState.INIT)
             throw new IllegalStateException("game was already initialized");
-        // init chat bot
-        this.chatBot.setCurrentGameId(gameId);
-        this.chatBot.setUsername("Botterfly#"+Long.toHexString(gameId));
-        this.chatBot.setPassword(UUID.randomUUID().toString());
-        this.chatBot.setToken(UUID.randomUUID().toString());
+        // init chat bot // unused feature
+//        this.chatBot.setCurrentGameId(gameId);
+//        this.chatBot.setUsername("Botterfly#"+Long.toHexString(gameId));
+//        this.chatBot.setUserId(gameId+1);
+//        this.chatBot.setPassword(UUID.randomUUID().toString());
+//        this.chatBot.setToken(UUID.randomUUID().toString());
         gameChat.setAssociatedGameId(this.gameId);
-        gameChat.addAdmin(chatBot);
-        gameChat.setConfidential(true);
+        gameChat.addRole(gameId+1, "@bot");
+//        gameChat.setConfidential(true); // unused feature
         // init game master
         addPlayer(gameMaster, PlayerState.GAME_MASTER);
         // set game master current game
@@ -519,6 +517,8 @@ public class Game implements Serializable {
             GameRound round = new GameRound();
             round.setTitle(String.format("Round %d",(i+1)));
             round.setMemeURL(memeFactory.get());
+            Map<Long, Integer> roundScores = round.getScores();
+            for (Long playerId : getEnrolledPlayers()) roundScores.put(playerId, 0);
             this.gameRounds.add(round);
         }
         // initialize scores
@@ -586,8 +586,8 @@ public class Game implements Serializable {
     public synchronized void kill() {
         if (!gameState.isOver()) gameState = GameState.ABORTED;
         for (Long player : getPresentPlayers()) playerStates.put(player, PlayerState.LEFT);
-        gameChat.removeParticipant(chatBot);
-        gameChat.close();
+//        gameChat.removeRole(chatBot.getUserId(), "@bot"); // unused feature
+//        gameChat.close(); // unused feature
         this.lastModified = System.currentTimeMillis();
     }
 
@@ -596,18 +596,6 @@ public class Game implements Serializable {
      * if the game is running, updates the countdown and advances if the latter ran out.
      */
     public synchronized GameUpdateResponse update() {
-        // read chat, execute commands
-        for (Message message : chatBot.getInbox()) {
-            if (message.getText().startsWith("/")) {
-                try {
-                    interpretCommand(message);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        chatBot.getInbox().clear();
-
         // advance depending on game state
         switch(gameState) {
             // TODO distinguish whether modified or not
@@ -671,7 +659,7 @@ public class Game implements Serializable {
         Map<Long, Integer> roundScores = getCurrentScores();    // score achieved in this round
         Map<Long, Integer> voteCounter = new HashMap<>();       // number of votes each player received
         for (Long player : getEnrolledPlayers()) {
-            roundScores.put(player, 0);
+//            roundScores.put(player, 0); // already done in closeLobby()
             voteCounter.put(player, 0);
         }
         // count received votes for each player
@@ -783,13 +771,20 @@ public class Game implements Serializable {
         getCurrentRound().putVote(player, vote);
     }
 
-    private void interpretCommand(Message command) {
-        String[] commandSegment = command.getText().split(" ");
-        PlayerState commanderState = getPlayerState(command.getSender().getUserId());
+    public void runCommand(Message command) {
+        Set<User> referenced = new HashSet<>();
+        UserRepository repo = SpringContext.getBean(UserRepository.class);
+        for (Long userId : gameChat.getReferenced(command)) {
+            User user = repo.findByUserId(userId);
+            if (user != null) referenced.add(user);
+        }
+//        referenced.remove(chatBot);
+
+        PlayerState commanderState = getPlayerState(command.getSenderId());
 
         if (commanderState.isPromoted()) {
             // game master commands
-            switch (commandSegment[0]) {
+            switch (command.getCommand()) {
                 case "/start" -> closeLobby(true);
                 case "/a" -> advance();
                 case "/skip" -> skipRound();
@@ -797,19 +792,19 @@ public class Game implements Serializable {
                 case "/pause" -> pause();
                 case "/resume" -> resume();
                 case "/ban" ->  {
-                                    for (User player : command.getReferenced()) {
+                                    for (User player : referenced) {
                                         try { banPlayer(player); } catch (Exception e) { e.printStackTrace(); }
                                     }
                                 }
-                case "/forgive" -> {for (User player : command.getReferenced()) forgivePlayer(player.getUserId());}
+                case "/forgive" -> {for (User player : referenced) forgivePlayer(player.getUserId());}
             }
         }
         if (commanderState.isPresent()) {
             // player commands
-            switch (commandSegment[0]) {
-                case "/r" -> setPlayerReady(command.getSender().getUserId(), !commanderState.isReady());
-                case "/s" -> putSuggestion(command.getSender().getUserId(), command.getText().substring(3));
-                case "/v" -> putVote(command.getSender().getUserId(), command.getReferenced().get(0).getUserId());
+            switch (command.getCommand()) {
+                case "/r" -> setPlayerReady(command.getSenderId(), !commanderState.isReady());
+                case "/s" -> putSuggestion(command.getSenderId(), command.getText().substring(3));
+                case "/v" -> putVote(command.getSenderId(), referenced.iterator().next().getUserId());
             }
         }
     }

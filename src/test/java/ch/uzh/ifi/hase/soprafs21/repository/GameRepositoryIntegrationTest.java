@@ -60,18 +60,18 @@ public class GameRepositoryIntegrationTest {
 
 
         entityManager.persist(game.getGameSettings());
-        entityManager.persist(game.getChatBot());
+//        entityManager.persist(game.getChatBot()); // unused feature
         entityManager.persist(game.getGameChat());
         Game found = entityManager.persist(game);
 
-//        entityManager.flush();
-//
-//        // when
+        entityManager.flush();
+
+        // when
 //        Game found = gameRepository.findByGameId(game.getGameId());
 
         // then
         assertNotNull(found.getGameId());
-        assertEquals(found.getChatBot(), game.getChatBot());
+//        assertEquals(found.getChatBot(), game.getChatBot()); // unused feature
         assertEquals(found.getGameChat(), game.getGameChat());
         assertEquals(found.getGameSettings(), game.getGameSettings());
         assertEquals(found.getMaxPlayers(), game.getMaxPlayers());

@@ -1,20 +1,22 @@
 package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.entity.GameRound;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
+import ch.uzh.ifi.hase.soprafs21.entity.GameSummary;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
-import ch.uzh.ifi.hase.soprafs21.entity.ObservableEntity;
-import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public class GamePrivateDTO implements ObservableEntity {
+public class GameDTO implements EntityDTO {
 
     // basic
-    private Long gameId;
+    private Long id;
     private GameState gameState;
     private Integer roundCounter;
     private Long advanceTargetTime;
@@ -27,22 +29,26 @@ public class GamePrivateDTO implements ObservableEntity {
     private Map<Long, Integer> scores;
 
     // settings
-    private GameSettingsGetDTO gameSettings;
+    private Long gameSettingsId;
 
     // current round
-    private GameRoundDTO currentRound;
+    private Long currentRoundId;
 
-    //compare different TimeEvents
+    // summary
+    private Long gameSummaryId;
+
+
+    private EntityType type = EntityType.GAME;
     private Long lastModified;
 
 
-
-    public Long getGameId() {
-        return gameId;
+    @Override
+    public Long getId() {
+        return id;
     }
 
-    public void setGameId(Long gameId) {
-        this.gameId = gameId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public GameState getGameState() {
@@ -109,58 +115,63 @@ public class GamePrivateDTO implements ObservableEntity {
         this.scores = scores;
     }
 
-    public GameSettingsGetDTO getGameSettings() {
-        return gameSettings;
+    public Long getGameSettingsId() {
+        return gameSettingsId;
     }
 
     public void setGameSettings(GameSettings gameSettings) {
-        this.gameSettings = DTOMapper.INSTANCE.convertEntityToGameSettingsGetDTO(gameSettings);
+        this.gameSettingsId = (gameSettings == null)? null : gameSettings.getGameSettingsId();
     }
 
-    public GameRoundDTO getCurrentRound() {
-        return currentRound;
+    public Long getCurrentRoundId() {
+        return currentRoundId;
     }
 
     public void setCurrentRound(GameRound currentRound) {
-        if (currentRound == null) {
-            this.currentRound = null;
-            return;
-        }
-        this.currentRound = DTOMapper.INSTANCE.convertEntityToGameRoundDTO(currentRound);
+        this.currentRoundId = (currentRound == null)? null : currentRound.getGameRoundId();
     }
 
-    // TODO duplicate delete
-    public Long keepModified(Long lastUpdated){
-        this.lastModified = Math.max(this.lastModified, gameSettings.getLastModified());
-        if(gameSettings.getLastModified() < lastUpdated) this.gameSettings = null;
-        if (this.currentRound != null) {
-            this.lastModified = Math.max(this.lastModified, currentRound.getLastModified());
-            if (currentRound.getLastModified() < lastUpdated) this.currentRound = null;
-        }
-        return this.lastModified;
+    public Long getGameSummaryId() {
+        return gameSummaryId;
     }
 
-    @Override
-    public long getId() {
-        return gameId;
+    public void setGameSummaryId(GameSummary gameSummaryI) {
+        this.gameSummaryId = gameSummaryI.getGameSummaryId();
     }
 
-    public long getLastModified() {
+    public Long getLastModified() {
         return lastModified;
-    }
-
-    @Override
-    public long filter(long lastUpdate) {
-        this.lastModified = Math.max(this.lastModified, gameSettings.getLastModified());
-        if(gameSettings.getLastModified() < lastUpdate) this.gameSettings = null;
-        if (this.currentRound != null) {
-            this.lastModified = Math.max(this.lastModified, currentRound.getLastModified());
-            if (currentRound.getLastModified() < lastUpdate) this.currentRound = null;
-        }
-        return this.lastModified;
     }
 
     public void setLastModified(Long lastModified) {
         this.lastModified = lastModified;
+    }
+
+    @Override
+    public EntityType getType() {
+        return type;
+    }
+
+    @Override
+    public Set<Long> getChildren() {
+        Set<Long> children = new HashSet<>();
+        if (gameChatId != null) children.add(gameChatId);
+        if (playerStates != null) children.addAll(playerStates.keySet());
+        if (gameSettingsId != null) children.add(gameSettingsId);
+        if (currentRoundId != null) children.add(currentRoundId);
+        return children;
+    }
+
+    @Override
+    public void crop(Long receiverId, String cropHint) {
+        PlayerState state = playerStates.get(receiverId);
+        if (state == null || !state.isEnrolled()) {
+            gameChatId = null;
+            gameMaster = null;
+            players = null;
+            playerStates = null;
+            scores = null;
+            currentRoundId = null;
+        }
     }
 }

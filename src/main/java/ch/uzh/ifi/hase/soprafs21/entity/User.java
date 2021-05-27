@@ -41,9 +41,6 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @ManyToMany(targetEntity = Message.class)
-    private final List<Message> inbox = new ArrayList<>();
-
     @Column
     private Long currentGameId;
 
@@ -60,7 +57,7 @@ public class User implements Serializable {
     private final Set<Long> incomingFriendRequests = new HashSet<>();
 
     @ElementCollection
-    private final Map<Long, EntityType> observedEntities = new HashMap<>();
+    private final Set<Long> observedEntities = new HashSet<>();
 
     @Column
     private Long lastModified;
@@ -128,10 +125,6 @@ public class User implements Serializable {
         this.lastModified = System.currentTimeMillis();
     }
 
-    public List<Message> getInbox() {
-        return inbox;
-    }
-
     public Set<Long> getFriends() {
         return friends;
     } //TODO when datastructure is returned update lastModified
@@ -143,11 +136,6 @@ public class User implements Serializable {
     public Set<Long> getIncomingFriendRequests() {
         return incomingFriendRequests;
     } //TODO when datastructure is returned update lastModified
-
-    public void notifyMessage(Message message) {
-        inbox.add(message);
-        this.lastModified = System.currentTimeMillis();
-    }
 
     public Long getLastModified() {
         return lastModified;
@@ -185,12 +173,12 @@ public class User implements Serializable {
         incomingFriendRequests.remove(userId);
     }
 
-    public Map<Long, EntityType> getObservedEntities() {
+    public Set<Long> getObservedEntities() {
         return observedEntities;
     }
 
-    public void observeEntity(long entityId, EntityType entityType) {
-        this.observedEntities.put(entityId, entityType);
+    public void observeEntity(long entityId) {
+        this.observedEntities.add(entityId);
         this.lastModified = System.currentTimeMillis();
     }
 

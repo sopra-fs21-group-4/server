@@ -1,21 +1,16 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
 
-import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
-import ch.uzh.ifi.hase.soprafs21.entity.GameSummary;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.GamePublicDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.GameSettingsPostDTO;
-import ch.uzh.ifi.hase.soprafs21.rest.dto.GameSummaryDTO;
 import ch.uzh.ifi.hase.soprafs21.service.GameService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.xml.bind.v2.TODO;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +24,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.ToDoubleBiFunction;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
@@ -88,6 +82,7 @@ public class GameControllerTest {
         Game game = new Game();
         game.setGameId(1L);
         game.adaptSettings(gameSettings);
+        game.initialize(user);
 
 
         given(userService.verifyUser(Mockito.any(),Mockito.any())).willReturn(user);
@@ -100,9 +95,9 @@ public class GameControllerTest {
                 .content(asJsonString(gameSettingsPostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.gameId", is(game.getGameId().intValue())))
+                .andExpect(jsonPath("$.id", is(game.getGameId().intValue())))
                 .andExpect(jsonPath("$.roundCounter", is(0)))
-                .andExpect(jsonPath("$.gameState", is("INIT")));
+                .andExpect(jsonPath("$.gameState", is("LOBBY")));
         //as soon as I figure out how to expect this correctly: .andExpect(jsonPath("$.gameSettings", is(gameSettings)))
     }
     //Todo there are two slightly different variants in the game Controller; is one surplus?
@@ -152,7 +147,7 @@ public class GameControllerTest {
                 .content(asJsonString(gameSettingsPostDTO));
 
         mockMvc.perform(putRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.gameId", is(game.getGameId().intValue())));
+                .andExpect(jsonPath("$.id", is(game.getGameId().intValue())));
         //as soon as I figure out how to expect this correctly: .andExpect(jsonPath("$.gameSettings", is(gameSettings)))
     }
 
@@ -193,6 +188,9 @@ public class GameControllerTest {
         user.setToken("someToken");
         user.setCurrentGameId(2L);
 
+        User gm = new User();
+        gm.setUserId(2L);
+
         GameSettings gameSettings = new GameSettings();
         gameSettings.setGameSettingsId(1L);
         gameSettings.setPassword("somePW");
@@ -207,6 +205,8 @@ public class GameControllerTest {
         Game game = new Game();
         game.setGameId(1L);
         game.adaptSettings(gameSettings);
+        game.initialize(gm);
+        game.enrollPlayer(user, gameSettings.getPassword());
 
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
         given(gameService.joinGame(Mockito.any(), Mockito.any(), Mockito.any())).willReturn(game);
@@ -219,7 +219,7 @@ public class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(putRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.gameId", is(game.getGameId().intValue())));
+                .andExpect(jsonPath("$.id", is(game.getGameId().intValue())));
         //as soon as I figure out how to expect this correctly: .andExpect(jsonPath("$.gameSettings", is(gameSettings)))
     }
 
@@ -365,8 +365,8 @@ public class GameControllerTest {
         verify(gameService).banPlayer(game.getGameId(), gameMasterUser.getUserId(), toBanId);
     }
 
-    @Test
-    public void TestgetAllGames() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestGetAllGames() throws Exception {
         User user = new User();
         user.setStatus(UserStatus.IDLE);
         user.setEmail("firstname@lastname");
@@ -400,8 +400,8 @@ public class GameControllerTest {
     }
 
 
-    @Test
-    public void TestgetSingleGame() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestGetSingleGame() throws Exception {
         User user = new User();
         user.setStatus(UserStatus.IDLE);
         user.setEmail("firstname@lastname");

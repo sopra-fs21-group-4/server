@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.MessageChannelRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.SseUpdateDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
@@ -36,10 +37,11 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
+
     //map key UI to SseEmitter
     private final Map<Long , SseEmitter> subscriberMapping = new HashMap<>();
+    private final Map<Long , Map<Long, Long>> clientVersions = new HashMap<>();
 
-    private Long lastUpdated = 0L;
 
     @Autowired
     public UserService(
@@ -79,14 +81,12 @@ public class UserService {
         }
         //list of all users wo are in State IDLE
         for (User user : userRepository.findAllByStatus(UserStatus.IDLE)) {
-            if (!subscriberMapping.containsKey(user.getUserId())){
-                user.setStatus(UserStatus.OFFLINE);
-                continue;
-            }
             // if the user has a game, set status to PLAYING
             if (user.getCurrentGameId()!= null){
                 user.setStatus(UserStatus.PLAYING);
-                continue;
+            }
+            if (!subscriberMapping.containsKey(user.getUserId())){
+                user.setStatus(UserStatus.OFFLINE);
             }
         }
 
@@ -96,14 +96,13 @@ public class UserService {
             SseEmitter sseEmitter = subscriberMapping.get(userId);
             SseUpdateDTO sseUpdateDTO = DTOMapper.INSTANCE.convertEntityToSseUpdateDTO(user);
             sseUpdateDTO.init();
-            if (sseUpdateDTO.filter(lastUpdated) < lastUpdated) continue;
+            if (!sseUpdateDTO.filter(clientVersions.get(userId), now)) continue;
             try {
                 sseEmitter.send(SseEmitter.event().name("Update").data(sseUpdateDTO, MediaType.APPLICATION_JSON));
             } catch(IOException e) {
                 log.error("could not update User " + userId);
             }
         }
-        this.lastUpdated = now;
     }
 
 
@@ -177,8 +176,8 @@ public class UserService {
         return user;
     }
 
-    public void observeEntity(User user, Long entityId, EntityType entityType) {
-        user.observeEntity(entityId, entityType);
+    public void observeEntity(User user, Long entityId) {
+        user.observeEntity(entityId);
         userRepository.flush();
     }
 
@@ -443,11 +442,13 @@ public class UserService {
      */
     public void putSubscriber(Long userId, SseEmitter emitter) {
         subscriberMapping.put(userId, emitter);
+        clientVersions.put(userId, new HashMap<>());
         userRepository.findByUserId(userId).setStatus(UserStatus.IDLE);
     }
 
     public void removeSubscriber(Long userId) {
         subscriberMapping.remove(userId);
+        clientVersions.remove(userId);
     }
 
 

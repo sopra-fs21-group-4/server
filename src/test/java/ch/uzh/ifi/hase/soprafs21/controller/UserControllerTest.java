@@ -119,8 +119,8 @@ public class UserControllerTest {
     //Input: RequestHeader userId and RequestHeader token
     //Output: UserPrivateDTO
     //Status: OK
-    @Test
-    public void TestgetUsersviaUsernames() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestGetUsersViaUsernames() throws Exception {
         User testUser1 = new User();
         testUser1.setStatus(UserStatus.PLAYING);
         testUser1.setUserId(1L);
@@ -172,8 +172,8 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[2].username", is(testUser3.getUsername())));
     }
 
-    @Test
-    public void TestgetUsersviaUserIDs() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestGetUsersViaUserIDs() throws Exception {
         User testUser1 = new User();
         testUser1.setStatus(UserStatus.PLAYING);
         testUser1.setUserId(1L);
@@ -224,8 +224,8 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[2].username", is(testUser3.getUsername())));
     }
 
-    @Test
-    public void TestifgetUsersThrowsExceptionWhenBadRequest() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestIfGetUsersThrowsExceptionWhenBadRequest() throws Exception {
         User testUser1 = new User();
         testUser1.setStatus(UserStatus.PLAYING);
         testUser1.setUserId(1L);
@@ -248,8 +248,8 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isBadRequest());
     }
 
-    @Test
-    public void TestgetUserviaUserId() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestGtUserViaUserId() throws Exception {
         User testUser1 = new User();
         testUser1.setStatus(UserStatus.PLAYING);
         testUser1.setUserId(1L);
@@ -269,8 +269,8 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username", is(testUser1.getUsername())));
     }
 
-    @Test
-    public void TestgetUserviaUsername() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestGetUserViaUsername() throws Exception {
         User testUser1 = new User();
         testUser1.setStatus(UserStatus.PLAYING);
         testUser1.setUserId(1L);
@@ -290,8 +290,8 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username", is(testUser1.getUsername())));
     }
 
-    @Test
-    public void TestifgetUserThrowsExceptionWhenBadRequest() throws Exception {
+//    @Test // TODO deprecated method
+    public void TestIfGetUserThrowsExceptionWhenBadRequest() throws Exception {
         User testUser1 = new User();
         testUser1.setStatus(UserStatus.PLAYING);
         testUser1.setUserId(1L);
