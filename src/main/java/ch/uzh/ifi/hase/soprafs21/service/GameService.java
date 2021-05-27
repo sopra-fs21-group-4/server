@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
+import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
@@ -169,7 +170,7 @@ public class GameService {
     public Game joinGame(Long gameId, User user, String password) {
         try {
             Game gameToJoin = findRunningGame(gameId);
-            if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()) return gameToJoin;
+            if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()|| game.getGameState()!=GameState.FINISHED || game.getGameState()!=GameState.AFTERMATH) return gameToJoin;
             Long previousGameId = user.getCurrentGameId();
             Game previousGame = previousGameId == null? null : gameRepository.findByGameId(previousGameId);
             if (previousGame != null) previousGame.dismissPlayer(user);
@@ -209,7 +210,7 @@ public class GameService {
      */
     public Game verifyPlayer(Long gameId, User user) {
         Game game = findRunningGame(gameId);
-        if (!game.getPlayerState(user.getUserId()).isEnrolled())
+        if (!game.getPlayerState(user.getUserId()).isEnrolled() || game.getGameState()!=GameState.FINISHED || game.getGameState()!=GameState.AFTERMATH)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");
         return game;
     }
