@@ -1100,28 +1100,28 @@ class GameTest {
 
         // initializing message to test chat commands
         Message message = new Message();
-        message.setSender(gameMaster);
+        message.setSenderId(gameMaster.getUserId());
 
         // testing ready
         message.setText("/r");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(PlayerState.GM_READY, game.getPlayerState(gameMaster.getUserId()));
 
 
         // testing ban
         message.setText("/ban @name");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         // testing forgiving
         message.setText("/forgive @name");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
 
 
         // initializing the game
         message.setText("/start");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(GameState.STARTING, game.getGameState());
 
@@ -1134,18 +1134,18 @@ class GameTest {
 
         // advancing round phase to starting
         message.setText("/a");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(RoundPhase.STARTING, game.getCurrentRoundPhase());
 
         message.setText("/a");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(RoundPhase.SUGGEST, game.getCurrentRoundPhase());
 
         // testing setting a suggestion
         message.setText("/s suggestion");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals("suggestion", game.getCurrentSuggestions().get(gameMaster.getUserId()));
 
@@ -1153,46 +1153,46 @@ class GameTest {
 
         // testing pause and resume
         message.setText("/pause");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(GameState.PAUSED, game.getGameState());
 
         message.setText("/resume");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(GameState.RUNNING, game.getGameState());
 
 
         // further advancing the game
         message.setText("/a");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(RoundPhase.VOTE, game.getCurrentRoundPhase());
 
         // testing setting a suggestion
         message.setText("/v suggestion");
-        message.setSender(player2);
-        game.getChatBot().notifyMessage(message);
+        message.setSenderId(player2.getUserId());
+        game.runCommand(message);
         game.update();
 
 
         message.setText("/a");
-        message.setSender(gameMaster);
-        game.getChatBot().notifyMessage(message);
+        message.setSenderId(gameMaster.getUserId());
+        game.runCommand(message);
         game.update();
         assertEquals(RoundPhase.AFTERMATH, game.getCurrentRoundPhase());
 
 
         // skipping a round
         message.setText("/skip");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(RoundPhase.STARTING, game.getCurrentRoundPhase());
 
 
         // killing the game
         message.setText("/kill");
-        game.getChatBot().notifyMessage(message);
+        game.runCommand(message);
         game.update();
         assertEquals(GameState.ABORTED, game.getGameState());
 

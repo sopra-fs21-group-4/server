@@ -224,28 +224,4 @@ public class UserController {
         userService.rejectFriendRequest(user, friendId);
     }
 
-    @PutMapping(value = "/observeEntity")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ResponseBody
-    public void observeEntity(
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token,
-            @RequestBody Long entityId
-    ) {
-        User user = userService.verifyUser(userId, token);
-        userService.observeEntity(user, entityId);
-    }
-
-    @PutMapping(value = "/disregardEntity")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ResponseBody
-    public void disregardEntity(
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token,
-            @RequestHeader("entityId") Long entityId
-    ) {
-        User user = userService.verifyUser(userId, token);
-        userService.disregardEntity(user, entityId);
-    }
-
 }

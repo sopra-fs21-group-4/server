@@ -93,10 +93,12 @@ public class UserService {
         for (Long userId : subscriberMapping.keySet()) {
             // find users and corresponding sseEmitter in subscriber Map.
             User user = userRepository.findByUserId(userId);
+            if (!clientVersions.containsKey(userId)) clientVersions.put(userId, new HashMap<>());
+            Map<Long, Long> clientVersion = clientVersions.get(userId);
             SseEmitter sseEmitter = subscriberMapping.get(userId);
             SseUpdateDTO sseUpdateDTO = DTOMapper.INSTANCE.convertEntityToSseUpdateDTO(user);
             sseUpdateDTO.init();
-            if (!sseUpdateDTO.filter(clientVersions.get(userId), now)) continue;
+            if (!sseUpdateDTO.filter(clientVersion, now)) continue;
             try {
                 sseEmitter.send(SseEmitter.event().name("Update").data(sseUpdateDTO, MediaType.APPLICATION_JSON));
             } catch(IOException e) {
@@ -442,7 +444,6 @@ public class UserService {
      */
     public void putSubscriber(Long userId, SseEmitter emitter) {
         subscriberMapping.put(userId, emitter);
-        clientVersions.put(userId, new HashMap<>());
         userRepository.findByUserId(userId).setStatus(UserStatus.IDLE);
     }
 

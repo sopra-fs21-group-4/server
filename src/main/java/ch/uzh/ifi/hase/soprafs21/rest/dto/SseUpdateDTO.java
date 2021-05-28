@@ -45,15 +45,18 @@ public class SseUpdateDTO {
         return observedEntities;
     }
 
-    private void collectRecursive(Long id, Set<Long> pool) {
-        if (id == null || !pool.add(id)) return;
+    public List<Long> getLobbies() {
+        return lobbies;
+    }
+
+    private void collectRecursive(Long id) {
+        if (id == null || observedEntities.containsKey(id)) return;
         EntityDTO dto = EntityDTO.find(id);
-        if (dto != null) {
-            dto.crop(userId, null);
-            observedEntities.put(id, dto);
-            for (Long childId : dto.getChildren()) {
-                collectRecursive(childId, pool);
-            }
+        if (dto == null) return;
+        dto.crop(userId, null);
+        observedEntities.put(id, dto);
+        for (Long childId : dto.getChildren()) {
+            collectRecursive(childId);
         }
     }
 
@@ -67,9 +70,8 @@ public class SseUpdateDTO {
         // WARNING!! we mis-use the lobby list as our initial id pool.
         lobbies.add(userId);
         lobbies.addAll(currentLobbies); // automatically observe lobbies
-        Set<Long> recursivePool = new HashSet<>();
         for (Long id : lobbies) {
-            collectRecursive(id, recursivePool);
+            collectRecursive(id);
         }
 
         lobbies = currentLobbies;
@@ -78,8 +80,9 @@ public class SseUpdateDTO {
     public boolean filter(Map<Long, Long> clientVersion, Long now) {
         assert(clientVersion != null);
         boolean updateFlag = false;
+        Set<Long> idPool = new HashSet<>(observedEntities.keySet());
 
-        for (Long id : observedEntities.keySet()) {
+        for (Long id : idPool) {
             Long lastReceived = clientVersion.get(id);
             Long lastModified = observedEntities.get(id).getLastModified();
             if (lastReceived == null || lastReceived < lastModified) {

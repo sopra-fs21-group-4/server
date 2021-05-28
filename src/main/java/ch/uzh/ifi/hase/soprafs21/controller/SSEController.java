@@ -1,15 +1,11 @@
 package ch.uzh.ifi.hase.soprafs21.controller;
 
 import ch.uzh.ifi.hase.soprafs21.entity.User;
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
-import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.EntityDTO;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -96,7 +92,7 @@ public class SSEController {
 
                 scheduledExecutorService.scheduleAtFixedRate(() -> {
                     try {
-                        sseEmitter.send("connection test", MediaType.ALL);
+                        sseEmitter.send(SseEmitter.event().name("ConnectionTest").data(null));
                     } catch (IOException e) {
                         sseEmitter.completeWithError(new ConnectException());
                     }
@@ -127,6 +123,45 @@ public class SSEController {
         if (sseEmitter == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "emitterToken invalid or timed out");
         userService.putSubscriber(userId, sseEmitter);
+    }
+
+    @PutMapping(value = "/observeEntity")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void observeEntity(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestBody Long entityId
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.observeEntity(user, entityId);
+    }
+
+    @PutMapping(value = "/disregardEntity")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void disregardEntity(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @RequestHeader("entityId") Long entityId
+    ) {
+        User user = userService.verifyUser(userId, token);
+        userService.disregardEntity(user, entityId);
+    }
+
+    @GetMapping(value = "/entity/{entityId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public EntityDTO getEntity(
+            @RequestHeader("userId") Long userId,
+            @RequestHeader("token") String token,
+            @PathVariable("entityId") Long entityId
+    ) {
+        userService.verifyUser(userId, token);
+        EntityDTO dto = EntityDTO.find(entityId);
+        if (dto == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+        dto.crop(userId, null);
+        return dto;
     }
 
 }

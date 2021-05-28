@@ -482,7 +482,7 @@ public class Game implements Serializable {
 //        this.chatBot.setPassword(UUID.randomUUID().toString());
 //        this.chatBot.setToken(UUID.randomUUID().toString());
         gameChat.setAssociatedGameId(this.gameId);
-        gameChat.addRole(gameId+1, "@bot");
+//        gameChat.addRole(gameId+1, "@bot");
 //        gameChat.setConfidential(true); // unused feature
         // init game master
         addPlayer(gameMaster, PlayerState.GAME_MASTER);

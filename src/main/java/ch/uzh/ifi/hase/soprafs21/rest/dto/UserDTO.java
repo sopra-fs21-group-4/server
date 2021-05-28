@@ -102,18 +102,18 @@ public class UserDTO implements EntityDTO {
     @Override
     public Set<Long> getChildren() {
         Set<Long> children = new HashSet<>();
-        children.addAll(friends);
-        children.addAll(outgoingFriendRequests);
-        children.addAll(incomingFriendRequests);
         children.add(currentGameId);
+        children.addAll(friends);
+        if (outgoingFriendRequests != null) children.addAll(outgoingFriendRequests);
+        if (incomingFriendRequests != null) children.addAll(incomingFriendRequests);
         return children;
     }
 
     @Override
     public void crop(Long receiverId, String cropHint) {
         if (receiverId != id) {
-            outgoingFriendRequests = new HashSet<>();
-            incomingFriendRequests = new HashSet<>();
+            outgoingFriendRequests = null;
+            incomingFriendRequests = null;
         }
     }
 }
