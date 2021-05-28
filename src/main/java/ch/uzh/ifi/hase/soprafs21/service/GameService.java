@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
 import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
-import ch.uzh.ifi.hase.soprafs21.constant.GameState;
-import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
@@ -69,17 +67,14 @@ public class GameService {
                                     break;
                 case DEAD:          deleteList.add(game);
                 case COMPLETE:      GameSummary summary = game.getGameSummary();
-                                    if (gameSummaryRepository.existsById(summary.getGameSummaryId())) break;
-                                    gameRoundSummaryRepository.saveAll(summary.getRounds());
-                                    gameSummaryRepository.save(summary);
-                                    gameRoundSummaryRepository.flush();
-                                    gameSummaryRepository.flush();
+//                                    if (summary == null) break;
+//                                    gameSummaryRepository.save(summary);
+//                                    gameSummaryRepository.flush();
+//                                    gameRoundSummaryRepository.saveAll(summary.getRoundIds());
+//                                    gameRoundSummaryRepository.flush();
                 default:            break;
             }
         }
-//        messageChannelRepository.flush();
-//        gameRoundRepository.flush();
-//        gameSettingsRepository.flush();
         gameRepository.deleteAll(deleteList);
         gameRepository.flush();
     }
@@ -134,7 +129,7 @@ public class GameService {
         gameSettingsRepository.flush();
         // put game rounds to repository
         List<GameRound> gameRounds = game.getGameRounds();
-        for (GameRound gameRound : gameRounds) gameRoundRepository.save(gameRound);
+        gameRoundRepository.saveAll(gameRounds);
         gameRoundRepository.flush();
         // put game to repo
         gameRepository.save(game);
@@ -311,13 +306,14 @@ public class GameService {
         Random r = new Random();
         long randomId;
         do {
-            randomId = r.nextLong() & 0xFFFFFFFFF8L;
+            randomId = r.nextLong() & 0xFFFFFFFFC0L;
         } while (!availableGameId(randomId));
         return randomId;
     }
 
     private boolean availableGameId(Long id) {
-        for (int i = 0; i < 8; i++) if (EntityType.get(id) != EntityType.UNKNOWN) return false;
+        if (id < 0xFFFFFFFL) return false;
+        for (int i = 0; i < 64; i++) if (EntityType.get(id) != EntityType.UNKNOWN) return false;
         return true;
     }
 }

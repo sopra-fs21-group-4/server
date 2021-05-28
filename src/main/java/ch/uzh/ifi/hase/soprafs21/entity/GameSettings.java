@@ -121,6 +121,8 @@ public class GameSettings implements Serializable {
     }
 
     public void setTotalRounds(Integer totalRounds) {
+        totalRounds = Math.max(totalRounds, 1);
+        totalRounds = Math.min(totalRounds, 20);
         this.totalRounds = totalRounds;
         this.lastModified = System.currentTimeMillis();
     }

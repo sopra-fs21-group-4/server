@@ -95,6 +95,18 @@ public class Game implements Serializable {
         return this;
     }
 
+    public Long getGameSummaryId() {
+        return gameId +1;
+    }
+
+    public Long getGameRoundId(int roundIndex) {
+        return gameId + 2L*roundIndex +4;
+    }
+
+    public Long getGameRoundSummaryId(int roundIndex) {
+        return gameId + 2L*roundIndex +5;
+    }
+
     public Map<Long, Integer> getScores() {
         return scores;
     }
@@ -456,7 +468,7 @@ public class Game implements Serializable {
         if (settings.getMemeType() != null)
             this.gameSettings.setMemeType(settings.getMemeType());
         if (settings.getTotalRounds() != null)
-            this.gameSettings.setTotalRounds(Math.max(1, settings.getTotalRounds()));
+            this.gameSettings.setTotalRounds(settings.getTotalRounds());
         if (settings.getMaxSuggestSeconds() != null)
             this.gameSettings.setMaxSuggestSeconds(settings.getMaxSuggestSeconds());
         if (settings.getMaxVoteSeconds() != null)
@@ -514,6 +526,7 @@ public class Game implements Serializable {
         MemeUrlSupplier memeFactory = MemeUrlSupplier.create(getSubreddit(), getMemeType().toString().toLowerCase());
         for (int i = 0; i < gameSettings.getTotalRounds(); i++) {
             GameRound round = new GameRound();
+            round.setGameRoundId(this.getGameRoundId(i));
             round.setTitle(String.format("Round %d",(i+1)));
             round.setMemeURL(memeFactory.get());
             Map<Long, Integer> roundScores = round.getScores();

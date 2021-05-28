@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs21.entity;
 
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
+import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
+import ch.uzh.ifi.hase.soprafs21.repository.GameSummaryRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,7 +24,6 @@ public class GameSummary implements Serializable {
 
     /* FIELDS */
     @Id
-    @GeneratedValue
     private Long gameSummaryId;
 
     @Column(nullable = false)
@@ -37,9 +38,9 @@ public class GameSummary implements Serializable {
     @Column(nullable = false)
     private GameState gameState;
 
-    @Column(nullable = false)
-    @OneToMany(targetEntity = GameRoundSummary.class, cascade = CascadeType.ALL)
-    private List<GameRoundSummary> rounds;
+//    @OneToMany(targetEntity = GameRoundSummary.class, cascade = CascadeType.ALL)
+    @ElementCollection
+    private List<Long> roundIds;
 
     @Column
     private String subreddit;  // subreddit
@@ -72,8 +73,8 @@ public class GameSummary implements Serializable {
         return gameState;
     }
 
-    public List<GameRoundSummary> getRounds() {
-        return new ArrayList<>(rounds);
+    public List<Long> getRoundIds() {
+        return new ArrayList<>(roundIds);
     }
 
     public String getSubreddit() {
@@ -91,15 +92,22 @@ public class GameSummary implements Serializable {
     public GameSummary adapt(Game game) {
         if (this.name != null) throw new IllegalStateException("GameSummaries are immutable!");
 
+        List<GameRoundSummary> rounds = game.summarizePastRounds();
+
+        this.gameSummaryId = game.getGameSummaryId();
         this.name = game.getName();
         this.scores = new HashMap<>(game.getScores());
         this.gameChatId = game.getGameChat().getMessageChannelId();
         this.gameState = game.getGameState();
-        this.rounds = game.summarizePastRounds();
+        this.roundIds = new ArrayList<>();
+        for (GameRoundSummary round : rounds) roundIds.add(round.getGameRoundSummaryId());
         this.subreddit = game.getSubreddit();
         this.memeType = game.getMemeType();
         this.lastModified = System.currentTimeMillis();
 
+        GameSummaryRepository repo = SpringContext.getBean(GameSummaryRepository.class);
+        repo.save(this);
+        repo.flush();
         return this;
     }
 

@@ -135,8 +135,8 @@ public class GameDTO implements EntityDTO {
         return gameSummaryId;
     }
 
-    public void setGameSummaryId(GameSummary gameSummaryI) {
-        this.gameSummaryId = gameSummaryI.getGameSummaryId();
+    public void setGameSummaryId(Long gameSummaryId) {
+        this.gameSummaryId = gameSummaryId;
     }
 
     public Long getLastModified() {

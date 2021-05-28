@@ -97,6 +97,7 @@ public interface DTOMapper {
     @Mapping(source = "scores", target = "scores")
     @Mapping(source = "gameSettings", target = "gameSettings")
     @Mapping(source = "currentRound", target = "currentRound")
+    @Mapping(source = "gameSummaryId", target = "gameSummaryId")
     @Mapping(source = "lastModified", target = "lastModified")
     GameDTO convertEntityToGameDTO(Game entity);
 
@@ -105,7 +106,7 @@ public interface DTOMapper {
     @Mapping(source = "gameChatId", target = "gameChatId")
     @Mapping(source = "scores", target = "scores")
     @Mapping(source = "gameState", target = "gameState")
-    @Mapping(source = "rounds", target = "rounds")
+    @Mapping(source = "roundIds", target = "roundIds")
     @Mapping(source = "subreddit", target = "subreddit")
     @Mapping(source = "memeType", target = "memeType")
     @Mapping(source = "lastModified", target = "lastModified")

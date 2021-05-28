@@ -21,7 +21,6 @@ public class GameRound implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
     private Long gameRoundId;
 
     @Column(nullable = false)
@@ -48,6 +47,10 @@ public class GameRound implements Serializable {
 
     public Long getGameRoundId() {
         return gameRoundId;
+    }
+
+    public void setGameRoundId(Long gameRoundId) {
+        this.gameRoundId = gameRoundId;
     }
 
     public String getTitle() {

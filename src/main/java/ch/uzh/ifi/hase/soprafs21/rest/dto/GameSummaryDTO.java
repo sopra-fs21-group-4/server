@@ -14,7 +14,7 @@ public class GameSummaryDTO implements EntityDTO {
     private Long gameChatId;
     private Map<Long, Integer> scores;
     private GameState gameState;
-    private List<Long> rounds;
+    private List<Long> roundIds;
     private String subreddit;
     private MemeType memeType;
 
@@ -63,13 +63,12 @@ public class GameSummaryDTO implements EntityDTO {
         this.gameChatId = gameChatId;
     }
 
-    public List<Long> getRounds() {
-        return rounds;
+    public List<Long> getRoundIds() {
+        return roundIds;
     }
     // convert entities to DTOs
-    public void setRounds(List<GameRoundSummary> rounds) {
-        this.rounds = new ArrayList<>();
-        for (GameRoundSummary round : rounds) this.rounds.add(round.getGameRoundSummaryId());
+    public void setRoundIds(List<Long> roundIds) {
+        this.roundIds = roundIds;
     }
 
     public String getSubreddit() {
@@ -107,7 +106,7 @@ public class GameSummaryDTO implements EntityDTO {
         Set<Long> children = new HashSet<>();
         if (gameChatId != null) children.add(gameChatId);
         if (scores != null) children.addAll(scores.keySet());
-        if (rounds != null) children.addAll(rounds);
+        if (roundIds != null) children.addAll(roundIds);
         return children;
     }
 
@@ -116,7 +115,7 @@ public class GameSummaryDTO implements EntityDTO {
         if (!scores.containsKey(receiverId)) {
             gameChatId = null;
             scores = null;
-            rounds = null;
+            roundIds = null;
         }
     }
 }

@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
+import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
+import ch.uzh.ifi.hase.soprafs21.repository.GameRoundSummaryRepository;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -18,7 +21,6 @@ public class GameRoundSummary implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
     private Long gameRoundSummaryId;
 
     @Column(nullable = false)
@@ -70,12 +72,17 @@ public class GameRoundSummary implements Serializable {
     public void adapt(GameRound gameRound) {
         if (this.title != null) throw new IllegalStateException("GameRoundSummaries are immutable!");
 
+        this.gameRoundSummaryId = gameRound.getGameRoundId()+1;
         this.title = gameRound.getTitle();
         this.memeURL = gameRound.getMemeURL();
         this.suggestions = new HashMap(gameRound.getSuggestions());
         this.votes = new HashMap<>(gameRound.getVotes());
         this.scores = new HashMap(gameRound.getScores());
         this.lastModified = System.currentTimeMillis();
+
+        GameRoundSummaryRepository repo = SpringContext.getBean(GameRoundSummaryRepository.class);
+        repo.save(this);
+        repo.flush();
     }
 
 }
