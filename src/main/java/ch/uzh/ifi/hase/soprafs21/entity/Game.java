@@ -463,7 +463,6 @@ public class Game implements Serializable {
             this.gameSettings.setMaxVoteSeconds(settings.getMaxVoteSeconds());
         if (settings.getMaxAftermathSeconds() != null)
             this.gameSettings.setMaxAftermathSeconds(settings.getMaxAftermathSeconds());
-        this.lastModified = System.currentTimeMillis();
         return this;
     }
 

@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
+import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.GameState;
+import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
 import ch.uzh.ifi.hase.soprafs21.entity.*;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
@@ -66,8 +68,8 @@ public class GameService {
                 case MODIFIED:      gameRoundRepository.saveAll(game.getGameRounds());
                                     break;
                 case DEAD:          deleteList.add(game);
-                case COMPLETE:      if (gameSummaryRepository.existsById(game.getGameId())) break;
-                                    GameSummary summary = game.getGameSummary();
+                case COMPLETE:      GameSummary summary = game.getGameSummary();
+                                    if (gameSummaryRepository.existsById(summary.getGameSummaryId())) break;
                                     gameRoundSummaryRepository.saveAll(summary.getRounds());
                                     gameSummaryRepository.save(summary);
                                     gameRoundSummaryRepository.flush();
@@ -153,7 +155,7 @@ public class GameService {
         Game game = verifyGameMaster(gameId, gameMaster.getUserId());
         try {
             game = game.adaptSettings(gameSettings);
-            gameRepository.flush();
+            gameSettingsRepository.flush();
         } catch(IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.GONE, "game is already running");
         }
@@ -170,13 +172,14 @@ public class GameService {
     public Game joinGame(Long gameId, User user, String password) {
         try {
             Game gameToJoin = findRunningGame(gameId);
-            if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()|| gameToJoin.getGameState()!=GameState.FINISHED || gameToJoin.getGameState()!=GameState.AFTERMATH) return gameToJoin;
+            if (gameToJoin.getPlayerState(user.getUserId()).isEnrolled()) return gameToJoin;
             Long previousGameId = user.getCurrentGameId();
             Game previousGame = previousGameId == null? null : gameRepository.findByGameId(previousGameId);
             if (previousGame != null) previousGame.dismissPlayer(user);
             gameToJoin.enrollPlayer(user, password);
             user.setCurrentGameId(gameId);
-            // TODO need to flush here?
+            gameRepository.flush();
+            userRepository.flush();
             return gameToJoin;
 
         } catch (IllegalArgumentException e) {
@@ -290,25 +293,6 @@ public class GameService {
     }
 
     /**
-     * updates the game settings with new values TODO duplicate? delete?
-     * @param gameId
-     * @param userId
-     * @param gameSettings
-     */
-    public void updateSettings(Long gameId, Long userId, GameSettings gameSettings){
-        Game game = findRunningGame(gameId);
-
-        if (!game.getGameMaster().equals(userId))
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "only the game master can update the settings");
-
-        try {
-        game.adaptSettings(gameSettings);
-        } catch(SecurityException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "something went wrong updating the settings");
-        }
-    }
-
-    /**
      * bans a player from a game
      * @param gameId
      * @param userId game master
@@ -327,13 +311,13 @@ public class GameService {
         Random r = new Random();
         long randomId;
         do {
-            randomId = r.nextLong() & 0xFFFFFFFFFEL;
-        } while (
-                gameRepository.existsById(randomId) ||
-                        gameSummaryRepository.existsById(randomId) ||
-                        gameRepository.existsById(randomId+1) ||
-                        gameSummaryRepository.existsById(randomId+1)
-        );
+            randomId = r.nextLong() & 0xFFFFFFFFF8L;
+        } while (!availableGameId(randomId));
         return randomId;
+    }
+
+    private boolean availableGameId(Long id) {
+        for (int i = 0; i < 8; i++) if (EntityType.get(id) != EntityType.UNKNOWN) return false;
+        return true;
     }
 }

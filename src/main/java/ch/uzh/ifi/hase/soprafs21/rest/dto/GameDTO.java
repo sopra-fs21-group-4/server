@@ -167,9 +167,6 @@ public class GameDTO implements EntityDTO {
         PlayerState state = playerStates.get(receiverId);
         if (state == null || !state.isEnrolled()) {
             gameChatId = null;
-            gameMaster = null;
-            players = null;
-            playerStates = null;
             scores = null;
             currentRoundId = null;
         }

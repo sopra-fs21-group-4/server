@@ -54,9 +54,9 @@ public class GameController {
      * update a game's settings
      */
     @PutMapping("/games/{gameId}/update")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public GameDTO updateGameSettings(
+    public void updateGameSettings(
             @PathVariable(value="gameId") Long gameId,
             @RequestHeader("userId") Long userId,
             @RequestHeader("token") String token,
@@ -64,10 +64,7 @@ public class GameController {
     ) {
         User user = userService.verifyUser(userId, token);
         GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
-        Game game = gameService.adaptGameSettings(gameId, user, gameSettings);
-        GameDTO dto = DTOMapper.INSTANCE.convertEntityToGameDTO(game);
-        dto.crop(userId, null);
-        return dto;
+        gameService.adaptGameSettings(gameId, user, gameSettings);
     }
 
     /**
@@ -98,7 +95,7 @@ public class GameController {
             @RequestHeader("password") Optional<String> password
     ) {
         User user = userService.verifyUser(userId, token);
-        Game joinedGame = gameService.joinGame(gameId, user, password.isPresent()? password.get() : null);
+        Game joinedGame = gameService.joinGame(gameId, user, password.orElse(null));
         GameDTO dto = DTOMapper.INSTANCE.convertEntityToGameDTO(joinedGame);
         dto.crop(userId, null);
         return dto;
@@ -133,24 +130,6 @@ public class GameController {
     ) {
         User user = userService.verifyUser(userId, token);
         gameService.setPlayerReady(gameId, user, ready);
-    }
-
-    /**
-     * update game settings
-     * TODO delete? duplicate above
-     */
-    @PutMapping("/games/{gameId}/updateSettings")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public void updateSettings(
-            @RequestBody GameSettingsPostDTO gameSettingsPostDTO,
-            @PathVariable(value="gameId") Long gameId,
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token
-    ) {
-        GameSettings gameSettings = DTOMapper.INSTANCE.convertGameSettingsPostDTOToEntity(gameSettingsPostDTO);
-        userService.verifyUser(userId, token);
-        gameService.updateSettings(gameId, userId, gameSettings);
     }
 
 
