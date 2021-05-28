@@ -213,7 +213,7 @@ public class GameService {
      */
     public Game verifyPlayer(Long gameId, User user) {
         Game game = findRunningGame(gameId);
-        if (!game.getPlayerState(user.getUserId()).isEnrolled() || game.getGameState()!=GameState.FINISHED || game.getGameState()!=GameState.AFTERMATH)
+        if (!game.getPlayerState(user.getUserId()).isEnrolled())
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");
         return game;
     }
