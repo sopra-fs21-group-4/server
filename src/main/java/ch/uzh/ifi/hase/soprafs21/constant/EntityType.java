@@ -21,6 +21,17 @@ public enum EntityType {
 
 
     public static EntityType get(Long id) {
+        if (repoTypes.isEmpty()) {
+            repoTypes.put(SpringContext.getBean(UserRepository.class), USER);
+            repoTypes.put(SpringContext.getBean(GameRepository.class), GAME);
+            repoTypes.put(SpringContext.getBean(GameSummaryRepository.class), GAME_SUMMARY);
+            repoTypes.put(SpringContext.getBean(GameRoundSummaryRepository.class), GAME_ROUND_SUMMARY);
+            repoTypes.put(SpringContext.getBean(GameSettingsRepository.class), GAME_SETTINGS);
+            repoTypes.put(SpringContext.getBean(GameRoundRepository.class), GAME_ROUND);
+            repoTypes.put(SpringContext.getBean(MessageChannelRepository.class), MESSAGE_CHANNEL);
+            repoTypes.put(SpringContext.getBean(MessageRepository.class), MESSAGE);
+            for (JpaRepository repo : repoTypes.keySet()) typeRepos.put(repoTypes.get(repo), repo);
+        }
         EntityType type = knownTypes.get(id);
         if (type != null) return type;
         for (JpaRepository repo : repoTypes.keySet()) {
@@ -33,24 +44,12 @@ public enum EntityType {
         return UNKNOWN;
     }
 
-    public static JpaRepository getRepo(EntityType type) {
-        return typeRepos.get(type);
-    }
+//    public static JpaRepository getRepo(EntityType type) {
+//        return typeRepos.get(type);
+//    }
 
     public static JpaRepository getRepo(Long id) {
         return typeRepos.get(get(id));
-    }
-
-    static {
-        repoTypes.put(SpringContext.getBean(UserRepository.class), USER);
-        repoTypes.put(SpringContext.getBean(GameRepository.class), GAME);
-        repoTypes.put(SpringContext.getBean(GameSummaryRepository.class), GAME_SUMMARY);
-        repoTypes.put(SpringContext.getBean(GameRoundSummaryRepository.class), GAME_ROUND_SUMMARY);
-        repoTypes.put(SpringContext.getBean(GameSettingsRepository.class), GAME_SETTINGS);
-        repoTypes.put(SpringContext.getBean(GameRoundRepository.class), GAME_ROUND);
-        repoTypes.put(SpringContext.getBean(MessageChannelRepository.class), MESSAGE_CHANNEL);
-        repoTypes.put(SpringContext.getBean(MessageRepository.class), MESSAGE);
-        for (JpaRepository repo : repoTypes.keySet()) typeRepos.put(repoTypes.get(repo), repo);
     }
 
 }
