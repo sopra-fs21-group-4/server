@@ -8,15 +8,30 @@ import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.MessageRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
+
 
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
+@SpringBootTest
+@RunWith(SpringJUnit4ClassRunner.class)
 class GameTest {
+
 
 
     /**
@@ -1062,8 +1077,12 @@ class GameTest {
         assertThrows(IllegalStateException.class, () -> game.skipRound());
     }
 
+
+
     @Test
     void commandsAndAdvancingGameTest() {
+        
+
 
         // creating given objects
         User gameMaster = new User();
@@ -1170,7 +1189,7 @@ class GameTest {
         assertEquals(RoundPhase.VOTE, game.getCurrentRoundPhase());
 
         // testing setting a suggestion
-        message.setText("/v suggestion");
+        message.setText("/v "+gameMaster.getUserId().toString());
         message.setSenderId(player2.getUserId());
         game.runCommand(message);
         game.update();

@@ -816,7 +816,11 @@ public class Game implements Serializable {
             switch (command.getCommand()) {
                 case "/r" -> setPlayerReady(command.getSenderId(), !commanderState.isReady());
                 case "/s" -> putSuggestion(command.getSenderId(), command.getText().substring(3));
-                case "/v" -> putVote(command.getSenderId(), referenced.iterator().next().getUserId());
+                case "/v" -> {
+                    if (referenced.iterator().hasNext()){
+                        putVote(command.getSenderId(), referenced.iterator().next().getUserId());
+                    }
+                }
             }
         }
     }

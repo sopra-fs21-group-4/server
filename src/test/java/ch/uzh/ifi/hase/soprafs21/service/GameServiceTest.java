@@ -5,6 +5,8 @@ import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.GameSettingsRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,12 @@ class GameServiceTest {
 
     @Mock
     private GameRepository gameRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private GameSettingsRepository gameSettingsRepository;
 
     private User gameMaster;
     private User player1;
@@ -69,6 +77,8 @@ class GameServiceTest {
         game.setGameId(1L);
         game.initialize(gameMaster);
         game.adaptSettings(gameSettings);
+
+
 
 
     }
