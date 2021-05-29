@@ -26,16 +26,8 @@ public class MessageDTO implements EntityDTO {
         this.id = id;
     }
 
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
     public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public Long getSenderId() {
-        return senderId;
     }
 
     public void setSenderId(Long senderId) {

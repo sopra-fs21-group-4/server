@@ -54,32 +54,16 @@ public class UserDTO implements EntityDTO {
         this.status = status;
     }
 
-    public Long getCurrentGameId() {
-        return currentGameId;
-    }
-
     public void setCurrentGameId(Long currentGameId) {
         this.currentGameId = currentGameId;
-    }
-
-    public Set<Long> getFriends() {
-        return friends;
     }
 
     public void setFriends(Set<Long> friends) {
         this.friends = friends;
     }
 
-    public Set<Long> getOutgoingFriendRequests() {
-        return outgoingFriendRequests;
-    }
-
     public void setOutgoingFriendRequests(Set<Long> outgoingFriendRequests) {
         this.outgoingFriendRequests = outgoingFriendRequests;
-    }
-
-    public Set<Long> getIncomingFriendRequests() {
-        return incomingFriendRequests;
     }
 
     public void setIncomingFriendRequests(Set<Long> incomingFriendRequests) {

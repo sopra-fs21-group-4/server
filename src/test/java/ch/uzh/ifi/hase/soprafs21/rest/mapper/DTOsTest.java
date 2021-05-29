@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * DTOMapperTest
- * Tests if the mapping between the internal and the external/API representation works.
+ * Testing if all mappings work without throwing errors
  */
 public class DTOsTest {
 
@@ -70,6 +70,24 @@ public class DTOsTest {
     public void MessagePostDTO(){
         MessagePostDTO messagePostDTO = new MessagePostDTO();
         assertDoesNotThrow( () -> DTOMapper.INSTANCE.convertMessagePostDTOtoEntity(messagePostDTO));
+    }
+
+    @Test
+    public void UserDTO(){
+        User user = new User();
+        assertDoesNotThrow( () -> DTOMapper.INSTANCE.convertEntityToUserDTO(user));
+    }
+
+    @Test
+    public void userPutDTO(){
+        UserPutDTO userPutDTO = new UserPutDTO();
+        assertDoesNotThrow( () -> DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO));
+    }
+
+    @Test
+    public void userLoginDTO(){
+        User user = new User();
+        assertDoesNotThrow( () -> DTOMapper.INSTANCE.convertEntityToUserLoginDTO(user));
     }
 
     @Test

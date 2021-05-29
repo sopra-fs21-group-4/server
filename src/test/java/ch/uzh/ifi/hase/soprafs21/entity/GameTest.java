@@ -1077,7 +1077,8 @@ class GameTest {
         assertThrows(IllegalStateException.class, () -> game.skipRound());
     }
 
-
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     void commandsAndAdvancingGameIntegrationTest() {
@@ -1114,8 +1115,6 @@ class GameTest {
         game.enrollPlayer(player2, "");
         game.enrollPlayer(player3, "");
 
-
-//        System.out.println(game.getGameState());
 
         // initializing message to test chat commands
         Message message = new Message();
@@ -1188,12 +1187,12 @@ class GameTest {
         game.update();
         assertEquals(RoundPhase.VOTE, game.getCurrentRoundPhase());
 
-        // testing setting a suggestion
+        // testing voting
         message.setText("/v "+gameMaster.getUserId().toString());
         message.setSenderId(player2.getUserId());
         game.runCommand(message);
         game.update();
-
+        game.getCurrentRound().putVote(player2.getUserId(), gameMaster.getUserId());
 
         message.setText("/a");
         message.setSenderId(gameMaster.getUserId());

@@ -35,10 +35,6 @@ public class UserLoginDTO {
         this.token = token;
     }
 
-    public Set<Long> getPastGames(){
-        return pastGames;
-    }
-
     public void setPastGames(Set<Long> pastGames){
         this.pastGames = pastGames;
     }
