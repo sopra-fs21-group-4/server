@@ -6,7 +6,10 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.GameDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.GameSettingsPostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.UserLoginDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.GameService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,6 +46,9 @@ public class GameControllerTest {
     @MockBean
     private GameService gameService;
 
+    @MockBean
+    private DTOMapper dtoMapper;
+
 
     //Input: gameSettingsPostDTO
     //Output: GamePrivateDTO
@@ -67,6 +73,7 @@ public class GameControllerTest {
         gameSettingsPostDTO.setMaxVoteSeconds(10);
         gameSettingsPostDTO.setSubreddit("SomeSubreddit");
         gameSettingsPostDTO.setMemeType(MemeType.HOT);
+        gameSettingsPostDTO.setTotalRounds(1);
 
         GameSettings gameSettings = new GameSettings();
         gameSettings.setGameSettingsId(1L);
@@ -78,15 +85,20 @@ public class GameControllerTest {
         gameSettings.setSubreddit("SomeSubreddit");
         gameSettings.setMaxVoteSeconds(10);
         gameSettings.setMaxSuggestSeconds(10);
+        gameSettings.setTotalRounds(1);
 
         Game game = new Game();
         game.setGameId(1L);
         game.adaptSettings(gameSettings);
         game.initialize(user);
 
+        GameDTO gameDTO = new GameDTO();
+        gameDTO.setId(1L);
 
         given(userService.verifyUser(Mockito.any(),Mockito.any())).willReturn(user);
+        given(dtoMapper.convertGameSettingsPostDTOToEntity(Mockito.any())).willReturn(gameSettings);
         given(gameService.createGame(Mockito.any(), Mockito.any())).willReturn(game);
+        given(dtoMapper.convertEntityToGameDTO(Mockito.any())).willReturn(gameDTO);
 
         MockHttpServletRequestBuilder postRequest = post("/games/create")
                 .header("userId", user.getUserId())
@@ -95,12 +107,10 @@ public class GameControllerTest {
                 .content(asJsonString(gameSettingsPostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", is(game.getGameId().intValue())))
-                .andExpect(jsonPath("$.roundCounter", is(0)))
-                .andExpect(jsonPath("$.gameState", is("LOBBY")));
-        //as soon as I figure out how to expect this correctly: .andExpect(jsonPath("$.gameSettings", is(gameSettings)))
+                .andExpect(jsonPath("$.id", is(gameDTO.getId().intValue())));
+
     }
-    //Todo there are two slightly different variants in the game Controller; is one surplus?
+
     @Test
     public void TestUpdateGameSettings() throws Exception{
         User user = new User();
@@ -121,6 +131,7 @@ public class GameControllerTest {
         gameSettingsPostDTO.setMaxVoteSeconds(10);
         gameSettingsPostDTO.setSubreddit("SomeSubreddit");
         gameSettingsPostDTO.setMemeType(MemeType.HOT);
+        gameSettingsPostDTO.setTotalRounds(1);
 
         GameSettings gameSettings = new GameSettings();
         gameSettings.setGameSettingsId(1L);
@@ -132,12 +143,14 @@ public class GameControllerTest {
         gameSettings.setSubreddit("SomeSubreddit");
         gameSettings.setMaxVoteSeconds(10);
         gameSettings.setMaxSuggestSeconds(10);
+        gameSettings.setTotalRounds(1);
 
         Game game = new Game();
         game.setGameId(1L);
         game.adaptSettings(gameSettings);
 
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
+        given(dtoMapper.convertGameSettingsPostDTOToEntity(Mockito.any())).willReturn(gameSettings);
         given(gameService.adaptGameSettings(Mockito.any(), Mockito.any(), Mockito.any())).willReturn(game);
 
         MockHttpServletRequestBuilder putRequest = put("/games/" + game.getGameId().toString() + "/update")
@@ -146,9 +159,8 @@ public class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(gameSettingsPostDTO));
 
-        mockMvc.perform(putRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(game.getGameId().intValue())));
-        //as soon as I figure out how to expect this correctly: .andExpect(jsonPath("$.gameSettings", is(gameSettings)))
+        mockMvc.perform(putRequest).andExpect(status().isNoContent());
+
     }
 
     @Test
@@ -201,6 +213,7 @@ public class GameControllerTest {
         gameSettings.setSubreddit("SomeSubreddit");
         gameSettings.setMaxVoteSeconds(10);
         gameSettings.setMaxSuggestSeconds(10);
+        gameSettings.setTotalRounds(1);
 
         Game game = new Game();
         game.setGameId(1L);
@@ -208,8 +221,12 @@ public class GameControllerTest {
         game.initialize(gm);
         game.enrollPlayer(user, gameSettings.getPassword());
 
+        GameDTO gameDTO = new GameDTO();
+        gameDTO.setId(1L);
+
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
         given(gameService.joinGame(Mockito.any(), Mockito.any(), Mockito.any())).willReturn(game);
+        given(dtoMapper.convertEntityToGameDTO(Mockito.any())).willReturn(gameDTO);
 
 
         MockHttpServletRequestBuilder putRequest = put("/games/" + game.getGameId().toString() + "/join")
@@ -219,8 +236,8 @@ public class GameControllerTest {
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(putRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(game.getGameId().intValue())));
-        //as soon as I figure out how to expect this correctly: .andExpect(jsonPath("$.gameSettings", is(gameSettings)))
+                .andExpect(jsonPath("$.id", is(gameDTO.getId().intValue())));
+
     }
 
     @Test
@@ -365,8 +382,8 @@ public class GameControllerTest {
         verify(gameService).banPlayer(game.getGameId(), gameMasterUser.getUserId(), toBanId);
     }
 
-//    @Test // TODO deprecated method
-    public void TestGetAllGames() throws Exception {
+    @Test
+    public void TestGetArchive() throws Exception {
         User user = new User();
         user.setStatus(UserStatus.IDLE);
         user.setEmail("firstname@lastname");
@@ -376,89 +393,21 @@ public class GameControllerTest {
         user.setToken("someToken");
         user.setCurrentGameId(2L);
 
-        Game game1 = new Game();
-        game1.setGameId(1L);
-        Game game2 = new Game();
-        game2.setGameId(2L);
-
-        Collection<Game> gameCollection = new ArrayList<>();
-        gameCollection.add(game1);
-        gameCollection.add(game2);
+        UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUserId(1L);
 
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
-        given(gameService.getRunningGames()).willReturn(gameCollection);
+        given(dtoMapper.convertEntityToUserLoginDTO(Mockito.any())).willReturn(userLoginDTO);
 
-        MockHttpServletRequestBuilder getRequest = get("/games/")
+        MockHttpServletRequestBuilder getRequest = get("/archive")
                 .header("userId", user.getUserId())
                 .header("token", user.getToken())
                 .contentType(MediaType.APPLICATION_JSON);
-
-
-        mockMvc.perform(getRequest).andExpect(status().isPartialContent())
-                                    .andExpect(jsonPath("$[0].gameId", is(game1.getGameId().intValue())))
-                                    .andExpect(jsonPath("$[1].gameId", is(game2.getGameId().intValue())));
-    }
-
-
-//    @Test // TODO deprecated method
-    public void TestGetSingleGame() throws Exception {
-        User user = new User();
-        user.setStatus(UserStatus.IDLE);
-        user.setEmail("firstname@lastname");
-        user.setUserId(1L);
-        user.setUsername("Thomas");
-        user.setPassword("somePassword");
-        user.setToken("someToken");
-        user.setCurrentGameId(2L);
-
-        Game game = new Game();
-        game.setGameId(1L);
-
-        given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
-        given(gameService.verifyPlayer(Mockito.any(), Mockito.any())).willReturn(game);
-
-        MockHttpServletRequestBuilder getRequest = get("/games/" + game.getGameId().toString())
-                .header("userId", user.getUserId())
-                .header("token", user.getToken())
-                .contentType(MediaType.APPLICATION_JSON);
-
 
         mockMvc.perform(getRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.gameId", is(game.getGameId().intValue())));
+                                    .andExpect(jsonPath("$.userId", is(user.getUserId().intValue())));
+
     }
-
-    /*@Test
-    public void TestgetGameSummary() throws Exception {
-        User user = new User();
-        user.setStatus(UserStatus.IDLE);
-        user.setEmail("firstname@lastname");
-        user.setUserId(1L);
-        user.setUsername("Thomas");
-        user.setPassword("somePassword");
-        user.setToken("someToken");
-        user.setCurrentGameId(2L);
-
-        //or do game
-        Game game = new Game();
-        game.setGameId(1L);
-
-        GameSummary gameSummary = new GameSummary();
-        //just do a GameDTOSummary and check vlues for that
-
-        given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
-        given(gameService.verifyReviewer(Mockito.any(), Mockito.any())).willReturn(gameSummary);
-
-        MockHttpServletRequestBuilder getRequest = get("/archive/games/" + gameSummary.getGameId().toString())
-                .header("userId", user.getUserId())
-                .header("token", user.getToken())
-                .contentType(MediaType.APPLICATION_JSON);
-
-
-        mockMvc.perform(getRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.gameId", is(game.getGameId().intValue())));
-
-    }*/
-
 
 
     private String asJsonString ( final Object object){
