@@ -40,6 +40,39 @@ public class SSEControllerTest {
     //all the entites(userId, gameId, ...) have different Ids which are all different
 
 
+        @Test
+        public void TestSubscribeUpdate() throws Exception{
+            User user = new User();
+            user.setUserId(10L);
+
+            SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
+            //mock token
+            String emitterToken = "SomeToken";
+            //create emitterKEy out of userId and mocked token
+            String emitterKey = String.format("%d | %s", user.getUserId(), emitterToken);
+            //create map
+            Map<String, SseEmitter> unclaimedEmitters = new HashMap<>();
+            //put mock in map
+            unclaimedEmitters.put(emitterKey, sseEmitter);
+            //mock the execution of the executor Service --> verify after the actual mock
+            doNothing().when(executorService).execute(Mockito.any());
+
+
+            //what about onTimeout, onError, onCompletion? --> basically when the emitter is not sending anymore
+
+            //mock the request
+            MockHttpServletRequestBuilder getRequest = get("/createEmitter/" + user.getUserId())
+                    .header("userId", user.getUserId())
+                    .contentType(MediaType.APPLICATION_JSON);
+
+            //how does the return look like; like what is in there if we cannot test for a status
+            mockMvc.perform(getRequest).andExpect(status().isOk());
+            verify(executorService).execute(Mockito.any());
+        }
+    }
+
+
+
     @Test
     public void TestActivateEmitterValid() throws Exception{
         User testUser1 = new User();
