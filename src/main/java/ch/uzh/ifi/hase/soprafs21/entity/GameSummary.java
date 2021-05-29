@@ -111,4 +111,43 @@ public class GameSummary implements Serializable {
         return this;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public void setGameSummaryId(Long gameSummaryId) {
+        this.gameSummaryId = gameSummaryId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setScores(Map<Long, Integer> scores) {
+        this.scores = scores;
+    }
+
+    public void setGameChatId(Long gameChatId) {
+        this.gameChatId = gameChatId;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    public void setRoundIds(List<Long> roundIds) {
+        this.roundIds = roundIds;
+    }
+
+    public void setSubreddit(String subreddit) {
+        this.subreddit = subreddit;
+    }
+
+    public void setMemeType(MemeType memeType) {
+        this.memeType = memeType;
+    }
+
+    public void setLastModified(Long lastModified) {
+        this.lastModified = lastModified;
+    }
 }

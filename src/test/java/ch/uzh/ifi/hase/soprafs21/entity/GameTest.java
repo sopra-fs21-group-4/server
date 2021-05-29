@@ -1080,8 +1080,8 @@ class GameTest {
 
 
     @Test
-    void commandsAndAdvancingGameTest() {
-        
+    void commandsAndAdvancingGameIntegrationTest() {
+
 
 
         // creating given objects
