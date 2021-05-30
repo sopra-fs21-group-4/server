@@ -1188,10 +1188,15 @@ class GameTest {
         assertEquals(RoundPhase.VOTE, game.getCurrentRoundPhase());
 
         // testing voting
-        message.setText("/v "+gameMaster.getUserId().toString());
+        message.setText("/v @"+gameMaster.getUsername());
         message.setSenderId(player2.getUserId());
         game.runCommand(message);
         game.update();
+//        // votes map
+//        Map<Long, Long> votes = new HashMap<>();
+//        votes.put(2l,1l);
+//        //check votes
+//        assertEquals(votes, game.getCurrentVotes());
         game.getCurrentRound().putVote(player2.getUserId(), gameMaster.getUserId());
 
         message.setText("/a");
@@ -1199,6 +1204,13 @@ class GameTest {
         game.runCommand(message);
         game.update();
         assertEquals(RoundPhase.AFTERMATH, game.getCurrentRoundPhase());
+
+        // banning a player
+//        message.setText("/ban @"+player2.getUsername());
+//        message.setSenderId(gameMaster.getUserId());
+//        game.runCommand(message);
+//        game.update();
+//        assertEquals(PlayerState.BANNED_FROM_GAME, game.getPlayerState(player2.getUserId()));
 
 
         // skipping a round
