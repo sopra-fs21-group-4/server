@@ -75,6 +75,93 @@ class GameTest {
     }
 
     @Test
+    void gameAlreadyInitializedError(){
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        User player1 = new User();
+        player1.setUserId(2l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setPassword("");
+        gameSettings.setGameSettingsId(1l);
+        gameSettings.setMaxPlayers(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+
+        assertThrows(IllegalStateException.class, () -> game.initialize(gameMaster));
+    }
+
+    @Test
+    void closeLobbyReturnFalseWhenWrongGamestate(){
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        User player1 = new User();
+        player1.setUserId(2l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setPassword("");
+        gameSettings.setGameSettingsId(1l);
+        gameSettings.setMaxPlayers(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+
+        assertFalse(game.closeLobby(true));
+    }
+
+    @Test
+    void putVoteThrowsNotEnrolled(){
+
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        User player1 = new User();
+        player1.setUserId(2l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setPassword("");
+        gameSettings.setGameSettingsId(1l);
+        gameSettings.setMaxPlayers(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+        assertThrows(SecurityException.class, () -> game.putVote(player1.getUserId(), 2l));
+    }
+
+    @Test
+    void putVoteThrowsNotActiveGame(){
+
+        // creating objects
+        User gameMaster = new User();
+        gameMaster.setUserId(1l);
+
+        User player1 = new User();
+        player1.setUserId(2l);
+
+        GameSettings gameSettings = new GameSettings();
+        gameSettings.setPassword("");
+        gameSettings.setGameSettingsId(1l);
+        gameSettings.setMaxPlayers(5);
+
+        Game game = new Game();
+        game.setGameId(1l);
+        game.initialize(gameMaster);
+        game.adaptSettings(gameSettings);
+
+        assertThrows(IllegalStateException.class, () -> game.putVote(gameMaster.getUserId(), 2l));
+    }
+
+    @Test
     void promotePlayer() {
         // creating objects
         User gameMaster = new User();
