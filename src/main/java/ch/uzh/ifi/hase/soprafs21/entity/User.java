@@ -196,5 +196,9 @@ public class User implements Serializable {
         return  o instanceof User && ((User) o).userId == this.userId;
     }
 
+    @Override
+    public int hashCode() {
+        return userId.hashCode();
+    }
 
 }

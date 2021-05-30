@@ -451,8 +451,10 @@ public class UserService {
      * The subscriber method for our SSEController
      */
     public void putSubscriber(Long userId, SseEmitter emitter) {
+        User user = userRepository.findByUserId(userId);
+        if (user == null) return;
         subscriberMapping.put(userId, emitter);
-        userRepository.findByUserId(userId).setStatus(UserStatus.IDLE);
+        user.setStatus(UserStatus.IDLE);
     }
 
     public void removeSubscriber(Long userId) {

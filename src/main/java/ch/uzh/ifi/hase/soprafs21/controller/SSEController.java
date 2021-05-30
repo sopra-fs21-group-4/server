@@ -50,7 +50,7 @@ public class SSEController {
                 executorService.awaitTermination(1, TimeUnit.SECONDS);
                 scheduledExecutorService.awaitTermination(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
-                LOGGER.error(e.toString());
+                LOGGER.warn("Interrupted!", e);
                 executorService.shutdownNow();
                 scheduledExecutorService.shutdownNow();
             }

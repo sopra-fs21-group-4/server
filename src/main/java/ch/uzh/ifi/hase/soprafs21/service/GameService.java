@@ -65,8 +65,7 @@ public class GameService {
         List<Game> deleteList = new ArrayList<>();
         for (Game game : getRunningGames()) {
             switch(game.update()) {
-                case MODIFIED:      gameRoundRepository.saveAll(game.getGameRounds());
-                                    gameRoundRepository.flush();
+                case MODIFIED:      gameRoundRepository.flush();
                                     break;
                 case DEAD:          deleteList.add(game);
                 case COMPLETE:      GameSummary summary = game.getGameSummary();
