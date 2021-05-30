@@ -64,11 +64,13 @@ public class UserService {
             //check if the User is actually subscribed
             if (!subscriberMapping.containsKey(user.getUserId())){
                 user.setStatus(UserStatus.OFFLINE);
+                userRepository.flush();
                 continue;
             }
             // users without a game are set to IDLE
             if (user.getCurrentGameId() == null) {
                 user.setStatus(UserStatus.IDLE);
+                userRepository.flush();
                 continue;
             }
 
@@ -77,6 +79,7 @@ public class UserService {
             if (game == null || !game.getPlayerState(user.getUserId()).isEnrolled()) {
                 user.setCurrentGameId(null);
                 user.setStatus(UserStatus.IDLE);
+                userRepository.flush();
             }
         }
         //list of all users wo are in State IDLE
@@ -84,9 +87,11 @@ public class UserService {
             // if the user has a game, set status to PLAYING
             if (user.getCurrentGameId()!= null){
                 user.setStatus(UserStatus.PLAYING);
+                userRepository.flush();
             }
             if (!subscriberMapping.containsKey(user.getUserId())){
                 user.setStatus(UserStatus.OFFLINE);
+                userRepository.flush();
             }
         }
 
