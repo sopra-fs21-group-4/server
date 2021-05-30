@@ -30,9 +30,12 @@ public class SSEController {
     private static final long CONNECTION_TEST_INTERVAL = 3000;
 
     private final UserService userService;
-    private final Map<String, SseEmitter> unclaimedEmitters = new HashMap<>();
+
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+
+    private final Map<Long, SseEmitter> unclaimedEmitters = new HashMap<>();
+    private final Map<Long, String> emitterTokens = new HashMap<>();
 
     SSEController(UserService userService) {
         this.userService = userService;
@@ -78,9 +81,8 @@ public class SSEController {
         });
 
         String emitterToken = UUID.randomUUID().toString();
-        String emitterKey = String.format("%d | %s", userId, emitterToken);
-
-        unclaimedEmitters.put(emitterKey, sseEmitter);
+        unclaimedEmitters.put(userId, sseEmitter);
+        emitterTokens.put(userId, emitterToken);
 
         executorService.execute(() -> {
             try {
@@ -88,10 +90,10 @@ public class SSEController {
 
                 LOGGER.info(String.format("SseEmitter #%d ready", userId));
 
-                scheduledExecutorService.schedule(() -> {
-                    if (unclaimedEmitters.remove(emitterKey) != null)
-                        sseEmitter.completeWithError(new ConnectException("activation timeout"));
-                }, 10, TimeUnit.SECONDS);
+//                scheduledExecutorService.schedule(() -> {
+//                    if (unclaimedEmitters.remove(emitterKey) != null)
+//                        sseEmitter.completeWithError(new ConnectException("activation timeout"));
+//                }, 10, TimeUnit.SECONDS);
 
                 scheduledExecutorService.scheduleAtFixedRate(() -> {
                     try {
@@ -112,7 +114,7 @@ public class SSEController {
 
 
     @PutMapping("/activateEmitter")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public void activateEmitter(
             @RequestHeader("userId") Long userId,
@@ -121,10 +123,16 @@ public class SSEController {
 
     ) {
         userService.verifyUser(userId, token);
-        String key = String.format("%d | %s", userId, emitterToken);
-        SseEmitter sseEmitter = unclaimedEmitters.remove(key);
-        if (sseEmitter == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "emitterToken invalid or timed out");
+        SseEmitter sseEmitter = unclaimedEmitters.get(userId);
+        String expectedToken = emitterTokens.get(userId);
+        if (sseEmitter == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no emitter to activate");
+        }
+        if (!expectedToken.equals(emitterToken)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid emitter token!");
+        }
+        unclaimedEmitters.remove(userId);
+        emitterTokens.remove(userId);
         userService.putSubscriber(userId, sseEmitter);
     }
 
