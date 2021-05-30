@@ -43,13 +43,7 @@ public class SSEController {
     @PostConstruct
     public void init() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            scheduledExecutorService.shutdown();
-            try {
-                scheduledExecutorService.awaitTermination(1, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                LOGGER.warn("Interrupted!", e);
-                scheduledExecutorService.shutdownNow();
-            }
+            scheduledExecutorService.shutdownNow();
         }));
     }
 
