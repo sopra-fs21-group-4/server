@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.*;
 
 /**
  * Test class for the MessageService
@@ -90,15 +91,23 @@ public class ChatServiesTest {
         chatService.createMessageChannel(gameMaster.getUserId());
         assertEquals(messageChannel, chatService.getMessageChannel(messageChannel.getMessageChannelId()));
     }
+
+    @Test
+    void verifyReaderTestPos() {
+        // given
+        MessageChannel messageChannel1 = new MessageChannel();
+        MessageChannel messageChannel = Mockito.spy(messageChannel1);
+        messageChannel.setMessageChannelId(1L);
+        ChatService chatService = new ChatService(messageChannelRepository, messageRepository, userRepository);
+        Mockito.when(messageChannelRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
+        Mockito.when(messageChannel.verifyParticipant(Mockito.any())).thenReturn(true);
+
+        assertEquals(messageChannel,
+                chatService.verifyReader(messageChannel.getMessageChannelId(), gameMaster.getUserId()));
+    }
+
     /**
-     * @Test void verifyReaderTestPos() { MessageChannel messageChannel = new
-     *       MessageChannel();
-     *       Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
-     *       Mockito.when(messageChannel.verifyParticipant(Mockito.anyLong())).thenReturn(true);
-     * 
-     *       }
-     * 
-     * 
      * @Test void verifyReaderTestNeg() { MessageChannel messageChannel = new
      *       MessageChannel();
      *       Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
