@@ -82,6 +82,27 @@ public class ChatServiesTest {
 
     @Test
     void getMessageChannel_Test() {
+        MessageChannel messageChannel = new MessageChannel();
+        Mockito.when(messageChannelRepository.save(Mockito.any())).thenReturn(messageChannel);
+        Mockito.when(messageChannelRepository.existsById(Mockito.any())).thenReturn(true);
+        Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.any())).thenReturn(messageChannel);
+        ChatService chatService = new ChatService(messageChannelRepository, messageRepository, userRepository);
+        chatService.createMessageChannel(gameMaster.getUserId());
+        assertEquals(messageChannel, chatService.getMessageChannel(messageChannel.getMessageChannelId()));
+    }
+
+    @Test
+    void verifyReaderTestPos() {
+        MessageChannel messageChannel = new MessageChannel();
+        Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
+        Mockito.when(messageChannel.verifyParticipant(Mockito.anyLong())).thenReturn(true);
 
     }
+
+    ^/**@Test
+    void verifyReaderTestNeg() {
+        MessageChannel messageChannel = new MessageChannel();
+        Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
+        Mockito.when(messageChannel.verifyParticipant(Mockito.anyLong())).thenThrow(ResponseStatusException.HttpStatus.UNAUTHORIZED));//, "this is a private channel")));
+    }*/
 }
