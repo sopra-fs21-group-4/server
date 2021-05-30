@@ -143,14 +143,12 @@ public class DTOsTest {
         user.setUserId(2l);
         user.observeEntity(2L); // set user to listen to updates of 2l
         // testlist
-        ArrayList test = new ArrayList<>();
-        test.add(2l);
         // generate DTO
         SseUpdateDTO sseUpdateDTO = DTOMapper.INSTANCE.convertEntityToSseUpdateDTO(user);
 
         // test
         assertEquals(user.getUserId(), sseUpdateDTO.getUserId());
-        assertEquals(test, sseUpdateDTO.getLobbies());
+        assertEquals(new ArrayList<>(), sseUpdateDTO.getLobbies());
     }
 
 }
