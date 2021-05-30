@@ -106,6 +106,7 @@ public class UserService {
                 log.error("could not update User " + userId);
             }
         }
+        userRepository.flush();
     }
 
 
@@ -152,6 +153,7 @@ public class UserService {
         // setting new token and returning it
         user.setToken(UUID.randomUUID().toString());
         user.setStatus(UserStatus.IDLE);
+        userRepository.flush();
         return user;
 
     }
@@ -436,7 +438,7 @@ public class UserService {
                 }
             break;
         }
-
+        userRepository.flush();
     }
 
 
