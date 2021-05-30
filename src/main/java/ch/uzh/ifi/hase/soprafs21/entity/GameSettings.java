@@ -73,7 +73,7 @@ public class GameSettings implements Serializable {
         return name;
     }
 
-    public synchronized void setName(String name) {
+    public void setName(String name) {
         this.name = name;
         this.lastModified = System.currentTimeMillis();
     }

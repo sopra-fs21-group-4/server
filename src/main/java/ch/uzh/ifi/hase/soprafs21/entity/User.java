@@ -1,9 +1,6 @@
 package ch.uzh.ifi.hase.soprafs21.entity;
 
-import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
-import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -45,7 +42,7 @@ public class User implements Serializable {
     private Long currentGameId;
 
     @ElementCollection
-    private final Set<Long> pastGames = new HashSet<>();
+    private final List<Long> gameHistory = new ArrayList<>();
 
     @ElementCollection
     private final Set<Long> friends = new HashSet<>();
@@ -141,12 +138,17 @@ public class User implements Serializable {
         return lastModified;
     }
 
-    public void setPastGames(Long gameId){
-        pastGames.add(gameId);
+    public void setGameHistory(Long gameId){
+        gameHistory.add(gameId);
     }
 
-    public Set<Long> getPastGames(){
-        return pastGames;
+    public List<Long> getGameHistory(){
+        return gameHistory;
+    }
+
+    public void addToGameHistory(Long gameSummaryId) {
+        if (!this.gameHistory.contains(gameSummaryId)) this.gameHistory.add(gameSummaryId);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void addFriend(Long userId){

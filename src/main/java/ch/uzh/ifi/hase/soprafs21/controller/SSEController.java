@@ -45,8 +45,11 @@ public class SSEController {
             executorService.shutdown();
             try {
                 executorService.awaitTermination(1, TimeUnit.SECONDS);
+                scheduledExecutorService.awaitTermination(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 LOGGER.error(e.toString());
+                executorService.shutdownNow();
+                scheduledExecutorService.shutdownNow();
             }
         }));
     }

@@ -42,13 +42,26 @@ public class MessageChannelDTO implements EntityDTO {
 //        this.closed = closed;
 //    } // unused feature
 
+
+    public Map<Long, String> getRoles() {
+        return roles;
+    }
+
     public void setRoles(Map<Long, String> roles) {
         this.roles = roles;
+    }
+
+    public List<Long> getMessages() {
+        return messages;
     }
 
     public void setMessages(List<Message> messages) {
         this.messages = new ArrayList<>();
         for (Message message : messages) this.messages.add(message.getMessageId());
+    }
+
+    public Long getAssociatedGameId() {
+        return associatedGameId;
     }
 
     public void setAssociatedGameId(Long associatedGameId) {

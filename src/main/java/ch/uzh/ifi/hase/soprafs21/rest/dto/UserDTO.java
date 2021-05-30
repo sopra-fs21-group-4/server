@@ -2,18 +2,8 @@ package ch.uzh.ifi.hase.soprafs21.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs21.constant.EntityType;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs21.entity.*;
-import ch.uzh.ifi.hase.soprafs21.helpers.SpringContext;
-import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
-import ch.uzh.ifi.hase.soprafs21.repository.GameSummaryRepository;
-import ch.uzh.ifi.hase.soprafs21.repository.MessageChannelRepository;
-import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class UserDTO implements EntityDTO {
 
@@ -22,6 +12,7 @@ public class UserDTO implements EntityDTO {
     private UserStatus status;
 
     private Long currentGameId;
+    private List<Long> gameHistory;
     private Set<Long> friends;
     private Set<Long> outgoingFriendRequests;
     private Set<Long> incomingFriendRequests;
@@ -54,16 +45,40 @@ public class UserDTO implements EntityDTO {
         this.status = status;
     }
 
+    public Long getCurrentGameId() {
+        return currentGameId;
+    }
+
     public void setCurrentGameId(Long currentGameId) {
         this.currentGameId = currentGameId;
+    }
+
+    public List<Long> getGameHistory() {
+        return gameHistory;
+    }
+
+    public void setGameHistory(List<Long> gameHistory) {
+        this.gameHistory = gameHistory;
+    }
+
+    public Set<Long> getFriends() {
+        return friends;
     }
 
     public void setFriends(Set<Long> friends) {
         this.friends = friends;
     }
 
+    public Set<Long> getOutgoingFriendRequests() {
+        return outgoingFriendRequests;
+    }
+
     public void setOutgoingFriendRequests(Set<Long> outgoingFriendRequests) {
         this.outgoingFriendRequests = outgoingFriendRequests;
+    }
+
+    public Set<Long> getIncomingFriendRequests() {
+        return incomingFriendRequests;
     }
 
     public void setIncomingFriendRequests(Set<Long> incomingFriendRequests) {
@@ -95,7 +110,7 @@ public class UserDTO implements EntityDTO {
 
     @Override
     public void crop(Long receiverId, String cropHint) {
-        if (receiverId != id) {
+        if (!id.equals(receiverId)) {
             outgoingFriendRequests = null;
             incomingFriendRequests = null;
         }

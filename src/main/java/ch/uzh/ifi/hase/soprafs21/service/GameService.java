@@ -27,6 +27,8 @@ public class GameService {
 
     private final Logger log = LoggerFactory.getLogger(GameService.class);
 
+    private final Random random = new Random();
+
     private final GameRepository gameRepository;
     private final GameSummaryRepository gameSummaryRepository;
     private final GameSettingsRepository gameSettingsRepository;
@@ -67,11 +69,11 @@ public class GameService {
                                     break;
                 case DEAD:          deleteList.add(game);
                 case COMPLETE:      GameSummary summary = game.getGameSummary();
-//                                    if (summary == null) break;
-//                                    gameSummaryRepository.save(summary);
-//                                    gameSummaryRepository.flush();
-//                                    gameRoundSummaryRepository.saveAll(summary.getRoundIds());
-//                                    gameRoundSummaryRepository.flush();
+                                    if (summary == null) break;
+                                    for (Long userId : summary.getScores().keySet()) {
+                                        User user = userRepository.findByUserId(userId);
+                                        if (user != null) user.addToGameHistory(summary.getGameSummaryId());
+                                    }
                 default:            break;
             }
         }
@@ -196,7 +198,7 @@ public class GameService {
     public void leaveGame(Long gameId, User user) {
         Game game = findRunningGame(gameId);
         game.dismissPlayer(user);
-        user.setPastGames(gameId);
+        user.setGameHistory(gameId);
         user.setCurrentGameId(null);
     }
 
@@ -303,10 +305,9 @@ public class GameService {
     }
 
     public Long randomGameId() {
-        Random r = new Random();
         long randomId;
         do {
-            randomId = r.nextLong() & 0xFFFFFFFFC0L;
+            randomId = random.nextLong() & 0xFFFFFFFFC0L;
         } while (!availableGameId(randomId));
         return randomId;
     }

@@ -28,7 +28,7 @@ public interface DTOMapper {
     @Mapping(source = "token", target = "token")
     @Mapping(source = "username", target = "username")
     @Mapping(source = "userId", target = "userId")
-    @Mapping(source = "pastGames", target = "pastGames")
+    @Mapping(source = "gameHistory", target = "gameHistory")
     UserLoginDTO convertEntityToUserLoginDTO(User user);
 
     // user creation
@@ -80,6 +80,7 @@ public interface DTOMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "status", target = "status")
     @Mapping(source = "currentGameId", target = "currentGameId")
+    @Mapping(source = "gameHistory", target = "gameHistory")
     @Mapping(source = "friends", target = "friends")
     @Mapping(source = "outgoingFriendRequests", target = "outgoingFriendRequests")
     @Mapping(source = "incomingFriendRequests", target = "incomingFriendRequests")

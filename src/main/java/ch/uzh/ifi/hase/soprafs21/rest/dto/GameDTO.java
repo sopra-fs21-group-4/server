@@ -51,44 +51,88 @@ public class GameDTO implements EntityDTO {
         this.id = id;
     }
 
+    public GameState getGameState() {
+        return gameState;
+    }
+
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public Integer getRoundCounter() {
+        return roundCounter;
     }
 
     public void setRoundCounter(Integer roundCounter) {
         this.roundCounter = roundCounter;
     }
 
+    public Long getAdvanceTargetTime() {
+        return advanceTargetTime;
+    }
+
     public void setAdvanceTargetTime(Long advanceTargetTime) {
         this.advanceTargetTime = advanceTargetTime;
+    }
+
+    public Long getGameChatId() {
+        return gameChatId;
     }
 
     public void setGameChatId(MessageChannel gameChat) {
         this.gameChatId = gameChat.getMessageChannelId();
     }
 
+    public Long getGameMaster() {
+        return gameMaster;
+    }
+
     public void setGameMaster(Long gameMaster) {
         this.gameMaster = gameMaster;
+    }
+
+    public List<Long> getPlayers() {
+        return players;
     }
 
     public void setPlayers(List<Long> players) {
         this.players = players;
     }
 
+    public Map<Long, PlayerState> getPlayerStates() {
+        return playerStates;
+    }
+
     public void setPlayerStates(Map<Long, PlayerState> playerStates) {
         this.playerStates = playerStates;
+    }
+
+    public Map<Long, Integer> getScores() {
+        return scores;
     }
 
     public void setScores(Map<Long, Integer> scores) {
         this.scores = scores;
     }
 
+    public Long getGameSettingsId() {
+        return gameSettingsId;
+    }
+
     public void setGameSettings(GameSettings gameSettings) {
         this.gameSettingsId = (gameSettings == null)? null : gameSettings.getGameSettingsId();
     }
 
+    public Long getCurrentRoundId() {
+        return currentRoundId;
+    }
+
     public void setCurrentRound(GameRound currentRound) {
         this.currentRoundId = (currentRound == null)? null : currentRound.getGameRoundId();
+    }
+
+    public Long getGameSummaryId() {
+        return gameSummaryId;
     }
 
     public void setGameSummaryId(Long gameSummaryId) {

@@ -30,7 +30,6 @@ public class GameSummaryDTO implements EntityDTO {
         this.id = id;
     }
 
-
     public String getName() {
         return name;
     }

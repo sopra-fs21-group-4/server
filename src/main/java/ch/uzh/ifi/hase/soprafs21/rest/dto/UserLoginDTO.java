@@ -9,7 +9,7 @@ public class UserLoginDTO {
     private long userId;
     private String username;
     private String token;
-    private Set<Long> pastGames; 
+    private List<Long> gameHistory;
 
     public long getUserId() {
         return userId;
@@ -35,8 +35,11 @@ public class UserLoginDTO {
         this.token = token;
     }
 
-    public void setPastGames(Set<Long> pastGames){
-        this.pastGames = pastGames;
+    public void setGameHistory(List<Long> gameHistory){
+        this.gameHistory = gameHistory;
     }
 
+    public List<Long> getGameHistory() {
+        return gameHistory;
+    }
 }
