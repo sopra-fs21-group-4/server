@@ -4,7 +4,10 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.Message;
 import ch.uzh.ifi.hase.soprafs21.entity.MessageChannel;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.MessageChannelDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.MessageDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.MessagePostDTO;
+import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.ChatService;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -39,7 +42,10 @@ public class ChatControllerTest {
     private UserService userService;
 
     @MockBean
-    private ChatService messageChannelService;
+    private ChatService chatService;
+
+    @MockBean
+    private DTOMapper dtoMapper;
 
     @Test
     public void TestMessageChannelCreation() throws Exception{
@@ -56,8 +62,14 @@ public class ChatControllerTest {
         newMessageChannel.setAssociatedGameId(1L);
         newMessageChannel.setMessageChannelId(5L);
 
+        MessageChannelDTO messageChannelDTO = new MessageChannelDTO();
+        messageChannelDTO.setAssociatedGameId(1L);
+        messageChannelDTO.setId(5L);
+
+
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
-        given(messageChannelService.createMessageChannel(Mockito.any())).willReturn(newMessageChannel);
+        given(chatService.createMessageChannel(Mockito.any())).willReturn(newMessageChannel);
+        given(dtoMapper.convertEntityToMessageChannelDTO(Mockito.any())).willReturn(messageChannelDTO);
 
 
         MockHttpServletRequestBuilder postRequest = post("/chat/create")
@@ -65,7 +77,8 @@ public class ChatControllerTest {
                 .header("token", user.getToken())
                 .contentType(MediaType.APPLICATION_JSON);
 
-        mockMvc.perform(postRequest).andExpect(status().isCreated());
+        mockMvc.perform(postRequest).andExpect(status().isCreated())
+                                    .andExpect(jsonPath("$.id", is(messageChannelDTO.getId().intValue())));
     }
 
     @Test
@@ -120,8 +133,8 @@ public class ChatControllerTest {
         messageList.add(Message2);
 
         given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
-        given(messageChannelService.verifyReader(Mockito.any(), Mockito.any())).willReturn(newMessageChannel);
-        given(messageChannelService.getMessageChannel(Mockito.any())).willReturn(newMessageChannel);
+        given(chatService.verifyReader(Mockito.any(), Mockito.any())).willReturn(newMessageChannel);
+        given(chatService.getMessageChannel(Mockito.any())).willReturn(newMessageChannel);
 
         MockHttpServletRequestBuilder getRequest = get("/chat/" + newMessageChannel.getMessageChannelId())
                 .header("userId", user.getUserId())
@@ -137,43 +150,53 @@ public class ChatControllerTest {
 
     @Test
     public void TestPostMessage() throws Exception{
-        User user = new User();
-        user.setStatus(UserStatus.IDLE);
-        user.setEmail("firstname@lastname");
-        user.setUserId(1L);
-        user.setUsername("Thomas");
-        user.setPassword("somePassword");
-        user.setToken("someToken");
-        user.setCurrentGameId(2L);
+        User sender = new User();
+        sender.setStatus(UserStatus.IDLE);
+        sender.setEmail("firstname@lastname");
+        sender.setUserId(1L);
+        sender.setUsername("Thomas");
+        sender.setPassword("somePassword");
+        sender.setToken("someToken");
+        sender.setCurrentGameId(2L);
 
         MessageChannel newMessageChannel = new MessageChannel();
-        newMessageChannel.setAssociatedGameId(1L);
+        newMessageChannel.setAssociatedGameId(2L);
         newMessageChannel.setMessageChannelId(5L);
 
         Message newMessage = new Message();
         newMessage.setText("Test Message 1");
-        newMessage.setSenderId(user.getUserId());
-        newMessage.setTimestamp(20L);
-        newMessage.setMessageId(11L);
-        newMessageChannel.addMessage(newMessage);
 
-        given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(user);
-        given(messageChannelService.verifySender(Mockito.any(),Mockito.any())).willReturn(newMessageChannel);
-        given(messageChannelService.postMessage(Mockito.any(),Mockito.any(), Mockito.any())).willReturn(newMessage);
+        Message postedMessage = new Message();
+        postedMessage.setText("Test Message 1");
+        postedMessage.setSenderId(sender.getUserId());
+        postedMessage.setTimestamp(20L);
+        postedMessage.setMessageId(12L);
+        newMessageChannel.addMessage(postedMessage);
+
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setId(12L);
+        messageDTO.setText("Test Message 1");
+        messageDTO.setTimestamp(20L);
+
+        given(userService.verifyUser(Mockito.any(), Mockito.any())).willReturn(sender);
+        given(chatService.verifySender(Mockito.any(),Mockito.any())).willReturn(newMessageChannel);
+        given(dtoMapper.convertMessagePostDTOtoEntity(Mockito.any())).willReturn(newMessage);
+        given(chatService.postMessage(Mockito.any(),Mockito.any(), Mockito.any())).willReturn(postedMessage);
+        given(dtoMapper.convertEntityToMessageDTO(Mockito.any())).willReturn(messageDTO);
 
         MessagePostDTO messagePostDTO = new MessagePostDTO();
-        messagePostDTO.setText("Test for messagePostDTO");
+        messagePostDTO.setText("Test Message 1");
 
         MockHttpServletRequestBuilder postRequest = post("/chat/" + newMessageChannel.getMessageChannelId())
-                .header("userId", user.getUserId())
-                .header("token", user.getToken())
+                .header("userId", sender.getUserId())
+                .header("token", sender.getToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(messagePostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(newMessage.getMessageId().intValue())))
-                .andExpect(jsonPath("$.timestamp", is(newMessage.getTimestamp().intValue())))
-                .andExpect(jsonPath("$.text", is(newMessage.getText())));
+                .andExpect(jsonPath("$.id", is(messageDTO.getId().intValue())))
+                .andExpect(jsonPath("$.timestamp", is(messageDTO.getTimestamp().intValue())))
+                .andExpect(jsonPath("$.text", is(messageDTO.getText())));
     }
 
 
