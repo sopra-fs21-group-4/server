@@ -66,13 +66,17 @@ public class GameService {
         for (Game game : getRunningGames()) {
             switch(game.update()) {
                 case MODIFIED:      gameRoundRepository.saveAll(game.getGameRounds());
+                                    gameRoundRepository.flush();
                                     break;
                 case DEAD:          deleteList.add(game);
                 case COMPLETE:      GameSummary summary = game.getGameSummary();
                                     if (summary == null) break;
                                     for (Long userId : summary.getScores().keySet()) {
                                         User user = userRepository.findByUserId(userId);
-                                        if (user != null) user.addToGameHistory(summary.getGameSummaryId());
+                                        if (user != null) {
+                                            user.addToGameHistory(summary.getGameSummaryId());
+                                            userRepository.flush();
+                                        }
                                     }
                 default:            break;
             }
@@ -116,6 +120,7 @@ public class GameService {
                 .initialize(gameMaster);
 
         gameMaster.setCurrentGameId(game.getGameId());
+        userRepository.flush();
 
         // put chat bot to repo // unused feature
 //        User chatBot = game.getChatBot();
@@ -263,7 +268,7 @@ public class GameService {
         Game game = verifyPlayer(gameId, user);
         try {
             game.putSuggestion(user.getUserId(), suggestion);
-
+            gameRoundRepository.flush();
         } catch(SecurityException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");
         } catch(IllegalStateException e) {
@@ -281,7 +286,7 @@ public class GameService {
         Game game = verifyPlayer(gameId, user);
         try {
             game.putVote(user.getUserId(), vote);
-
+            gameRoundRepository.flush();
         } catch(SecurityException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "you are not enrolled for this game");
         } catch(IllegalStateException e) {
@@ -299,6 +304,7 @@ public class GameService {
         User user = userRepository.findByUserId(userId);
         try {
             game.banPlayer(user);
+            gameRepository.flush();
         } catch(IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }

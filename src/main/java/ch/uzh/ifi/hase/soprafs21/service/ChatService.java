@@ -104,7 +104,7 @@ public class ChatService {
         message = messageRepository.save(message);
         messageRepository.flush();
         messageChannel.addMessage(message);
-        messageRepository.flush();
+        messageChannelRepository.flush();
         return message;
     }
 
