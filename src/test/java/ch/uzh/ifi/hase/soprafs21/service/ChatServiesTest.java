@@ -99,10 +99,11 @@ public class ChatServiesTest {
 
     }
 
-    ^/**@Test
-    void verifyReaderTestNeg() {
-        MessageChannel messageChannel = new MessageChannel();
-        Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
-        Mockito.when(messageChannel.verifyParticipant(Mockito.anyLong())).thenThrow(ResponseStatusException.HttpStatus.UNAUTHORIZED));//, "this is a private channel")));
-    }*/
+    /**
+     * @Test void verifyReaderTestNeg() { MessageChannel messageChannel = new
+     *       MessageChannel();
+     *       Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
+     *       Mockito.when(messageChannel.verifyParticipant(Mockito.anyLong())).thenThrow(ResponseStatusException.HttpStatus.UNAUTHORIZED));//,
+     *       "this is a private channel"))); }
+     */
 }
