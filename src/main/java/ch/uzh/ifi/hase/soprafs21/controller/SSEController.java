@@ -70,7 +70,7 @@ public class SSEController {
             userService.removeSubscriber(userId);
         });
 
-//        String emitterToken = UUID.randomUUID().toString();
+//        String emitterToken = UUID.randomUUID().toString();;
 //        unactivatedEmitters.put(userId, sseEmitter);
 //        emitterTokens.put(userId, emitterToken);
 
