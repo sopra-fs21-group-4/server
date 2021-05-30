@@ -30,9 +30,7 @@ public class SSEController {
     private static final long CONNECTION_TEST_INTERVAL = 3000;
 
     private final UserService userService;
-
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     private final Map<Long, SseEmitter> unactivatedEmitters = new HashMap<>();
     private final Map<Long, String> emitterTokens = new HashMap<>();
@@ -45,13 +43,11 @@ public class SSEController {
     @PostConstruct
     public void init() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            executorService.shutdown();
+            scheduledExecutorService.shutdown();
             try {
-                executorService.awaitTermination(1, TimeUnit.SECONDS);
                 scheduledExecutorService.awaitTermination(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 LOGGER.warn("Interrupted!", e);
-                executorService.shutdownNow();
                 scheduledExecutorService.shutdownNow();
             }
         }));
