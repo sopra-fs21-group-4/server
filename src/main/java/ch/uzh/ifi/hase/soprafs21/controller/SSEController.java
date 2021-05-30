@@ -34,7 +34,7 @@ public class SSEController {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
-    private final Map<Long, SseEmitter> unclaimedEmitters = new HashMap<>();
+    private final Map<Long, SseEmitter> unactivatedEmitters = new HashMap<>();
     private final Map<Long, String> emitterTokens = new HashMap<>();
 
     SSEController(UserService userService) {
@@ -80,61 +80,62 @@ public class SSEController {
             userService.removeSubscriber(userId);
         });
 
-        String emitterToken = UUID.randomUUID().toString();
-        unclaimedEmitters.put(userId, sseEmitter);
-        emitterTokens.put(userId, emitterToken);
+//        String emitterToken = UUID.randomUUID().toString();
+//        unactivatedEmitters.put(userId, sseEmitter);
+//        emitterTokens.put(userId, emitterToken);
 
-        executorService.execute(() -> {
+//        executorService.execute(() -> {
+//            try {
+////                sseEmitter.send(SseEmitter.event().name("ActivationRequest").data(emitterToken));
+//
+//                LOGGER.info(String.format("SseEmitter #%d ready", userId));
+//
+////                scheduledExecutorService.schedule(() -> {
+////                    if (unclaimedEmitters.remove(emitterKey) != null)
+////                        sseEmitter.completeWithError(new ConnectException("activation timeout"));
+////                }, 10, TimeUnit.SECONDS);
+//
+//            } catch (IOException e) {
+//                sseEmitter.completeWithError(e);
+//            }
+//        });
+
+        userService.putSubscriber(userId, sseEmitter);
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
-                sseEmitter.send(SseEmitter.event().name("ActivationRequest").data(emitterToken));
-
-                LOGGER.info(String.format("SseEmitter #%d ready", userId));
-
-//                scheduledExecutorService.schedule(() -> {
-//                    if (unclaimedEmitters.remove(emitterKey) != null)
-//                        sseEmitter.completeWithError(new ConnectException("activation timeout"));
-//                }, 10, TimeUnit.SECONDS);
-
-                scheduledExecutorService.scheduleAtFixedRate(() -> {
-                    try {
-                        sseEmitter.send(SseEmitter.event().name("ConnectionTest").data(null));
-                    } catch (IOException e) {
-                        sseEmitter.completeWithError(new ConnectException());
-                    }
-                }, 10, 5, TimeUnit.SECONDS);
-
+                sseEmitter.send(SseEmitter.event().name("ConnectionTest").data(null));
             } catch (IOException e) {
-                sseEmitter.completeWithError(e);
+                sseEmitter.completeWithError(new ConnectException());
             }
-        });
+        }, 10, 5, TimeUnit.SECONDS);
 
         LOGGER.info(String.format("SseEmitter #%d initializing...", userId));
         return sseEmitter;
     }
 
 
-    @PutMapping("/activateEmitter")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public void activateEmitter(
-            @RequestHeader("userId") Long userId,
-            @RequestHeader("token") String token,
-            @RequestBody String emitterToken
-
-    ) {
-        userService.verifyUser(userId, token);
-        SseEmitter sseEmitter = unclaimedEmitters.get(userId);
-        String expectedToken = emitterTokens.get(userId);
-        if (sseEmitter == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no emitter to activate");
-        }
-        if (!expectedToken.equals(emitterToken)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid emitter token!");
-        }
-        unclaimedEmitters.remove(userId);
-        emitterTokens.remove(userId);
-        userService.putSubscriber(userId, sseEmitter);
-    }
+//    @PutMapping("/activateEmitter")
+//    @ResponseStatus(HttpStatus.OK)
+//    @ResponseBody
+//    public void activateEmitter(
+//            @RequestHeader("userId") Long userId,
+//            @RequestHeader("token") String token,
+//            @RequestBody String emitterToken
+//
+//    ) {
+//        userService.verifyUser(userId, token);
+//        SseEmitter sseEmitter = unactivatedEmitters.get(userId);
+//        String expectedToken = emitterTokens.get(userId);
+//        if (sseEmitter == null) {
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no emitter to activate");
+//        }
+//        if (!expectedToken.equals(emitterToken)) {
+//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid emitter token!");
+//        }
+//        unactivatedEmitters.remove(userId);
+//        emitterTokens.remove(userId);
+//        userService.putSubscriber(userId, sseEmitter);
+//    }
 
     @PutMapping(value = "/observeEntity")
     @ResponseStatus(HttpStatus.NO_CONTENT)

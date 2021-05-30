@@ -97,6 +97,7 @@ public class UserService {
             Map<Long, Long> clientVersion = clientVersions.get(userId);
             SseEmitter sseEmitter = subscriberMapping.get(userId);
             SseUpdateDTO sseUpdateDTO = DTOMapper.INSTANCE.convertEntityToSseUpdateDTO(user);
+            if (sseUpdateDTO == null) continue;
             sseUpdateDTO.init();
             if (!sseUpdateDTO.filter(clientVersion, now)) continue;
             try {
