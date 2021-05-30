@@ -153,26 +153,32 @@ public class User implements Serializable {
 
     public void addFriend(Long userId){
         friends.add(userId);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void removeFriend(Long userId){
         friends.remove(userId);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void addOutgoingFriendRequest(long userId){
         outgoingFriendRequests.add(userId);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void addIncomingFriendRequest(long userId){
         incomingFriendRequests.add(userId);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void removeOutgoingFriendRequest(long userId){
         outgoingFriendRequests.remove(userId);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public void removeIncomingFriendRequest(long userId){
         incomingFriendRequests.remove(userId);
+        this.lastModified = System.currentTimeMillis();
     }
 
     public Set<Long> getObservedEntities() {
