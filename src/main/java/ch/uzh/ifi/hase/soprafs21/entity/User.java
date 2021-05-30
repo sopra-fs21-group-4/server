@@ -138,10 +138,6 @@ public class User implements Serializable {
         return lastModified;
     }
 
-    public void setGameHistory(Long gameId){
-        gameHistory.add(gameId);
-    }
-
     public List<Long> getGameHistory(){
         return gameHistory;
     }
