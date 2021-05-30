@@ -455,6 +455,7 @@ public class UserService {
         if (user == null) return;
         subscriberMapping.put(userId, emitter);
         user.setStatus(UserStatus.IDLE);
+        userRepository.flush();
     }
 
     public void removeSubscriber(Long userId) {
