@@ -1,11 +1,15 @@
 package ch.uzh.ifi.hase.soprafs21.service;
 
+import ch.uzh.ifi.hase.soprafs21.constant.GameState;
 import ch.uzh.ifi.hase.soprafs21.constant.MemeType;
 import ch.uzh.ifi.hase.soprafs21.constant.PlayerState;
+import ch.uzh.ifi.hase.soprafs21.constant.RoundPhase;
 import ch.uzh.ifi.hase.soprafs21.entity.Game;
+import ch.uzh.ifi.hase.soprafs21.entity.GameRound;
 import ch.uzh.ifi.hase.soprafs21.entity.GameSettings;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.GameRepository;
+import ch.uzh.ifi.hase.soprafs21.repository.GameRoundRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.GameSettingsRepository;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
 
@@ -13,12 +17,15 @@ import org.junit.After;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.Assert.assertTrue;
@@ -44,6 +51,9 @@ class GameServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private GameRoundRepository gameRoundRepository;
 
     @Mock
     private GameSettingsRepository gameSettingsRepository;
@@ -135,6 +145,18 @@ class GameServiceTest {
     }
 
     @Test
+    void putSuggestionErrorTest(){
+        Mockito.when(gameRepository.findByGameId(Mockito.any())).thenReturn(game);
+        assertThrows(ResponseStatusException.class, () -> gameService.putSuggestion(game.getGameId(), gameMaster, "suggestion"));
+    }
+
+    @Test
+    void putVoteErrorTest(){
+        Mockito.when(gameRepository.findByGameId(Mockito.any())).thenReturn(game);
+        assertThrows(ResponseStatusException.class, () -> gameService.putVote(game.getGameId(), gameMaster, 2l));
+    }
+
+    @Test
     void joinGameLobbyFullTest() {
         Mockito.when(gameRepository.findByGameId(Mockito.any())).thenReturn(game);
         gameSettings.setMaxPlayers(1);
@@ -159,17 +181,5 @@ class GameServiceTest {
         gameService.setPlayerReady(game.getGameId(), player1, true);
         assertEquals(game.getPlayerState(player1.getUserId()), PlayerState.READY);
     }
-
-    /*
-     * @Test void suggestion_Not_Started_Test() {
-     * Mockito.when(gameRepository.findByGameId(Mockito.any())).thenReturn(game);
-     * String suggestion = "asdf"; game.closeLobby(true); game.start();
-     * Mockito.doThrow(new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-     * "the game's current state doesn't allow suggestions")).when(gameService)
-     * .putSuggestion(anyLong(), gameMaster, anyString());
-     * gameService.putSuggestion(game.getGameId(), gameMaster, suggestion);
-     * 
-     * }
-     */
 
 }
