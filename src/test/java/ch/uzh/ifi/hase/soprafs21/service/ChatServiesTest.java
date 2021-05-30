@@ -107,6 +107,21 @@ public class ChatServiesTest {
                 chatService.verifyReader(messageChannel.getMessageChannelId(), gameMaster.getUserId()));
     }
 
+    @Test
+    void verifySenderTestPos() {
+        // given
+        MessageChannel messageChannel1 = new MessageChannel();
+        MessageChannel messageChannel = Mockito.spy(messageChannel1);
+        messageChannel.setMessageChannelId(1L);
+        ChatService chatService = new ChatService(messageChannelRepository, messageRepository, userRepository);
+        Mockito.when(messageChannelRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
+        Mockito.when(messageChannel.verifyParticipant(Mockito.any())).thenReturn(true);
+
+        assertEquals(messageChannel,
+                chatService.verifySender(messageChannel.getMessageChannelId(), gameMaster.getUserId()));
+    }
+
     /**
      * @Test void verifyReaderTestNeg() { MessageChannel messageChannel = new
      *       MessageChannel();
