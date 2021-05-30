@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 
 public class UserServiceTest {
 
@@ -133,7 +134,7 @@ public class UserServiceTest {
     @Test
     public void verifyUserUnsuccessfulDueToOfflineUserStatus(){
         User testUser3 = new User();
-        testUser3.setUserId(2L);
+        testUser3.setUserId(3L);
         testUser3.setPassword("testpw3");
         testUser3.setUsername("testUsername3");
         testUser3.setToken("DifferentToken3");
@@ -151,34 +152,37 @@ public class UserServiceTest {
         testUser4.setToken("DifferentToken");
         testUser4.setStatus(UserStatus.IDLE);
         testUser4.setUsername(null);
-
+        assertThrows(ResponseStatusException.class, () -> userService.checkUsernameConstraints(testUser4.getUsername()));
+        testUser4.setUsername("admin");
+        assertThrows(ResponseStatusException.class, () -> userService.checkUsernameConstraints(testUser4.getUsername()));
+        testUser4.setUsername("adm,in");
+        assertThrows(ResponseStatusException.class, () -> userService.checkUsernameConstraints(testUser4.getUsername()));
+        testUser4.setUsername("AnyUsername");
+        Mockito.when(userRepository.findByUsername(testUser4.getUsername())).thenReturn(testUser4);
         assertThrows(ResponseStatusException.class, () -> userService.checkUsernameConstraints(testUser4.getUsername()));
     }
 
 
     @Test
-    public void verifyIllegalUsername(){
-        User testUser5 = new User();
-        testUser5.setUserId(5L);
-        testUser5.setPassword("testpw");
-        testUser5.setToken("DifferentToken");
-        testUser5.setStatus(UserStatus.IDLE);
-        testUser5.setUsername("admin");
-
-        assertThrows(ResponseStatusException.class, () -> userService.checkUsernameConstraints(testUser5.getUsername()));
+    public void verifyPasswordConstraintsFormatNotValid(){
+        User testUser3 = new User();
+        testUser3.setPassword(null);
+        assertThrows(ResponseStatusException.class, () -> userService.checkPasswordConstraints(testUser3.getPassword()));
+        testUser3.setPassword("");
+        assertThrows(ResponseStatusException.class, () -> userService.checkPasswordConstraints(testUser3.getPassword()));
     }
 
 
-    @Test
-    public void verifyIllegalSubstrings(){
-        User testUser6 = new User();
-        testUser6.setUserId(5L);
-        testUser6.setPassword("testpw");
-        testUser6.setToken("DifferentToken");
-        testUser6.setStatus(UserStatus.IDLE);
-        testUser6.setUsername("adm,in");
 
-        assertThrows(ResponseStatusException.class, () -> userService.checkUsernameConstraints(testUser6.getUsername()));
+    @Test
+    public void verifyEmailConstraintsFormatNotValid(){
+        User testUser3 = new User();
+        testUser3.setEmail("abab@ab@asdf");
+        assertThrows(ResponseStatusException.class, () -> userService.checkEmailConstraints(testUser3.getEmail()));
+        testUser3.setEmail("ab@cd");
+        assertThrows(ResponseStatusException.class, () -> userService.checkEmailConstraints(testUser3.getEmail()));
+        testUser3.setEmail("ab@cd.");
+        assertThrows(ResponseStatusException.class, () -> userService.checkEmailConstraints(testUser3.getEmail()));
     }
 
 
