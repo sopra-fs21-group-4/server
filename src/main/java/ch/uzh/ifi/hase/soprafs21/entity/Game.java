@@ -442,7 +442,7 @@ public class Game implements Serializable {
      */
     private synchronized void checkPlayerList() {
         List<Long> remainingPlayers = getPresentPlayers();
-        if (remainingPlayers.size() < gameState.minPlayers()) {
+        if (remainingPlayers.isEmpty()) {
             gameState = gameState.abandoningState();
             kill();
         } else if (getGameMaster() == null) {
