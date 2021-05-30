@@ -90,16 +90,15 @@ public class ChatServiesTest {
         chatService.createMessageChannel(gameMaster.getUserId());
         assertEquals(messageChannel, chatService.getMessageChannel(messageChannel.getMessageChannelId()));
     }
-
-    @Test
-    void verifyReaderTestPos() {
-        MessageChannel messageChannel = new MessageChannel();
-        Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
-        Mockito.when(messageChannel.verifyParticipant(Mockito.anyLong())).thenReturn(true);
-
-    }
-
     /**
+     * @Test void verifyReaderTestPos() { MessageChannel messageChannel = new
+     *       MessageChannel();
+     *       Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
+     *       Mockito.when(messageChannel.verifyParticipant(Mockito.anyLong())).thenReturn(true);
+     * 
+     *       }
+     * 
+     * 
      * @Test void verifyReaderTestNeg() { MessageChannel messageChannel = new
      *       MessageChannel();
      *       Mockito.when(messageChannelRepository.findByMessageChannelId(Mockito.anyLong())).thenReturn(messageChannel);
